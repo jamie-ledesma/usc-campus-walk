@@ -126,6 +126,7 @@ var elTNext=document.getElementById('tnextName'), nextShown='', flyShown=false;
 
 /* =================================================================== loop */
 var clock=new T.Clock();
+var edgeT=0;
 var started=false, paused=false;
 var eyeCur=EYE, rollCur=0, fovCur=BASE_FOV;
 var hudTick=0, mapTick=0;
@@ -156,6 +157,7 @@ function update(dt){
     P.x+=dx*spd*dt; P.z+=dz*spd*dt;
     P.y+=(dy*spd+((keys.Space?1:0)-(P.crouch?1:0))*spd*0.8)*dt;
     if(P.y<0.4) P.y=0.4;
+    if(P.y>240) P.y=240;                  /* a ceiling too, so the edge of the world never shows */
     P.vx=P.vz=P.vy=0; P.onGround=false;
   } else {
     var tx=wx*spd, tz=wz*spd, acc=Math.min(1,(P.onGround?16:3.2)*dt);
@@ -172,6 +174,9 @@ function update(dt){
     else P.onGround=false;
     if(P.y<-60){ P.x=-3;P.z=17;P.y=0;P.vy=0; }
   }
+  /* the invisible wall round the tour */
+  if(boundsClamp(P)){ edgeT-=dt; if(edgeT<=0){ edgeT=7; feed('EDGE OF THE TOUR &#183; TURN BACK TOWARD CAMPUS'); } }
+  else if(edgeT>0) edgeT-=dt;
   var lim=1180;
   P.x=Math.max(-lim,Math.min(lim,P.x)); P.z=Math.max(-lim,Math.min(lim,P.z));
 
@@ -362,6 +367,8 @@ window.__dbg={TREE_POS:TREE_POS,CAMPUS:CAMPUS,scene:scene,lawnAt:lawnAt,inPlaza:
 window.__q=function(n){ if(n===undefined) return QL; applyQ(n); return QL; };
 window.__cull=function(){ var v=0; for(var i=0;i<CULL.length;i++) if(CULL[i][0].visible) v++; return [v,CULL.length]; };
 window.__attract=function(i,t){ attPin=(i===undefined)?null:[i,t]; };
+window.__bounds={inBounds:inBounds,clamp:boundsClamp,ring:BOUNDS,spots:function(){ return SPOTS.filter(function(s){ return !inBounds(s.x,s.z); }).map(function(s){ return s.name; }); }};
+window.__step=function(dt,n){ for(var i=0;i<n;i++) update(dt); };
 window.__cam=function(x,y,z,tx,ty,tz){
   var dx=tx-x, dy=ty-y, dz=tz-z, hL=Math.hypot(dx,dz)||1e-6;
   window.__lock=[x,y,z, Math.atan2(-dx,-dz), Math.atan2(dy,hL)];

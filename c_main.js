@@ -26,7 +26,8 @@ mapCan.width=mapCan.height=MAPPX;
   for(i=0;i<STADIA.length;i++) poly(STADIA[i].ring,'#6b6152','#8a8070',2);
   for(i=0;i<BUILDINGS.length;i++) poly(BUILDINGS[i].ring,'#7f7a70','rgba(0,0,0,.4)',1);
   for(i=0;i<CAMPUS.length;i++) poly(CAMPUS[i].ring,'#b4604a','rgba(0,0,0,.45)',1);
-  for(i=0;i<FENCE_RUNS.length;i++) line(FENCE_RUNS[i],'#0c0d10',2.2);          /* the perimeter fence */
+  for(i=0;i<FENCE_RUNS.length;i++) line(FENCE_RUNS[i],'#0c0d10',2.2);
+  g.setLineDash([14,10]); line(BOUNDS.concat([BOUNDS[0]]),'rgba(255,110,90,.75)',3); g.setLineDash([]);   /* edge of the tour */          /* the perimeter fence */
 })();
 var mapEl=document.getElementById('map'), mapCtx=mapEl.getContext('2d');
 var MAPVIEW=150, MAPSIZES=[95,150,240,380], mapIdx=1;

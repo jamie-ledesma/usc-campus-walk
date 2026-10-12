@@ -126,6 +126,7 @@ var elTNext=document.getElementById('tnextName'), nextShown='', flyShown=false;
 
 /* =================================================================== loop */
 var clock=new T.Clock();
+var edgeT=0;
 var started=false, paused=false;
 var eyeCur=EYE, rollCur=0, fovCur=BASE_FOV;
 var hudTick=0, mapTick=0;
@@ -156,6 +157,7 @@ function update(dt){
     P.x+=dx*spd*dt; P.z+=dz*spd*dt;
     P.y+=(dy*spd+((keys.Space?1:0)-(P.crouch?1:0))*spd*0.8)*dt;
     if(P.y<0.4) P.y=0.4;
+    if(P.y>240) P.y=240;                  /* a ceiling too, so the edge of the world never shows */
     P.vx=P.vz=P.vy=0; P.onGround=false;
   } else {
     var tx=wx*spd, tz=wz*spd, acc=Math.min(1,(P.onGround?16:3.2)*dt);
@@ -172,6 +174,9 @@ function update(dt){
     else P.onGround=false;
     if(P.y<-60){ P.x=-3;P.z=17;P.y=0;P.vy=0; }
   }
+  /* the invisible wall round the tour */
+  if(boundsClamp(P)){ edgeT-=dt; if(edgeT<=0){ edgeT=7; feed('EDGE OF THE TOUR &#183; TURN BACK TOWARD CAMPUS'); } }
+  else if(edgeT>0) edgeT-=dt;
   var lim=1180;
   P.x=Math.max(-lim,Math.min(lim,P.x)); P.z=Math.max(-lim,Math.min(lim,P.z));
 

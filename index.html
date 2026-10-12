@@ -10315,6 +10315,44 @@ function fenceCuts(ax,az,bx,bz){
   window.__halls={tris:M.count()};
 })();
 /* ==================================================================
+   The edge of the tour: an invisible wall round the area Jamie marked
+   on the map. North it stops a block above USC Village, east just past
+   the 110 beyond Galen Center, south below the Coliseum at 40th Place,
+   west a block past Vermont. Nothing is drawn: the city, the skyline and
+   the mountains carry on behind it, you just cannot walk or fly past.
+   Walking into it slides you along it rather than stopping you dead.
+   ================================================================== */
+var BOUNDS=[[-822,-969],[-478,-1005],[-337,-917],[-182,-834],[154,-814],[489,-819],[824,-783],
+            [897,-685],[915,-246],[966,321],[1005,786],[1018,1082],[953,1134],[489,1142],
+            [-182,1126],[-749,1134],[-806,1044],[-814,12]];
+if(ringArea(BOUNDS)<0) BOUNDS.reverse();
+function inBounds(x,z){ return inRing(BOUNDS,x,z); }
+/* nearest point on the wall to (x,z) */
+function boundsNearest(x,z){
+  var bx=x, bz=z, bd=1e18, n=BOUNDS.length;
+  for(var i=0;i<n;i++){
+    var a=BOUNDS[i], b=BOUNDS[(i+1)%n], dx=b[0]-a[0], dz=b[1]-a[1], L2=dx*dx+dz*dz;
+    var t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/L2)), qx=a[0]+dx*t, qz=a[1]+dz*t;
+    var d=(x-qx)*(x-qx)+(z-qz)*(z-qz);
+    if(d<bd){ bd=d; bx=qx; bz=qz; }
+  }
+  return [bx,bz];
+}
+/* put an object with x, z (and optional vx, vz) back inside, keeping the motion along the wall */
+function boundsClamp(o){
+  if(inBounds(o.x,o.z)) return false;
+  for(var it=0;it<4;it++){
+    var q=boundsNearest(o.x,o.z), nx=q[0]-o.x, nz=q[1]-o.z, L=Math.hypot(nx,nz)||1;
+    nx/=L; nz/=L;                                      /* points back inside */
+    o.x=q[0]+nx*0.06; o.z=q[1]+nz*0.06;
+    if(o.vx!==undefined){ var vn=o.vx*nx+o.vz*nz; if(vn<0){ o.vx-=vn*nx; o.vz-=vn*nz; } }
+    if(inBounds(o.x,o.z)) return true;
+  }
+  /* a corner can still leave it outside: step toward the middle of campus until it is in */
+  for(it=0;it<40&&!inBounds(o.x,o.z);it++){ o.x+=(60-o.x)*0.05; o.z+=(150-o.z)*0.05; }
+  return true;
+}
+/* ==================================================================
    Landscape pass.
    Every tree on campus is built here, once all the placement lists are
    final: broad shade trees made of several leaf masses (coast live oak,
@@ -11716,7 +11754,8 @@ mapCan.width=mapCan.height=MAPPX;
   for(i=0;i<STADIA.length;i++) poly(STADIA[i].ring,'#6b6152','#8a8070',2);
   for(i=0;i<BUILDINGS.length;i++) poly(BUILDINGS[i].ring,'#7f7a70','rgba(0,0,0,.4)',1);
   for(i=0;i<CAMPUS.length;i++) poly(CAMPUS[i].ring,'#b4604a','rgba(0,0,0,.45)',1);
-  for(i=0;i<FENCE_RUNS.length;i++) line(FENCE_RUNS[i],'#0c0d10',2.2);          /* the perimeter fence */
+  for(i=0;i<FENCE_RUNS.length;i++) line(FENCE_RUNS[i],'#0c0d10',2.2);
+  g.setLineDash([14,10]); line(BOUNDS.concat([BOUNDS[0]]),'rgba(255,110,90,.75)',3); g.setLineDash([]);   /* edge of the tour */          /* the perimeter fence */
 })();
 var mapEl=document.getElementById('map'), mapCtx=mapEl.getContext('2d');
 var MAPVIEW=150, MAPSIZES=[95,150,240,380], mapIdx=1;
@@ -11986,6 +12025,7 @@ var elTNext=document.getElementById('tnextName'), nextShown='', flyShown=false;
 
 /* =================================================================== loop */
 var clock=new T.Clock();
+var edgeT=0;
 var started=false, paused=false;
 var eyeCur=EYE, rollCur=0, fovCur=BASE_FOV;
 var hudTick=0, mapTick=0;
@@ -12016,6 +12056,7 @@ function update(dt){
     P.x+=dx*spd*dt; P.z+=dz*spd*dt;
     P.y+=(dy*spd+((keys.Space?1:0)-(P.crouch?1:0))*spd*0.8)*dt;
     if(P.y<0.4) P.y=0.4;
+    if(P.y>240) P.y=240;                  /* a ceiling too, so the edge of the world never shows */
     P.vx=P.vz=P.vy=0; P.onGround=false;
   } else {
     var tx=wx*spd, tz=wz*spd, acc=Math.min(1,(P.onGround?16:3.2)*dt);
@@ -12032,6 +12073,9 @@ function update(dt){
     else P.onGround=false;
     if(P.y<-60){ P.x=-3;P.z=17;P.y=0;P.vy=0; }
   }
+  /* the invisible wall round the tour */
+  if(boundsClamp(P)){ edgeT-=dt; if(edgeT<=0){ edgeT=7; feed('EDGE OF THE TOUR &#183; TURN BACK TOWARD CAMPUS'); } }
+  else if(edgeT>0) edgeT-=dt;
   var lim=1180;
   P.x=Math.max(-lim,Math.min(lim,P.x)); P.z=Math.max(-lim,Math.min(lim,P.z));
 
