@@ -67,6 +67,7 @@ function onKey(e,down){
   if(k==='KeyM'&&started) mapZoom();
   if(k==='KeyT'&&started) teleport();
   if(k==='KeyH'&&started){ hudEl.classList.toggle('bare'); }
+  if(k==='KeyB'&&started){ feed(bandToggle()?'&#9835; FIGHT SONG ON':'MUSIC OFF'); }
   if(k==='Space'&&started) e.preventDefault();
   if((k.indexOf('Arrow')===0)&&started) e.preventDefault();
 }
@@ -159,6 +160,7 @@ document.addEventListener('pointerlockerror',function(){ lookMode='free'; });
   tap('tb-next',function(){ teleport(); });
   tap('tb-map',function(){ mapZoom(); });
   tap('tb-pause',function(){ pause(); });
+  tap('tb-music',function(){ feed(bandToggle()?'&#9835; FIGHT SONG ON':'MUSIC OFF'); });
   hold('tb-up','Space'); hold('tb-dn','KeyC');
   document.addEventListener('visibilitychange',function(){ if(document.hidden&&touchMode) pause(); });
 })();

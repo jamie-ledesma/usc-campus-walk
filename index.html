@@ -132,6 +132,7 @@
   #tb-dn{right:calc(96px + env(safe-area-inset-right));bottom:calc(86px + env(safe-area-inset-bottom));display:none;font-size:17px}
   body.flying #tb-up,body.flying #tb-dn{display:block}
   body.flying #tb-run{color:#fff}
+  #tb-music{left:calc(70px + env(safe-area-inset-left));top:40px;min-width:46px;height:40px;padding:0 10px;font-size:17px}
   #tb-pause{left:calc(16px + env(safe-area-inset-left));top:40px;min-width:46px;height:40px;padding:0 10px;font-size:13px}
   #tb-next{right:calc(14px + env(safe-area-inset-right));top:146px;width:132px;height:auto;min-height:46px;padding:7px 8px;
            font-size:10.5px;text-align:center}
@@ -222,6 +223,7 @@
       <span><b>T</b> next landmark</span>
       <span><b>F</b> fly above campus</span>
       <span><b>M</b> map zoom &#183; <b>H</b> hide this</span>
+      <span><b>B</b> fight song on/off</span>
     </div>
   </div>
 
@@ -229,6 +231,7 @@
     <div id="tstick"><small>WALK</small><i></i></div>
     <button class="tb" id="tb-map" aria-label="Map zoom"></button>
     <button class="tb" id="tb-pause" aria-label="Pause">&#10074;&#10074;</button>
+    <button class="tb on" id="tb-music" aria-label="Fight song">&#9835;</button>
     <button class="tb" id="tb-next">NEXT STOP &#9656;<b id="tnextName">&nbsp;</b></button>
     <button class="tb" id="tb-up" aria-label="Fly up">&#9650;</button>
     <button class="tb" id="tb-dn" aria-label="Fly down">&#9660;</button>
@@ -248,7 +251,7 @@
       <button id="play" disabled>LOADING&#8230;</button>
       <div id="loadbar"><i></i></div>
       <div id="loadtxt">READING CAMPUS DATA</div>
-      <div class="t-keys kb"><span><b>W A S D</b>WALK</span><span><b>&#8592; &#8593; &#8595; &#8594;</b>LOOK</span><span><b>T</b>NEXT LANDMARK</span><span><b>F</b>FLY</span><span><b>ESC</b>PAUSE</span></div>
+      <div class="t-keys kb"><span><b>W A S D</b>WALK</span><span><b>&#8592; &#8593; &#8595; &#8594;</b>LOOK</span><span><b>T</b>NEXT LANDMARK</span><span><b>F</b>FLY</span><span><b>B</b>MUSIC</span><span><b>ESC</b>PAUSE</span></div>
       <div class="t-keys tc"><span><b>LEFT THUMB</b>WALK</span><span><b>RIGHT THUMB</b>LOOK</span><span><b>NEXT STOP</b>LANDMARKS</span><span><b>FLY</b>RISE OVER CAMPUS</span></div>
       <div class="t-note"><b id="bcount">0</b> USC BUILDINGS &#183; <b id="ccount">0</b> CITY BUILDINGS &#183; <b id="scount">0</b> STUDENTS WALKING TO CLASS &#183; EVERYTHING WHERE IT REALLY IS</div>
     </div>
@@ -11463,6 +11466,64 @@ function updateSigns(dt){
     sp.scale.set(sp.userData.bw*k, sp.userData.bh*k, 1);
   }
 }
+/* ==================================================================
+   The USC fight song, quietly, when the walk starts: it plays twice in
+   a row and then stops. B (or the note button on touch) turns it off,
+   or plays it twice more if it has finished. The recording sits next
+   to the page as usc_fight_song.mp3 and is decoded once into Web Audio,
+   so the volume works the same on phones.
+   ================================================================== */
+var MUSIC_URL='usc_fight_song.mp3', MUSIC_VOL=0.22;     /* through masterGain (0.5): faint under the walk */
+var BAND=null, bandOn=true, _bandGain=null, _bandDuck=1, _bandSrc=[], _bandBuf=null, _bandLoad=null, _bandEnds=0;
+function _bandFetch(){
+  if(_bandLoad) return _bandLoad;
+  _bandLoad=fetch(MUSIC_URL).then(function(r){ if(!r.ok) throw new Error('no song'); return r.arrayBuffer(); })
+    .then(function(a){ return new Promise(function(ok,bad){ AC.decodeAudioData(a,ok,bad); }); })
+    .then(function(b){ _bandBuf=b; return b; })
+    .catch(function(){ _bandLoad=null; return null; });       /* no file, no music: the walk carries on */
+  return _bandLoad;
+}
+function _bandStop(){ _bandSrc.forEach(function(s){ try{ s.onended=null; s.stop(); }catch(e){} }); _bandSrc=[]; }
+function _bandPlayTwice(){
+  _bandFetch().then(function(buf){
+    if(!buf||!bandOn) return;
+    _bandStop();
+    var t=AC.currentTime+0.15;
+    for(var k=0;k<2;k++){
+      var s=AC.createBufferSource(); s.buffer=buf; s.connect(_bandGain); s.start(t+k*buf.duration);
+      _bandSrc.push(s);
+    }
+    _bandEnds=t+2*buf.duration;
+    _bandSrc[1].onended=function(){ _bandSrc=[]; };
+    bandLevel(1.2);
+  });
+}
+function bandStart(){
+  if(!AC||BAND) return;
+  BAND=true;
+  _bandGain=AC.createGain(); _bandGain.gain.value=0.0001; _bandGain.connect(masterGain);
+  _bandPlayTwice();
+}
+function bandLevel(fade){
+  if(!_bandGain) return;
+  var v=bandOn?MUSIC_VOL*_bandDuck:0.0001, t=AC.currentTime;
+  _bandGain.gain.cancelScheduledValues(t); _bandGain.gain.setValueAtTime(Math.max(0.0001,_bandGain.gain.value),t);
+  _bandGain.gain.exponentialRampToValueAtTime(Math.max(0.0001,v),t+(fade||0.4));
+}
+function bandToggle(){
+  var playing=_bandSrc.length>0;
+  if(bandOn&&playing){ bandOn=false; bandLevel(0.5); setTimeout(function(){ if(!bandOn) _bandStop(); },600); }
+  else { bandOn=true; if(!BAND) bandStart(); else _bandPlayTwice(); }
+  var b=document.getElementById('tb-music'); if(b) b.classList.toggle('on',bandOn);
+  return bandOn;
+}
+function bandDuck(paused){ _bandDuck=paused?0.45:1; bandLevel(0.6); }
+/* switching tabs freezes the sound where it is, and picks it back up when you return */
+document.addEventListener('visibilitychange',function(){
+  if(!AC) return;
+  if(document.hidden){ if(AC.state==='running') AC.suspend(); }
+  else if(AC.state==='suspended') AC.resume();
+});
 
 /* =====================================================================
    Students. Stumble Guys proportions, but a real mix of people: skin
@@ -11795,6 +11856,7 @@ function onKey(e,down){
   if(k==='KeyM'&&started) mapZoom();
   if(k==='KeyT'&&started) teleport();
   if(k==='KeyH'&&started){ hudEl.classList.toggle('bare'); }
+  if(k==='KeyB'&&started){ feed(bandToggle()?'&#9835; FIGHT SONG ON':'MUSIC OFF'); }
   if(k==='Space'&&started) e.preventDefault();
   if((k.indexOf('Arrow')===0)&&started) e.preventDefault();
 }
@@ -11887,6 +11949,7 @@ document.addEventListener('pointerlockerror',function(){ lookMode='free'; });
   tap('tb-next',function(){ teleport(); });
   tap('tb-map',function(){ mapZoom(); });
   tap('tb-pause',function(){ pause(); });
+  tap('tb-music',function(){ feed(bandToggle()?'&#9835; FIGHT SONG ON':'MUSIC OFF'); });
   hold('tb-up','Space'); hold('tb-dn','KeyC');
   document.addEventListener('visibilitychange',function(){ if(document.hidden&&touchMode) pause(); });
 })();
@@ -12191,6 +12254,7 @@ function frame(){
 var startEl=document.getElementById('start'), pauseEl=document.getElementById('pausewrap');
 function begin(){
   audioInit(); if(AC&&AC.state==='suspended') AC.resume();
+  if(bandOn) bandStart();
   started=true; paused=false;
   attEl.style.opacity=0; camera.fov=fovCur=BASE_FOV; camera.updateProjectionMatrix(); cullTick=9; qAcc=0; qFrames=0; qWarm=0;
   startEl.classList.add('off'); pauseEl.classList.add('off'); hudEl.classList.remove('hide');
@@ -12204,12 +12268,12 @@ function begin(){
 }
 function pause(){
   if(!started||paused) return;
-  paused=true; keys={}; if(window.__touchReset) window.__touchReset();
+  paused=true; keys={}; bandDuck(true); if(window.__touchReset) window.__touchReset();
   pauseEl.classList.remove('off');
   if(document.exitPointerLock&&document.pointerLockElement) document.exitPointerLock();
 }
 function unpause(){
-  paused=false; pauseEl.classList.add('off'); clock.getDelta(); qAcc=0; qFrames=0; qWarm=0;
+  paused=false; bandDuck(false); pauseEl.classList.add('off'); clock.getDelta(); qAcc=0; qFrames=0; qWarm=0;
   if(!touchMode&&lookMode==='pointer'&&el.requestPointerLock){ try{ el.requestPointerLock(); }catch(e){} }
 }
 document.getElementById('play').addEventListener('click',begin);

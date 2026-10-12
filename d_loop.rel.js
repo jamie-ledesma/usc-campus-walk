@@ -292,6 +292,7 @@ function frame(){
 var startEl=document.getElementById('start'), pauseEl=document.getElementById('pausewrap');
 function begin(){
   audioInit(); if(AC&&AC.state==='suspended') AC.resume();
+  if(bandOn) bandStart();
   started=true; paused=false;
   attEl.style.opacity=0; camera.fov=fovCur=BASE_FOV; camera.updateProjectionMatrix(); cullTick=9; qAcc=0; qFrames=0; qWarm=0;
   startEl.classList.add('off'); pauseEl.classList.add('off'); hudEl.classList.remove('hide');
@@ -305,12 +306,12 @@ function begin(){
 }
 function pause(){
   if(!started||paused) return;
-  paused=true; keys={}; if(window.__touchReset) window.__touchReset();
+  paused=true; keys={}; bandDuck(true); if(window.__touchReset) window.__touchReset();
   pauseEl.classList.remove('off');
   if(document.exitPointerLock&&document.pointerLockElement) document.exitPointerLock();
 }
 function unpause(){
-  paused=false; pauseEl.classList.add('off'); clock.getDelta(); qAcc=0; qFrames=0; qWarm=0;
+  paused=false; bandDuck(false); pauseEl.classList.add('off'); clock.getDelta(); qAcc=0; qFrames=0; qWarm=0;
   if(!touchMode&&lookMode==='pointer'&&el.requestPointerLock){ try{ el.requestPointerLock(); }catch(e){} }
 }
 document.getElementById('play').addEventListener('click',begin);

@@ -295,6 +295,7 @@ function frame(){
 var startEl=document.getElementById('start'), pauseEl=document.getElementById('pausewrap');
 function begin(){
   audioInit(); if(AC&&AC.state==='suspended') AC.resume();
+  if(bandOn) bandStart();
   started=true; paused=false;
   attEl.style.opacity=0; camera.fov=fovCur=BASE_FOV; camera.updateProjectionMatrix(); cullTick=9; qAcc=0; qFrames=0; qWarm=0;
   startEl.classList.add('off'); pauseEl.classList.add('off'); hudEl.classList.remove('hide');
@@ -308,12 +309,12 @@ function begin(){
 }
 function pause(){
   if(!started||paused) return;
-  paused=true; keys={}; if(window.__touchReset) window.__touchReset();
+  paused=true; keys={}; bandDuck(true); if(window.__touchReset) window.__touchReset();
   pauseEl.classList.remove('off');
   if(document.exitPointerLock&&document.pointerLockElement) document.exitPointerLock();
 }
 function unpause(){
-  paused=false; pauseEl.classList.add('off'); clock.getDelta(); qAcc=0; qFrames=0; qWarm=0;
+  paused=false; bandDuck(false); pauseEl.classList.add('off'); clock.getDelta(); qAcc=0; qFrames=0; qWarm=0;
   if(!touchMode&&lookMode==='pointer'&&el.requestPointerLock){ try{ el.requestPointerLock(); }catch(e){} }
 }
 document.getElementById('play').addEventListener('click',begin);
@@ -369,6 +370,7 @@ window.__cull=function(){ var v=0; for(var i=0;i<CULL.length;i++) if(CULL[i][0].
 window.__attract=function(i,t){ attPin=(i===undefined)?null:[i,t]; };
 window.__bounds={inBounds:inBounds,clamp:boundsClamp,ring:BOUNDS,spots:function(){ return SPOTS.filter(function(s){ return !inBounds(s.x,s.z); }).map(function(s){ return s.name; }); }};
 window.__step=function(dt,n){ for(var i=0;i<n;i++) update(dt); };
+window.__band=function(){ return {on:bandOn,playing:_bandSrc.length,dur:_bandBuf?+_bandBuf.duration.toFixed(2):null,ends:+_bandEnds.toFixed(1),gain:_bandGain?+_bandGain.gain.value.toFixed(4):null,ac:AC&&AC.state,t:AC&&+AC.currentTime.toFixed(1)}; };
 window.__cam=function(x,y,z,tx,ty,tz){
   var dx=tx-x, dy=ty-y, dz=tz-z, hL=Math.hypot(dx,dz)||1e-6;
   window.__lock=[x,y,z, Math.atan2(-dx,-dz), Math.atan2(dy,hL)];

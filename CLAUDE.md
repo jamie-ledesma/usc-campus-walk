@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -81,6 +81,10 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   each frame in `update()` and slides the player along it; flying is capped at 240 m. Nothing is
   drawn in 3D; the minimap shows it as a dashed red line. Dev hook `window.__step(dt,n)` runs the
   game loop without rendering, for movement tests.
+- `b2_band.js`: plays `usc_fight_song.mp3` (Jamie's recording, next to the page) twice in a row
+  when the walk starts, then stops. Decoded into Web Audio so volume works on phones; ducks on pause,
+  suspends with the tab hidden. B or the note button turns it off, or plays it twice more. `MUSIC_VOL`
+  sets the level. The mp3 must ship beside index.html (and as a supporting file of the artifact).
 - Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall,
   Dr. Joseph Medicine Crow Center (DMC; formerly Von KleinSmid) in `a_world.js` CUSTOM.
 
@@ -126,6 +130,6 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
 
 ## Publishing
 
-The live artifact is https://claude.ai/artifact/Jd3u1kv8vcGABwVjfZZHCz (version 26 as of
+The live artifact is https://claude.ai/artifact/Jd3u1kv8vcGABwVjfZZHCz (version 28 as of
 this handoff). Publishing there needs the Artifact tool from a Claude session. From
 Claude Code, rebuild `index.html` and push to GitHub; Vercel redeploys from `main`.
