@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2k_alumni.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2k_alumni.js a2j_bounds.js a2o_lewis.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -76,6 +76,11 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   roof slab on ribs) and Michelson Hall (pointed tracery windows, corner pavilions, date palm
   planter on the east front). `HAND_HALLS` in `a_world.js` empties their CUSTOM entries.
   TREE_POS kind 3 is always a Canary date palm.
+- `a2o_lewis.js`: Ralph and Goldy Lewis Hall (Price School). Footprint in `world.txt` redrawn from OSM way 406923981
+  (the old ring had a thin strip running south across the walk). Three storey brick block on the grid under tile hip
+  roofs, raised lantern of arched windows, projecting centre block on the north (Childs Way) front with the cast stone
+  entrance pavilion, balcony with cypress, bollards, brick walk with a concrete centre. In `HAND_HALLS`; the generic
+  frontage hedge skips it.
 - `a2k_alumni.js`: Alumni Park in front of Doheny, laid out on the library's axis (local u along
   the front, v out into the park): limestone steps, rose brick walk, round brick plaza with a two-tier
   fountain in a ring of red roses, boxwood hedges framing the lawns, the raised SC bed (red and yellow
