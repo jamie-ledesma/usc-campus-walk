@@ -2397,9 +2397,25 @@ CUSTOM['Doheny Memorial Library']=function(M,B,ring,c,d){
    are close, so the spaces between buildings read as planted grounds rather
    than a car park. The Coliseum's sunken bowl is cut out of both. */
 var LAWN_MASK=null, LG={x0:-720,z0:-820,x1:800,z1:900,c:8};
+/* Hahn Central Plaza, the brick plaza in front of Tommy Trojan, on the campus grid.
+   Local frame: origin at Tommy, u east (away from Bovard), v south. The outline follows
+   the OSM pedestrian area, pushed out to take in Traveler's bed. Its closed outline way
+   is hidden (the crowd still uses it); a2m_hahn.js lays the brick pattern. */
+var HAHN=(function(){
+  var ox=-3, oz=4, du=[0.8829,0.4695], dv=[-0.4695,0.8829];
+  function P(u,v){ return [ox+du[0]*u+dv[0]*v, oz+du[1]*u+dv[1]*v]; }
+  function loc(p){ var x=p[0]-ox, z=p[1]-oz; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  var L=[[-6,-9.3],[49.4,-9.3],[49.4,0.8],[60.4,0.8],[60.4,29.4],[56,29.4],[56,48],
+         [10.2,48],[10.2,29.6],[-6,29.6]];
+  var ring=L.map(function(p){ return P(p[0],p[1]); });
+  PATHS.forEach(function(p){
+    if(p.w>=6&&p.pts.every(function(q){ var l=loc(q); return l[0]>-8&&l[0]<62&&l[1]>-12&&l[1]<50; })) p.hide=1;
+  });
+  return {x:ox,z:oz,du:du,dv:dv,P:P,loc:loc,L:L,ring:ring,rot:Math.atan2(du[0],du[1]),baseH:0.51};
+})();
 var PLAZAS=[
   /* Hahn Plaza: Tommy Trojan, the fountain and Traveler */
-  [[-14,-10],[22,-24],[54,20],[52,64],[30,78],[4,60],[-16,22]],
+  HAHN.ring.slice(),
   /* the Campus Center terrace */
   (function(){ var r=[]; for(var i=0;i<18;i++){ var a=i/18*6.2832; r.push([-77+Math.cos(a)*21,50+Math.sin(a)*21]); } return r; })(),
   /* USC Village plaza */
@@ -2926,6 +2942,7 @@ var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,22
   if(MCQ_RING) NO_PLANT.push(MCQ_RING);
   if(ringArea(FERT_COURT)<0) FERT_COURT.reverse();
   NO_PLANT.push(offsetRing(FERT_COURT,1.5));
+  NO_PLANT.push(HAHN.ring.slice());   /* Hahn Plaza: open brick, lamps placed in a2m_hahn.js */
 })();
 (function(){
   var FELIX=decode('-284,-146 -9,-6 -6,-8 -4,-10 0,-10 4,-10 6,-8 9,-6 10,-3 10,1 10,4 86,46 8,7 5,9 2,10 -1,11 -5,9 -8,7 -10,4 -10,1 -11,-3');
@@ -3789,6 +3806,7 @@ var TREE_POS=[];
     if(Math.hypot(P0.x-20,P0.z-61)<4) continue;   /* Traveler stands here instead */
     var g=new T.Group(); g.position.set(P0.x,0,P0.z);
     var isTommy = /Tommy Trojan/i.test(P0.name);
+    if(isTommy){ g.rotation.y=HAHN.rot; g.position.y=HAHN.baseH; }   /* on his stepped base (a2m_hahn.js), facing the plaza */
     var isTire = /Tirebiter/i.test(P0.name);
     if(isTire){
       /* paved circle, granite benches, the dog, a stack of tyres and a football */

@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2k_alumni.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2k_alumni.js a2m_hahn.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -83,6 +83,13 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   Canary palms. `ALUM` in `a_world.js` clears the OSM fountain and walks there and adds the new walks
   to `PATHS` with `hide:1` (crowd and minimap use them; the concrete walkway and furniture passes skip
   them). The fountain itself is built in the fountain pass in `a_world.js` so its jets are instanced.
+- `a2m_hahn.js`: Hahn Central Plaza in front of Tommy Trojan, on the campus grid (`HAHN` in
+  `a_world.js`: origin at Tommy, u east, v south; it is also `PLAZAS[0]`, follows the OSM pedestrian
+  area pushed out round Traveler's bed, and hides that area's outline way). Buff brick field, red
+  bands on a 5.4 m grid of squares centred on Tommy, a red X in each square (the diagonals run on
+  as long lines), darker border, all flat quads in one ground mesh with the fountain and Traveler's
+  bed cut out. Tommy stands on three gray granite steps (`HAHN.baseH`), turned to the grid and facing
+  the plaza; three lamps on brick pedestals with cream caps. NO_PLANT keeps props and trees off it.
 - `a2j_bounds.js`: the invisible wall (`BOUNDS`, from Jamie's map: a block north of the Village,
   just east of the 110, below the Coliseum at 40th Pl, a block west of Vermont). `boundsClamp(P)` runs
   each frame in `update()` and slides the player along it; flying is capped at 240 m. Nothing is
@@ -127,7 +134,8 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
 ## Jamie's standing requests (do not undo)
 
 - Walkways: simple gray concrete with a brick edge. No street trees on walkways, no bikes,
-  no tilework, no brick plaza overlay.
+  no tilework, no brick plaza overlay. Exception (Jamie asked for it): Hahn Central Plaza in front of
+  Tommy Trojan gets its real brick pattern (`a2m_hahn.js`). Leave walkways elsewhere as they are.
 - Traveler statue stays at (20,61).
 - Keep the perimeter fence with gaps only at the marked entrances.
 - No trees in McCarthy Quad or the Fertitta Hall courtyard.
