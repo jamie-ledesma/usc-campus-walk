@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2k_alumni.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -76,6 +76,13 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   roof slab on ribs) and Michelson Hall (pointed tracery windows, corner pavilions, date palm
   planter on the east front). `HAND_HALLS` in `a_world.js` empties their CUSTOM entries.
   TREE_POS kind 3 is always a Canary date palm.
+- `a2k_alumni.js`: Alumni Park in front of Doheny, laid out on the library's axis (local u along
+  the front, v out into the park): limestone steps, rose brick walk, round brick plaza with a two-tier
+  fountain in a ring of red roses, boxwood hedges framing the lawns, the raised SC bed (red and yellow
+  flowers, letters in hedge, readable facing the library), lamps, white benches, shade trees and four
+  Canary palms. `ALUM` in `a_world.js` clears the OSM fountain and walks there and adds the new walks
+  to `PATHS` with `hide:1` (crowd and minimap use them; the concrete walkway and furniture passes skip
+  them). The fountain itself is built in the fountain pass in `a_world.js` so its jets are instanced.
 - `a2j_bounds.js`: the invisible wall (`BOUNDS`, from Jamie's map: a block north of the Village,
   just east of the 110, below the Coliseum at 40th Pl, a block west of Vermont). `boundsClamp(P)` runs
   each frame in `update()` and slides the player along it; flying is capped at 240 m. Nothing is
@@ -84,7 +91,7 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
 - `b2_band.js`: plays `usc_fight_song.mp3` (Jamie's recording, next to the page) twice in a row
   when the walk starts, then stops. Decoded into Web Audio so volume works on phones; ducks on pause,
   suspends with the tab hidden. B or the note button turns it off, or plays it twice more. `MUSIC_VOL`
-  sets the level. The mp3 must ship beside index.html (and as a supporting file of the artifact).
+  sets the level (0.11 since v29, half the earlier 0.22). The mp3 must ship beside index.html (and as a supporting file of the artifact).
 - Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall,
   Dr. Joseph Medicine Crow Center (DMC; formerly Von KleinSmid) in `a_world.js` CUSTOM.
 

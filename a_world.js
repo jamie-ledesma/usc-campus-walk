@@ -128,6 +128,46 @@ var ROSE=null;
   ROSE={x0:x0,x1:x1,z0:z0,z1:z1,fx:fx,fz:fz};
 })();
 
+/* Alumni Park, in front of Doheny, is laid out by hand in a2k_alumni.js on
+   the library's axis: take the OSM fountain and inner walks out, and give the
+   crowd the new brick walks (hide: drawn by a2k, not as concrete walkways) */
+var ALUM=null;
+(function(){
+  var D=null, i;
+  for(i=0;i<CAMPUS.length;i++) if(CAMPUS[i].name==='Doheny Memorial Library') D=CAMPUS[i];
+  if(!D) return;
+  var F=wallFacing(simplifyRing(D.ring,1.0),80,5,20); if(!F) return;
+  function P(u,v){ return [F.x+F.dx*u+F.nx*v, F.z+F.dz*u+F.nz*v]; }
+  function loc(p){ var x=p[0]-F.x, z=p[1]-F.z; return [x*F.dx+z*F.dz, x*F.nx+z*F.nz]; }
+  var U=46, V0=5, V1=96;
+  function inR(p){ var l=loc(p); return l[0]>-U&&l[0]<U&&l[1]>V0&&l[1]<V1; }
+  for(i=WATER.length-1;i>=0;i--) if(inR(centroid(WATER[i]))) WATER.splice(i,1);
+  var out=[];
+  for(i=0;i<PATHS.length;i++){
+    var pts=PATHS[i].pts, dense=[], k;
+    for(k=0;k<pts.length-1;k++){
+      var a=pts[k], b=pts[k+1], n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/2));
+      for(var j=0;j<n;j++) dense.push([a[0]+(b[0]-a[0])*j/n, a[1]+(b[1]-a[1])*j/n]);
+    }
+    dense.push(pts[pts.length-1]);
+    if(!dense.some(inR)){ out.push(PATHS[i]); continue; }
+    var cur=[];
+    for(k=0;k<dense.length;k++){
+      if(inR(dense[k])){ if(cur.length>1) out.push({w:PATHS[i].w,pts:cur}); cur=[]; }
+      else cur.push(dense[k]);
+    }
+    if(cur.length>1) out.push({w:PATHS[i].w,pts:cur});
+  }
+  PATHS=out;
+  var FV=44, VB=72, BW=11;
+  PATHS.push({w:3,hide:1,pts:[P(0,6.3),P(0,VB-13)]},
+             {w:3,hide:1,pts:[P(0,VB-13),P(BW-1.5,VB-7),P(BW-1.5,VB+7),P(0,VB+13)]},
+             {w:3,hide:1,pts:[P(0,VB-13),P(-BW+1.5,VB-7),P(-BW+1.5,VB+7),P(0,VB+13)]},
+             {w:3,hide:1,pts:[P(0,VB+13),P(0,V1+1)]},
+             {w:3,hide:1,pts:[P(-U-1,FV),P(U+1,FV)]});
+  ALUM={F:F,P:P,loc:loc,U:U,V0:V0,V1:V1,FV:FV,VB:VB,BW:BW};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -2498,6 +2538,7 @@ var NAMED_PLACES=[];
     ribbon(M,pts,cw,0.132,C_WALK,sh);         /* the plain concrete centre */
   }
   for(i=0;i<PATHS.length;i++){
+    if(PATHS[i].hide) continue;
     var pw=PATHS[i].w, sh=0.95+((i*37)%9)*0.012;
     if(pw>6)        walkway(M,PATHS[i].pts,pw*1.5+2.3,1.2,sh);
     else if(pw>=2.5) walkway(M,PATHS[i].pts,pw*1.3+1.0,0.62,sh);
@@ -3917,6 +3958,7 @@ var TREE_POS=[];
 
   for(var i=0;i<PATHS.length;i++){
     var pts=PATHS[i].pts, w=PATHS[i].w;
+    if(PATHS[i].hide) continue;
     if(w<2.2) continue;
     var lampGap = w>=6?24:32, benchGap = w>=6?40:56, rackGap=95;
     var run=0;
@@ -4249,6 +4291,10 @@ var TREE_POS=[];
     }
     fountainRing(M,MGf,ring,A>110?2:1,0);
     nFount++;
+  }
+  if(ALUM){                                     /* Alumni Park, the rest is in a2k_alumni.js */
+    var afc=ALUM.P(0,ALUM.FV);
+    fountainRing(M,MGf,ngon(afc[0],afc[1],4.6,40,0),2,0); nFount++;
   }
   var mesh=new T.Mesh(M.geom(),matWorld); mesh.frustumCulled=false; scene.add(mesh);
   var mgf=new T.Mesh(MGf.geom(),matGround); mgf.frustumCulled=false; scene.add(mgf);

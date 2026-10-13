@@ -5,7 +5,7 @@
    to the page as usc_fight_song.mp3 and is decoded once into Web Audio,
    so the volume works the same on phones.
    ================================================================== */
-var MUSIC_URL='usc_fight_song.mp3', MUSIC_VOL=0.22;     /* through masterGain (0.5): faint under the walk */
+var MUSIC_URL='usc_fight_song.mp3', MUSIC_VOL=0.11;     /* through masterGain (0.5): faint under the walk */
 var BAND=null, bandOn=true, _bandGain=null, _bandDuck=1, _bandSrc=[], _bandBuf=null, _bandLoad=null, _bandEnds=0;
 function _bandFetch(){
   if(_bandLoad) return _bandLoad;
