@@ -5,8 +5,8 @@
    south between Lewis Hall (Price School) and Popovich Hall.
    As built: a 7 m pale concrete carriageway crossed by brick bands about
    every 19.5 m, brick parking bays with nose-in stalls on both sides
-   between tree planters, little brown swing gates folded back at the
-   ends, campus lamps, and a plaza of big concrete squares with bollards
+   between tree planters, low brown fences along the edges at the
+   two gate points, campus lamps, and a plaza of big concrete squares with bollards
    on its east side. Data layer (CHILDS, a_world.js) has already taken
    the OSM walk out and given the crowd the street.
    Local frame: s along the street from its west end, t across (+ south).
@@ -112,7 +112,7 @@
     /* nose-in stalls between the planters, and the cars in them */
     bays.forEach(function(by,bi){
       var b0=by[0], b1=Math.min(by[1],sEnd-0.3);
-      if(bi===bays.length-1) b1=Math.min(b1,SE-4.3);              /* leave room for the folded gate */
+      if(bi===bays.length-1) b1=Math.min(b1,SE-4.3);              /* leave room for the low fence */
       var n=Math.floor((b1-b0)/STALL); if(n<1) return;
       var st=(b0+b1)/2-n*STALL/2;
       for(var k=0;k<n;k++){
@@ -126,17 +126,14 @@
     });
   });
 
-  /* ---- little brown swing gates, folded back open along each edge ---- */
-  function gateLeaf(sh,sd,dir){                 /* hinge at s=sh, side sd, leaf runs toward dir*s */
-    var t=sd*(RH+0.22), Lg=3.3, s1=sh+dir*Lg;
-    var hp=P(sh,t), kp=P(sh+dir*(Lg+0.2),t);
-    postAt(MW,hp[0],hp[1],0,1.25,0.09,GATE_D,0.7);                  /* hinge post */
-    postAt(MW,kp[0],kp[1],0,0.95,0.06,GATE_D,0.7);                  /* keeper post the open leaf is tied to */
-    [0.28,1.02].forEach(function(y){ seg(sh+dir*0.1,t,s1,t,y,y+0.07,0.07,GATE,0.75); });
-    seg(sh+dir*0.1,t,s1,t,0.62,0.66,0.05,GATE,0.75);
-    for(var q=0.1;q<=Lg+0.01;q+=0.32){ var pq=P(sh+dir*q,t); postAt(MW,pq[0],pq[1],0.28,1.06,0.022,GATE,0.75); }
+  /* ---- simple low brown fences along the street edge at the two gate points ---- */
+  function lowFence(s0,sd,dir){                 /* starts at s0 on side sd, runs Lf toward dir*s */
+    var t=sd*(RH+0.22), Lf=3.3, s1=s0+dir*Lf, np=3;
+    for(var q=0;q<=np;q++){ var pq=P(s0+dir*Lf*q/np,t); postAt(MW,pq[0],pq[1],0,0.95,0.06,GATE_D,0.7); }
+    [0.40,0.82].forEach(function(y){ seg(s0,t,s1,t,y,y+0.08,0.06,GATE,0.75); });
+    var a=P(s0,t), b=P(s1,t); addCollider(ccw([[a[0]-uz*0.08,a[1]+ux*0.08],[b[0]-uz*0.08,b[1]+ux*0.08],[b[0]+uz*0.08,b[1]-ux*0.08],[a[0]+uz*0.08,a[1]-ux*0.08]]),0.95);
   }
-  for(sd=-1;sd<=1;sd+=2){ gateLeaf(SG,sd,-1); gateLeaf(SE-0.4,sd,-1); }
+  for(sd=-1;sd<=1;sd+=2){ lowFence(SG,sd,-1); lowFence(SE-0.4,sd,-1); }
 
   /* ---- the plaza between Lewis and Popovich: big concrete squares ---- */
   var PQ=0xCCC6B9, JOINT=0x8E897F;
