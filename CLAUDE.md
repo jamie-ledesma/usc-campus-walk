@@ -87,6 +87,15 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   pediment with lunette, low hip roof with dormers and a balustraded deck, ALUMNI HOUSE entablature, brick stoop with
   iron rails, brick planter wall with shrubs, bench and plaque. Whites are lifted x1.14 so the paint reads white.
   In `HAND_HALLS`; the generic frontage hedge skips it. Its stoop and planter stop about 3.5 m in front of the wall.
+- `a2r_tcc.js`: the Ronald Tutor Campus Center courtyard between TCC (grid west), the Student Union (grid east) and
+  Sample Hall (grid south end), opening grid north onto the walk through a row of bollards. `TCC` in `a_world.js` (Hahn
+  grid frame, u east, v south) holds the paved ring and the apron in front of the mouth and the Student Union; it cuts
+  the OSM walks there and adds hidden crowd walks, replaces `PLAZAS[1]`, skips the old terrace umbrellas, the frontage
+  hedge on the three buildings, the TCC and Sample Hall CUSTOM courtyard fronts and Sample Hall's balustrade. a2r draws
+  blue-gray paving with granite bands, instanced tables, chairs, umbrellas, bollards and planters, the grand stair with
+  bronze lattice rails and the fountain (gold niche, arcing jets) on the TCC side, seating terraces on the Student Union
+  side, and facade skins on TCC's courtyard front, its block at the mouth and Sample Hall's end (arches, marble columns,
+  names, balconettes, pergola, cupola).
 - `a2k_alumni.js`: Alumni Park in front of Doheny, laid out on the library's axis (local u along
   the front, v out into the park): limestone steps, rose brick walk, round brick plaza with a two-tier
   fountain in a ring of red roses, boxwood hedges framing the lawns, the raised SC bed (red and yellow
