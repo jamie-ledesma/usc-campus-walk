@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2k_alumni.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2j_bounds.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -92,8 +92,13 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   when the walk starts, then stops. Decoded into Web Audio so volume works on phones; ducks on pause,
   suspends with the tab hidden. B or the note button turns it off, or plays it twice more. `MUSIC_VOL`
   sets the level (0.11 since v29, half the earlier 0.22). The mp3 must ship beside index.html (and as a supporting file of the artifact).
-- Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall,
-  Dr. Joseph Medicine Crow Center (DMC; formerly Von KleinSmid) in `a_world.js` CUSTOM.
+- `a2n_dmc.js`: Dr. Joseph Medicine Crow Center (DMC; formerly Von KleinSmid), a square doughnut from
+  OSM's multipolygon (open courtyard about 31.6 x 17 m in the hole of the white roof): podium and low
+  steps all round, sunken round amphitheatre, glass ground storey under a white balcony with rail and
+  flags, piers and round arches on all four courtyard sides, the 51 m tower with its lattice globe in
+  the courtyard's north west corner, fins on N/W/E, the flagged arcade on the south front. Walk in
+  through the south arcade, the west front or the east front. Its CUSTOM entry in `a_world.js` is a stub.
+- Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Touch and performance
 
