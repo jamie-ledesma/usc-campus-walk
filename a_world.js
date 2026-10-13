@@ -892,26 +892,6 @@ function coneRoof(M,cx,cz,r,y0,hh,col,n){
           [cx,y0+hh,cz], cd,cd,c);
   }
 }
-/* the open lattice globe on top of the Medicine Crow Center (DMC) tower */
-function wireGlobe(M,cx,cy,cz,r){
-  var g=rgb(0xC8C2B4,1), gd=rgb(0xC8C2B4,0.6), t=r*0.075, N=12;
-  function ring3(axis){
-    for(var i=0;i<N;i++){
-      var a0=i/N*6.283185, a1=(i+1)/N*6.283185;
-      var p0,p1;
-      if(axis===0){ p0=[cx+Math.cos(a0)*r,cy+Math.sin(a0)*r,cz]; p1=[cx+Math.cos(a1)*r,cy+Math.sin(a1)*r,cz]; }
-      else if(axis===1){ p0=[cx,cy+Math.sin(a0)*r,cz+Math.cos(a0)*r]; p1=[cx,cy+Math.sin(a1)*r,cz+Math.cos(a1)*r]; }
-      else if(axis===2){ p0=[cx+Math.cos(a0)*r*0.71,cy+Math.sin(a0)*r,cz+Math.cos(a0)*r*0.71];
-                         p1=[cx+Math.cos(a1)*r*0.71,cy+Math.sin(a1)*r,cz+Math.cos(a1)*r*0.71]; }
-      else { p0=[cx+Math.cos(a0)*r,cy,cz+Math.sin(a0)*r]; p1=[cx+Math.cos(a1)*r,cy,cz+Math.sin(a1)*r]; }
-      M.quad([p0[0]-t,p0[1],p0[2]-t],[p0[0]+t,p0[1],p0[2]+t],
-             [p1[0]+t,p1[1],p1[2]+t],[p1[0]-t,p1[1],p1[2]-t], gd,g,g,gd);
-      M.quad([p0[0]+t,p0[1],p0[2]+t],[p0[0]-t,p0[1],p0[2]-t],
-             [p1[0]-t,p1[1],p1[2]-t],[p1[0]+t,p1[1],p1[2]+t], gd,g,g,gd);
-    }
-  }
-  ring3(0); ring3(1); ring3(2); ring3(3);
-}
 /* horizontal banding, the way Leavey and the concrete blocks are striped */
 function stripes(M,ring,h,y0,bandH,gapH,colA,colB){
   var y=y0;
@@ -922,72 +902,10 @@ function stripes(M,ring,h,y0,bandH,gapH,colA,colB){
 }
 
 var CUSTOM = {
-/* ---------- Dr. Joseph Medicine Crow Center (DMC), formerly Von KleinSmid ---------- */
+/* ---------- Dr. Joseph Medicine Crow Center (DMC), formerly Von KleinSmid ----------
+   built by hand in a2n_dmc.js (courtyard, arcades, tower and globe) */
 'Dr. Joseph Medicine Crow Center for International and Public Affairs':
-function(M,B,ring,c,d){
-  var h=15.5, wall=0xC4704E;
-  prism(M,ring,0,h,wall,wall,0.58);
-  band(M,ring,0,0.85,0.22,0xEDE7D8,1,0.78);
-  /* the long run of tall slender arches in white surrounds */
-  var n=ring.length;
-  for(var i=0;i<n;i++){
-    var a=ring[i], b=ring[(i+1)%n];
-    var dx=b[0]-a[0], dz=b[1]-a[1], L=Math.hypot(dx,dz);
-    if(L<10) continue;
-    dx/=L; dz/=L;
-    var nx=dz, nz=-dx;
-    var count=Math.max(4,Math.floor((L-3)/8.2));
-    var gap=L/(count+1);
-    for(var k=1;k<=count;k++){
-      var u=gap*k; if(u<2.4||u>L-2.4) continue;
-      var px=a[0]+dx*u, pz=a[1]+dz*u;
-      archFace(M,px,pz,dx,dz,nx*0.10,nz*0.10,0.9,Math.min(5.4,gap*0.80),h-6.6,Math.min(5.4,gap*0.80)*0.5,0xF2EDE0,1);
-      archFace(M,px,pz,dx,dz,nx*0.22,nz*0.22,1.0,Math.min(4.3,gap*0.64),h-7.0,Math.min(4.3,gap*0.64)*0.5,0x4A3A2E,1);
-    }
-  }
-  /* the thin roof plane that flies out past the walls, with its dentil fringe */
-  var ov=offsetRing(ring,2.9);
-  band(M,ov,h,h+1.05,0,0xE8E3D4,1,0.74);
-  flat(M,ov,h,0xB8B2A2,0.55);
-  var cD=rgb(0xD8D2C2,1);
-  for(i=0;i<ov.length;i++){
-    var a2=ov[i], b2=ov[(i+1)%ov.length];
-    var ddx=b2[0]-a2[0], ddz=b2[1]-a2[1], LL=Math.hypot(ddx,ddz);
-    if(LL<1) continue;
-    ddx/=LL; ddz/=LL;
-    var mx=ddz*0.16, mz=-ddx*0.16;
-    for(var t=0.6;t<LL-0.6;t+=1.15){
-      var qx=a2[0]+ddx*t+mx, qz=a2[1]+ddz*t+mz;
-      M.quad([qx-ddx*0.30,h+0.15,qz-ddz*0.30],[qx-ddx*0.30,h+0.92,qz-ddz*0.30],
-             [qx+ddx*0.30,h+0.92,qz+ddz*0.30],[qx+ddx*0.30,h+0.15,qz+ddz*0.30],cD,cD,cD,cD);
-    }
-  }
-  /* the tower, set at the end of the colonnade, carrying the lattice globe */
-  var ip=innerPoint(ring);
-  var gx=-c[0], gz=-c[1], gL=Math.hypot(gx,gz)||1; gx/=gL; gz/=gL;
-  var tx=ip.p[0]-gx*Math.max(0,ip.r-5), tz=ip.p[1]-gz*Math.max(0,ip.r-5);
-  var tw=7.2, hw=tw/2, ty=42;
-  var sq=[[tx-hw,tz-hw],[tx+hw,tz-hw],[tx+hw,tz+hw],[tx-hw,tz+hw]];
-  prism(M,sq,0,ty,wall,0xE8E3D4,0.55);
-  var slot=rgb(0x5A3A2A,1);
-  for(i=0;i<4;i++){
-    var s0=sq[i], s1=sq[(i+1)%4];
-    var sx=s1[0]-s0[0], sz=s1[1]-s0[1], SL=Math.hypot(sx,sz); sx/=SL; sz/=SL;
-    var qx2=sz*0.10, qz2=-sx*0.10;
-    for(var v2=1;v2<=3;v2++){
-      var uu=SL*v2/4;
-      M.quad([s0[0]+sx*(uu-0.30)+qx2,ty-9.5,s0[1]+sz*(uu-0.30)+qz2],
-             [s0[0]+sx*(uu-0.30)+qx2,ty-1.6,s0[1]+sz*(uu-0.30)+qz2],
-             [s0[0]+sx*(uu+0.30)+qx2,ty-1.6,s0[1]+sz*(uu+0.30)+qz2],
-             [s0[0]+sx*(uu+0.30)+qx2,ty-9.5,s0[1]+sz*(uu+0.30)+qz2],slot,slot,slot,slot);
-    }
-  }
-  band(M,sq,ty,ty+0.7,0.35,0xE8E3D4,1,0.8);
-  wireGlobe(M,tx,ty+3.9,tz,3.0);
-  addCollider(sq,ty);
-  addCollider(ring,h);
-  return h;
-},
+function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 
 /* ---------- Fertitta Hall ---------- */
 'Fertitta Hall': function(M,B,ring,c,d){
@@ -2606,7 +2524,6 @@ function innerPoint(ring){
   }
   var ARCADED_NEW={'Tutor Campus Center':1,'Steven and Kathryn Sample Hall':1,'Popovich Hall':1};
   var ARCADED={'Mudd Hall':1,'Bovard Administration Building':1,
-               'Dr. Joseph Medicine Crow Center for International and Public Affairs':1,
                'Physical Education Building':1};
   for(i=0;i<CAMPUS.length;i++){
     var B=CAMPUS[i], ring=B.ring, h=B.h, st=B.st, d=ringDims(ring);
@@ -2680,7 +2597,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7&&B.name!=='Lewis Hall'){   /* a2o_lewis.js plants its own */
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'){   /* a2n_dmc.js and a2o_lewis.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
