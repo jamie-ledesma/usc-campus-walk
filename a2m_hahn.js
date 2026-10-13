@@ -12,7 +12,7 @@
   if(!HAHN) return;
   var P=HAHN.P, L=HAHN.L, du=HAHN.du;
   var S=5.4, BAND=0.62, DIAG=0.26, EDGE=0.95;          /* square pitch, band widths, border */
-  var BUFF=0xC3B099, RED=0x7D4238, RED_D=0x703A31, REDX=0x874A3F;
+  var BUFF=0xC7BDAA, RED=0x7D4238, RED_D=0x703A31, REDX=0x874A3F;
   var MG=new Mesher(), MW=new Mesher();
   var FTN=HAHN.loc([18,43]), TRV=HAHN.loc([20,61]);    /* fountain and Traveler's bed, cut out */
   var HOLES=[[FTN[0],FTN[1],7.25],[TRV[0],TRV[1],7.05]];

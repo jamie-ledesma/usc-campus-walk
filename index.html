@@ -344,7 +344,7 @@ Waite Phillips Hall|146,-153,46
 Doheny Memorial Library|150,42,30
 Dauterive Hall|159,192,16
 Fire Station 15|172,-708,10
-Lewis Hall|179,160,16
+Lewis Hall|171,146,16
 Hebrew Union College|210,-564,13
 Leavey Library|224,-131,25
 Popovich Hall|226,200,24
@@ -454,7 +454,7 @@ t23|Doheny Memorial Library|7,f,17.0|141,22 -11,-6 5,-9 63,33 -5,9 5,3 -20,37 -6
 t13|Hubbard Hall||102,133 -10,-6 12,-22 5,3 1,-1 26,15 -12,22 -10,-5 6,-13 -11,-6
 r12|Town and Gown||84,144 3,-6 5,2 -3,5 39,23 -8,15 -32,-17 -1,1 -8,-4 0,-2 -3,-2
 b16|Verna and Peter Dauterive Hall||151,211 1,-3 -15,-9 2,-2 -16,-9 16,-29 21,11 1,-3 17,9 -4,6 7,4 -9,16 -2,-1 -2,4 2,1 -6,11
-b16|Lewis Hall||165,214 25,-44 -13,-7 0,-1 -37,-20 8,-17 9,4 2,-3 13,4 9,7 -2,4 20,11 3,-6 9,5 -3,5 -5,-2 -30,58 4,2 -3,5
+b16|Lewis Hall||139,143 52,27 9,-18 -22,-12 3,-4 -6,-2 2,-3 -11,-5 -1,2 -6,-3 -2,4 -8,-4
 b24|Popovich Hall||197,225 30,-57 -4,-3 3,-6 9,5 -3,5 9,5 1,-2 6,2 1,-2 13,7 -10,20 -13,-7 -2,2 1,5 -1,8 -6,13 -5,-3 -10,18 -2,-1 -2,2 -6,-1 -6,-5 -2,3 -8,-5 2,-5
 f22|Fertitta Hall||268,180 26,14 -21,40 -3,-1 -2,3 -5,1 -4,-2 -30,4 -1,-7 4,0 -1,-8 23,-3 9,-16 -7,-4
 b30|USC Hotel||403,90 31,16 -18,35 -10,-4 -4,8 7,3 -28,50 -5,-3 -1,2 -6,-3 1,-2 -9,-5 15,-27 -3,-2 2,-4 -3,-2 10,-18 14,8 4,-8 -15,-9
@@ -3758,6 +3758,22 @@ var ALUM=null;
   ALUM={F:F,P:P,loc:loc,U:U,V0:V0,V1:V1,FV:FV,VB:VB,BW:BW};
 })();
 
+/* Childs Way, the gated campus street along Doheny's south side that ends in
+   the paved plaza between Lewis and Popovich halls, is built in a2l_road.js:
+   take its OSM walk out and give the crowd the street (hide: drawn by a2l).
+   Local frame: s along the street from its west end, t across it (+ south). */
+var CHILDS=null;
+(function(){
+  var A=[42,47], B=[224,143], L=Math.hypot(B[0]-A[0],B[1]-A[1]),
+      ux=(B[0]-A[0])/L, uz=(B[1]-A[1])/L;
+  function P(s,t){ return [A[0]+ux*s-uz*t, A[1]+uz*s+ux*t]; }
+  function loc(p){ var x=p[0]-A[0], z=p[1]-A[1]; return [x*ux+z*uz, -x*uz+z*ux]; }
+  PATHS=PATHS.filter(function(p){ return !p.pts.every(function(q){
+    var l=loc(q); return l[0]>-1&&l[0]<L+1&&Math.abs(l[1])<2; }); });
+  PATHS.push({w:3,hide:1,pts:[P(1.5,0),P(L,0)]});
+  CHILDS={P:P,loc:loc,L:L,ux:ux,uz:uz};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -4482,26 +4498,6 @@ function coneRoof(M,cx,cz,r,y0,hh,col,n){
           [cx,y0+hh,cz], cd,cd,c);
   }
 }
-/* the open lattice globe on top of the Medicine Crow Center (DMC) tower */
-function wireGlobe(M,cx,cy,cz,r){
-  var g=rgb(0xC8C2B4,1), gd=rgb(0xC8C2B4,0.6), t=r*0.075, N=12;
-  function ring3(axis){
-    for(var i=0;i<N;i++){
-      var a0=i/N*6.283185, a1=(i+1)/N*6.283185;
-      var p0,p1;
-      if(axis===0){ p0=[cx+Math.cos(a0)*r,cy+Math.sin(a0)*r,cz]; p1=[cx+Math.cos(a1)*r,cy+Math.sin(a1)*r,cz]; }
-      else if(axis===1){ p0=[cx,cy+Math.sin(a0)*r,cz+Math.cos(a0)*r]; p1=[cx,cy+Math.sin(a1)*r,cz+Math.cos(a1)*r]; }
-      else if(axis===2){ p0=[cx+Math.cos(a0)*r*0.71,cy+Math.sin(a0)*r,cz+Math.cos(a0)*r*0.71];
-                         p1=[cx+Math.cos(a1)*r*0.71,cy+Math.sin(a1)*r,cz+Math.cos(a1)*r*0.71]; }
-      else { p0=[cx+Math.cos(a0)*r,cy,cz+Math.sin(a0)*r]; p1=[cx+Math.cos(a1)*r,cy,cz+Math.sin(a1)*r]; }
-      M.quad([p0[0]-t,p0[1],p0[2]-t],[p0[0]+t,p0[1],p0[2]+t],
-             [p1[0]+t,p1[1],p1[2]+t],[p1[0]-t,p1[1],p1[2]-t], gd,g,g,gd);
-      M.quad([p0[0]+t,p0[1],p0[2]+t],[p0[0]-t,p0[1],p0[2]-t],
-             [p1[0]-t,p1[1],p1[2]-t],[p1[0]+t,p1[1],p1[2]+t], gd,g,g,gd);
-    }
-  }
-  ring3(0); ring3(1); ring3(2); ring3(3);
-}
 /* horizontal banding, the way Leavey and the concrete blocks are striped */
 function stripes(M,ring,h,y0,bandH,gapH,colA,colB){
   var y=y0;
@@ -4512,72 +4508,10 @@ function stripes(M,ring,h,y0,bandH,gapH,colA,colB){
 }
 
 var CUSTOM = {
-/* ---------- Dr. Joseph Medicine Crow Center (DMC), formerly Von KleinSmid ---------- */
+/* ---------- Dr. Joseph Medicine Crow Center (DMC), formerly Von KleinSmid ----------
+   built by hand in a2n_dmc.js (courtyard, arcades, tower and globe) */
 'Dr. Joseph Medicine Crow Center for International and Public Affairs':
-function(M,B,ring,c,d){
-  var h=15.5, wall=0xC4704E;
-  prism(M,ring,0,h,wall,wall,0.58);
-  band(M,ring,0,0.85,0.22,0xEDE7D8,1,0.78);
-  /* the long run of tall slender arches in white surrounds */
-  var n=ring.length;
-  for(var i=0;i<n;i++){
-    var a=ring[i], b=ring[(i+1)%n];
-    var dx=b[0]-a[0], dz=b[1]-a[1], L=Math.hypot(dx,dz);
-    if(L<10) continue;
-    dx/=L; dz/=L;
-    var nx=dz, nz=-dx;
-    var count=Math.max(4,Math.floor((L-3)/8.2));
-    var gap=L/(count+1);
-    for(var k=1;k<=count;k++){
-      var u=gap*k; if(u<2.4||u>L-2.4) continue;
-      var px=a[0]+dx*u, pz=a[1]+dz*u;
-      archFace(M,px,pz,dx,dz,nx*0.10,nz*0.10,0.9,Math.min(5.4,gap*0.80),h-6.6,Math.min(5.4,gap*0.80)*0.5,0xF2EDE0,1);
-      archFace(M,px,pz,dx,dz,nx*0.22,nz*0.22,1.0,Math.min(4.3,gap*0.64),h-7.0,Math.min(4.3,gap*0.64)*0.5,0x4A3A2E,1);
-    }
-  }
-  /* the thin roof plane that flies out past the walls, with its dentil fringe */
-  var ov=offsetRing(ring,2.9);
-  band(M,ov,h,h+1.05,0,0xE8E3D4,1,0.74);
-  flat(M,ov,h,0xB8B2A2,0.55);
-  var cD=rgb(0xD8D2C2,1);
-  for(i=0;i<ov.length;i++){
-    var a2=ov[i], b2=ov[(i+1)%ov.length];
-    var ddx=b2[0]-a2[0], ddz=b2[1]-a2[1], LL=Math.hypot(ddx,ddz);
-    if(LL<1) continue;
-    ddx/=LL; ddz/=LL;
-    var mx=ddz*0.16, mz=-ddx*0.16;
-    for(var t=0.6;t<LL-0.6;t+=1.15){
-      var qx=a2[0]+ddx*t+mx, qz=a2[1]+ddz*t+mz;
-      M.quad([qx-ddx*0.30,h+0.15,qz-ddz*0.30],[qx-ddx*0.30,h+0.92,qz-ddz*0.30],
-             [qx+ddx*0.30,h+0.92,qz+ddz*0.30],[qx+ddx*0.30,h+0.15,qz+ddz*0.30],cD,cD,cD,cD);
-    }
-  }
-  /* the tower, set at the end of the colonnade, carrying the lattice globe */
-  var ip=innerPoint(ring);
-  var gx=-c[0], gz=-c[1], gL=Math.hypot(gx,gz)||1; gx/=gL; gz/=gL;
-  var tx=ip.p[0]-gx*Math.max(0,ip.r-5), tz=ip.p[1]-gz*Math.max(0,ip.r-5);
-  var tw=7.2, hw=tw/2, ty=42;
-  var sq=[[tx-hw,tz-hw],[tx+hw,tz-hw],[tx+hw,tz+hw],[tx-hw,tz+hw]];
-  prism(M,sq,0,ty,wall,0xE8E3D4,0.55);
-  var slot=rgb(0x5A3A2A,1);
-  for(i=0;i<4;i++){
-    var s0=sq[i], s1=sq[(i+1)%4];
-    var sx=s1[0]-s0[0], sz=s1[1]-s0[1], SL=Math.hypot(sx,sz); sx/=SL; sz/=SL;
-    var qx2=sz*0.10, qz2=-sx*0.10;
-    for(var v2=1;v2<=3;v2++){
-      var uu=SL*v2/4;
-      M.quad([s0[0]+sx*(uu-0.30)+qx2,ty-9.5,s0[1]+sz*(uu-0.30)+qz2],
-             [s0[0]+sx*(uu-0.30)+qx2,ty-1.6,s0[1]+sz*(uu-0.30)+qz2],
-             [s0[0]+sx*(uu+0.30)+qx2,ty-1.6,s0[1]+sz*(uu+0.30)+qz2],
-             [s0[0]+sx*(uu+0.30)+qx2,ty-9.5,s0[1]+sz*(uu+0.30)+qz2],slot,slot,slot,slot);
-    }
-  }
-  band(M,sq,ty,ty+0.7,0.35,0xE8E3D4,1,0.8);
-  wireGlobe(M,tx,ty+3.9,tz,3.0);
-  addCollider(sq,ty);
-  addCollider(ring,h);
-  return h;
-},
+function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 
 /* ---------- Fertitta Hall ---------- */
 'Fertitta Hall': function(M,B,ring,c,d){
@@ -4728,8 +4662,8 @@ function(M,B,ring,c,d){
 }
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
-/* built by hand in a2i_halls.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22};
+/* built by hand in a2i_halls.js and a2o_lewis.js: the generic pass leaves these footprints empty */
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -5987,9 +5921,25 @@ CUSTOM['Doheny Memorial Library']=function(M,B,ring,c,d){
    are close, so the spaces between buildings read as planted grounds rather
    than a car park. The Coliseum's sunken bowl is cut out of both. */
 var LAWN_MASK=null, LG={x0:-720,z0:-820,x1:800,z1:900,c:8};
+/* Hahn Central Plaza, the brick plaza in front of Tommy Trojan, on the campus grid.
+   Local frame: origin at Tommy, u east (away from Bovard), v south. The outline follows
+   the OSM pedestrian area, pushed out to take in Traveler's bed. Its closed outline way
+   is hidden (the crowd still uses it); a2m_hahn.js lays the brick pattern. */
+var HAHN=(function(){
+  var ox=-3, oz=4, du=[0.8829,0.4695], dv=[-0.4695,0.8829];
+  function P(u,v){ return [ox+du[0]*u+dv[0]*v, oz+du[1]*u+dv[1]*v]; }
+  function loc(p){ var x=p[0]-ox, z=p[1]-oz; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  var L=[[-6,-9.3],[49.4,-9.3],[49.4,0.8],[60.4,0.8],[60.4,29.4],[56,29.4],[56,48],
+         [10.2,48],[10.2,29.6],[-6,29.6]];
+  var ring=L.map(function(p){ return P(p[0],p[1]); });
+  PATHS.forEach(function(p){
+    if(p.w>=6&&p.pts.every(function(q){ var l=loc(q); return l[0]>-8&&l[0]<62&&l[1]>-12&&l[1]<50; })) p.hide=1;
+  });
+  return {x:ox,z:oz,du:du,dv:dv,P:P,loc:loc,L:L,ring:ring,rot:Math.atan2(du[0],du[1]),baseH:0.51};
+})();
 var PLAZAS=[
   /* Hahn Plaza: Tommy Trojan, the fountain and Traveler */
-  [[-14,-10],[22,-24],[54,20],[52,64],[30,78],[4,60],[-16,22]],
+  HAHN.ring.slice(),
   /* the Campus Center terrace */
   (function(){ var r=[]; for(var i=0;i<18;i++){ var a=i/18*6.2832; r.push([-77+Math.cos(a)*21,50+Math.sin(a)*21]); } return r; })(),
   /* USC Village plaza */
@@ -6180,7 +6130,6 @@ function innerPoint(ring){
   }
   var ARCADED_NEW={'Tutor Campus Center':1,'Steven and Kathryn Sample Hall':1,'Popovich Hall':1};
   var ARCADED={'Mudd Hall':1,'Bovard Administration Building':1,
-               'Dr. Joseph Medicine Crow Center for International and Public Affairs':1,
                'Physical Education Building':1};
   for(i=0;i<CAMPUS.length;i++){
     var B=CAMPUS[i], ring=B.ring, h=B.h, st=B.st, d=ringDims(ring);
@@ -6254,7 +6203,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7){
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'){   /* a2n_dmc.js and a2o_lewis.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
@@ -6516,6 +6465,7 @@ var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,22
   if(MCQ_RING) NO_PLANT.push(MCQ_RING);
   if(ringArea(FERT_COURT)<0) FERT_COURT.reverse();
   NO_PLANT.push(offsetRing(FERT_COURT,1.5));
+  NO_PLANT.push(HAHN.ring.slice());   /* Hahn Plaza: open brick, lamps placed in a2m_hahn.js */
 })();
 (function(){
   var FELIX=decode('-284,-146 -9,-6 -6,-8 -4,-10 0,-10 4,-10 6,-8 9,-6 10,-3 10,1 10,4 86,46 8,7 5,9 2,10 -1,11 -5,9 -8,7 -10,4 -10,1 -11,-3');
@@ -7379,6 +7329,7 @@ var TREE_POS=[];
     if(Math.hypot(P0.x-20,P0.z-61)<4) continue;   /* Traveler stands here instead */
     var g=new T.Group(); g.position.set(P0.x,0,P0.z);
     var isTommy = /Tommy Trojan/i.test(P0.name);
+    if(isTommy){ g.rotation.y=HAHN.rot; g.position.y=HAHN.baseH; }   /* on his stepped base (a2m_hahn.js), facing the plaza */
     var isTire = /Tirebiter/i.test(P0.name);
     if(isTire){
       /* paved circle, granite benches, the dog, a stack of tyres and a football */
@@ -10364,6 +10315,400 @@ function fenceCuts(ax,az,bx,bz){
   window.__halls={tris:M.count()};
 })();
 /* ==================================================================
+   Dr. Joseph Medicine Crow Center for International and Public Affairs
+   (DMC; Edward Durell Stone, 1966; formerly the Von KleinSmid Center).
+   a_world.js leaves its footprint empty (CUSTOM stub sets B.hand).
+
+   A rose brick square doughnut on a low podium. Measurements come from
+   OpenStreetMap (relation 6095465): the outer block is about 85 x 55 m,
+   the open courtyard (the hole in the white roof) about 31.6 x 17 m and
+   sits toward the south west side; the 51 m tower (way 442277391) stands
+   in the courtyard's north west inner corner.
+
+   Courtyard: glass ground storey set back under a white balcony slab with
+   a light rail and flags; above it tall slender brick piers and round
+   arches on all four sides; the thin white roof oversails them. In the
+   middle a sunken round amphitheatre of brick and concrete rings, hedges
+   and a tree.
+
+   Outside: vertical brick fins on the north, west and east fronts; along
+   the south front (toward Tommy Trojan) a tall arcade with flags in the
+   bays; the thin white roof plane on fine ribs; broad low steps all round.
+   Passages lead into the courtyard from the south arcade, the west front
+   and the east front.
+
+   Local frame: u along the long side (grid east), v across it (grid south,
+   toward Tommy Trojan). All heights in metres above the street.
+   ================================================================== */
+(function(){
+  var NAME='Dr. Joseph Medicine Crow Center for International and Public Affairs';
+  var B=null, i, k;
+  for(i=0;i<CAMPUS.length;i++) if(CAMPUS[i].name===NAME) B=CAMPUS[i];
+  if(!B) return;
+  var M=new Mesher(), MG=new Mesher(), cols=[];
+  var BRICK=0xC06E52, BRICKD=0xA85C44, WHITE=0xF2EFE7, ROOFC=0xE4E0D6, CREAM=0xE7DCC8,
+      GLASS=0x2B353D, BRONZE=0x4A4038, SLOT=0x4C3328, DARK=0x2E2622, PAVE=0xBDB3A0,
+      STEP=0xD9D3C5, CONC=0xCEC7B6, HEDGE=0x3C6B33, HEDGET=0x4A7A3B, RAIL=0xE8E6E0;
+
+  function ccw(r){ if(ringArea(r)<0) r.reverse(); return r; }
+  function solid(r,h){ cols.push([ccw(r.slice()),h]); }
+
+  /* ---------- local frame from the footprint ---------- */
+  var R=B.ring, n=R.length, OX=0, OZ=0, best=0, EU=[1,0];
+  for(i=0;i<n;i++){
+    OX+=R[i][0]/n; OZ+=R[i][1]/n;
+    var a=R[i], b=R[(i+1)%n], L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    if(L>best){ best=L; EU=[(b[0]-a[0])/L,(b[1]-a[1])/L]; }
+  }
+  if(EU[0]<0) EU=[-EU[0],-EU[1]];
+  var EV=[-EU[1],EU[0]], U=0, V=0;
+  for(i=0;i<n;i++){
+    var du=R[i][0]-OX, dv=R[i][1]-OZ;
+    U+=Math.abs(du*EU[0]+dv*EU[1])/n; V+=Math.abs(du*EV[0]+dv*EV[1])/n;
+  }
+  function P(u,v){ return [OX+EU[0]*u+EV[0]*v, OZ+EU[1]*u+EV[1]*v]; }
+  function W3(u,v,y){ var p=P(u,v); return [p[0],y,p[1]]; }
+  function WN(nu,nv){ return [EU[0]*nu+EV[0]*nv,0,EU[1]*nu+EV[1]*nv]; }
+  function UV(x,z){ var dx=x-OX, dz=z-OZ; return [dx*EU[0]+dz*EU[1], dx*EV[0]+dz*EV[1]]; }
+  function rect(u0,u1,v0,v1){ return ccw([P(u0,v0),P(u1,v0),P(u1,v1),P(u0,v1)]); }
+  function box(u0,u1,v0,v1,y0,y1,col,sh){ var r=rect(u0,u1,v0,v1); prism(M,r,y0,y1,col,col,sh==null?0.62:sh); return r; }
+  function under(ring,y,col,sh){                      /* a face looking down */
+    var f=triangulate(ring), c=rgb(col,sh==null?0.8:sh);
+    for(var j=0;j<f.length;j++){ var A=ring[f[j][0]],Bq=ring[f[j][1]],C=ring[f[j][2]];
+      M.tri([A[0],y,A[1]],[Bq[0],y,Bq[1]],[C[0],y,C[1]],c,c,c); }
+  }
+  /* a quad wound so that it faces n */
+  function q4(A,Bq,C,D,c,nn,MM){
+    var ux=Bq[0]-A[0],uy=Bq[1]-A[1],uz=Bq[2]-A[2], vx=C[0]-A[0],vy=C[1]-A[1],vz=C[2]-A[2];
+    var nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+    if(nx*nn[0]+ny*nn[1]+nz*nn[2]<0) (MM||M).quad(D,C,Bq,A,c,c,c,c); else (MM||M).quad(A,Bq,C,D,c,c,c,c);
+  }
+  /* the region between two nested rectangles, as four strips */
+  function frame(i0,o0){   /* [u0,u1,v0,v1] inner, outer */
+    return [[o0[0],o0[1],o0[2],i0[2]],[o0[0],o0[1],i0[3],o0[3]],[o0[0],i0[0],i0[2],i0[3]],[i0[1],o0[1],i0[2],i0[3]]];
+  }
+
+  /* wall frames: s runs along the wall, t out from it along the normal */
+  function FP(F,s,t){ return [F.cu+F.au*s+F.nu*t, F.cv+F.av*s+F.nv*t]; }
+  function F3(F,s,t,y){ var q=FP(F,s,t); return W3(q[0],q[1],y); }
+  function FN(F){ return WN(F.nu,F.nv); }
+  function Frect(F,s0,s1,t0,t1){ var p=FP(F,s0,t0), q=FP(F,s1,t1);
+    return rect(Math.min(p[0],q[0]),Math.max(p[0],q[0]),Math.min(p[1],q[1]),Math.max(p[1],q[1])); }
+  function Fbox(F,s0,s1,t0,t1,y0,y1,col,sh){ var r=Frect(F,s0,s1,t0,t1); prism(M,r,y0,y1,col,col,sh==null?0.62:sh); return r; }
+  function Fface(F,s0,s1,t,y0,y1,col,sh,back){
+    var nn=FN(F); if(back) nn=[-nn[0],0,-nn[2]];
+    q4(F3(F,s0,t,y0),F3(F,s0,t,y1),F3(F,s1,t,y1),F3(F,s1,t,y0),rgb(col,sh==null?1:sh),nn);
+  }
+
+  /* ---------- dimensions ---------- */
+  var G=1.5;                      /* podium, courtyard and arcade floor */
+  var H=G+15.2, RT=H+0.6;         /* top of the brick, top of the roof slab */
+  /* the open courtyard (the hole in the roof), from OSM's inner ring */
+  var OPEN=[[144.1,-56.2],[116.2,-71.0],[108.2,-55.9],[136.0,-41.0]].map(function(p){ return UV(p[0],p[1]); });
+  var ou0=1e9,ou1=-1e9,ov0=1e9,ov1=-1e9;
+  OPEN.forEach(function(q){ ou0=Math.min(ou0,q[0]); ou1=Math.max(ou1,q[0]); ov0=Math.min(ov0,q[1]); ov1=Math.max(ov1,q[1]); });
+  var CU=(ou0+ou1)/2, CV=(ov0+ov1)/2;
+  function grow(d){ return [ou0-d,ou1+d,ov0-d,ov1+d]; }
+  var WALL=grow(3.0), PIER=grow(1.4), SLABE=grow(0.6), OPENR=grow(0);
+  var LOG=3.5;                    /* depth of the south arcade */
+  var BAYS_S=13, BWS=U/9.5, UA0=-3.5*BWS;      /* puts a bay on the south passage */
+  var PS=[-2.2,2.2], PW=[CV+3.2,CV+7.6], PE=[CV-2.2,CV+2.2];   /* passages: south (u), west (v), east (v) */
+  var PH=G+4.2;                   /* passage and ground storey height */
+
+  /* ================================================================
+     the building mass, as blocks round the courtyard and passages
+     ================================================================ */
+  var blocks=[
+    [-U,U,-V,WALL[2]],
+    [-U,WALL[0],WALL[2],PW[0]], [-U,WALL[0],PW[1],WALL[3]],
+    [WALL[1],U,WALL[2],PE[0]],  [WALL[1],U,PE[1],WALL[3]],
+    [-U,UA0,WALL[3],V], [UA0,PS[0],WALL[3],V-LOG], [PS[1],U,WALL[3],V-LOG]
+  ];
+  blocks.forEach(function(q){ var r=box(q[0],q[1],q[2],q[3],0,H,BRICK,0.56); solid(r,RT); });
+  /* lintels over the three passages, and their ceilings */
+  [[PS[0],PS[1],WALL[3],V-LOG],[-U,WALL[0],PW[0],PW[1]],[WALL[1],U,PE[0],PE[1]]].forEach(function(q){
+    box(q[0],q[1],q[2],q[3],PH,H,BRICK,0.56); under(rect(q[0],q[1],q[2],q[3]),PH,CREAM,0.7);
+  });
+
+  /* ================================================================
+     roof: a thin white plane over everything, with the courtyard hole
+     ================================================================ */
+  var OV=3.0, RO=[-U-OV,U+OV,-V-OV,V+OV];
+  var roofOuter=rect(RO[0],RO[1],RO[2],RO[3]), roofHole=rect(OPENR[0],OPENR[1],OPENR[2],OPENR[3]);
+  flatHoled(M,roofOuter,[roofHole],RT,ROOFC,1);
+  frame([-U,U,-V,V],RO).concat(frame(OPENR,WALL)).forEach(function(q){ under(rect(q[0],q[1],q[2],q[3]),H,WHITE,0.78); });
+  /* outer and inner fascias */
+  var EXT={S:{cu:0,cv:V,au:1,av:0,nu:0,nv:1,h:U}, N:{cu:0,cv:-V,au:1,av:0,nu:0,nv:-1,h:U},
+           W:{cu:-U,cv:0,au:0,av:1,nu:-1,nv:0,h:V}, E:{cu:U,cv:0,au:0,av:1,nu:1,nv:0,h:V}};
+  var INN={N:{cu:CU,cv:WALL[2],au:1,av:0,nu:0,nv:1,h:(WALL[1]-WALL[0])/2,p:(PIER[1]-PIER[0])/2,o:(ou1-ou0)/2,nb:7},
+           S:{cu:CU,cv:WALL[3],au:1,av:0,nu:0,nv:-1,h:(WALL[1]-WALL[0])/2,p:(PIER[1]-PIER[0])/2,o:(ou1-ou0)/2,nb:7},
+           W:{cu:WALL[0],cv:CV,au:0,av:1,nu:1,nv:0,h:(WALL[3]-WALL[2])/2,p:(PIER[3]-PIER[2])/2,o:(ov1-ov0)/2,nb:4},
+           E:{cu:WALL[1],cv:CV,au:0,av:1,nu:-1,nv:0,h:(WALL[3]-WALL[2])/2,p:(PIER[3]-PIER[2])/2,o:(ov1-ov0)/2,nb:4}};
+  Object.keys(EXT).forEach(function(kk){
+    var F=EXT[kk], L2=F.h+OV;
+    Fface(F,-L2,L2,OV,H,RT,WHITE,0.95);
+    Fface(F,-L2,L2,OV-0.12,H-0.18,H,WHITE,0.85);
+    for(var s=-L2+0.6;s<L2-0.3;s+=1.2) Fbox(F,s-0.07,s+0.07,0,OV-0.05,H-0.42,H,WHITE,0.74);   /* ribs under the overhang */
+  });
+  Object.keys(INN).forEach(function(kk){
+    var F=INN[kk];
+    Fface(F,-F.o,F.o,3.0,H,RT,WHITE,0.95);
+    for(var s=-F.o+0.5;s<F.o-0.3;s+=1.1) Fbox(F,s-0.07,s+0.07,0,2.95,H-0.42,H,WHITE,0.74);
+  });
+
+  /* ================================================================
+     arcades: piers and round arches, spandrels to the top
+     ================================================================ */
+  function arches(F,s0,s1,nb,yb,crown,ytop,pw,t0,t1,col,colS,solidH){
+    var bw=(s1-s0)/nb, nn=FN(F), nb2=[-nn[0],0,-nn[2]], sd=WN(F.au,F.av);
+    var cF=rgb(col,1), cB=rgb(col,0.62), cS=rgb(colS,0.82), NSEG=10;
+    for(var kk=0;kk<=nb;kk++){
+      var sc=s0+kk*bw, pa=Math.max(s0,sc-pw/2), pb=Math.min(s1,sc+pw/2);
+      var r=Fbox(F,pa,pb,t0,t1,yb,ytop,col,0.6); if(solidH) solid(r,solidH);
+    }
+    var out=[];
+    for(kk=0;kk<nb;kk++){
+      var a2=s0+kk*bw+pw/2, b2=s0+(kk+1)*bw-pw/2, r0=(b2-a2)/2, m=(a2+b2)/2, sp=crown-r0;
+      out.push(m);
+      for(var j=0;j<NSEG;j++){
+        var th0=Math.PI*(1-j/NSEG), th1=Math.PI*(1-(j+1)/NSEG), thm=(th0+th1)/2;
+        var sa=m+Math.cos(th0)*r0, sb=m+Math.cos(th1)*r0, ya=sp+Math.sin(th0)*r0, yb2=sp+Math.sin(th1)*r0;
+        q4(F3(F,sa,t1,ya),F3(F,sa,t1,ytop),F3(F,sb,t1,ytop),F3(F,sb,t1,yb2),cF,nn);
+        q4(F3(F,sa,t0,ya),F3(F,sa,t0,ytop),F3(F,sb,t0,ytop),F3(F,sb,t0,yb2),cB,nb2);
+        var sn=[-sd[0]*Math.cos(thm),-Math.sin(thm),-sd[2]*Math.cos(thm)];
+        q4(F3(F,sa,t1,ya),F3(F,sb,t1,yb2),F3(F,sb,t0,yb2),F3(F,sa,t0,ya),cS,sn);
+      }
+    }
+    return {bw:bw,mids:out};
+  }
+
+  /* flags: simple national tricolours and bicolours, a few with a centre mark */
+  var FLAGS=[['v',[0x006847,0xFFFFFF,0xCE1126]], ['v',[0xD52B1E,0xFFFFFF,0xD52B1E],0xD52B1E], ['h',[0x000000,0xDD0000,0xFFCE00]],
+             ['v',[0x002395,0xFFFFFF,0xED2939]], ['v',[0x169B62,0xFFFFFF,0xFF883E]], ['h',[0xFFFFFF,0xDC143C]],
+             ['h',[0xAA151B,0xF1BF00,0xAA151B]], ['v',[0x009246,0xFFFFFF,0xCE2B37]], ['h',[0x0057B7,0xFFD700]],
+             ['v',[0xFFFFFF],0xBC002D], ['h',[0x21468B,0xFFFFFF,0xAE1C28]], ['h',[0x00843D,0xFFFFFF,0x00843D]]];
+  var flagN=0;
+  function flag(F,s0,t,y0,w,h){
+    var d=FLAGS[(flagN++)%FLAGS.length], st=d[1], ns=st.length;
+    for(var j=0;j<ns;j++){
+      var c=st[j];
+      if(d[0]==='v'){ Fface(F,s0+w*j/ns,s0+w*(j+1)/ns,t,y0,y0+h,c,0.95); Fface(F,s0+w*j/ns,s0+w*(j+1)/ns,t-0.01,y0,y0+h,c,0.8,1); }
+      else { var ya=y0+h*(ns-1-j)/ns, yb=y0+h*(ns-j)/ns; Fface(F,s0,s0+w,t,ya,yb,c,0.95); Fface(F,s0,s0+w,t-0.01,ya,yb,c,0.8,1); }
+    }
+    if(d[2]!=null){ var cs=s0+w/2, q=h*0.28; Fface(F,cs-q,cs+q,t+0.01,y0+h/2-q,y0+h/2+q,d[2],0.95); Fface(F,cs-q,cs+q,t-0.02,y0+h/2-q,y0+h/2+q,d[2],0.8,1); }
+  }
+
+  /* ================================================================
+     the courtyard elevations, all four sides
+     ================================================================ */
+  var CROWN=H-1.25;
+  Object.keys(INN).forEach(function(kk){
+    var F=INN[kk];
+    /* passage gaps in this wall, in s */
+    var gaps=[];
+    if(kk==='S') gaps.push([PS[0]-CU,PS[1]-CU]);
+    if(kk==='W') gaps.push([PW[0]-CV,PW[1]-CV]);
+    if(kk==='E') gaps.push([PE[0]-CV,PE[1]-CV]);
+    /* ground storey glass, mullions, a transom, doors */
+    var segs=[[-F.h,F.h]];
+    gaps.forEach(function(g){ var nsg=[]; segs.forEach(function(sg){
+      if(g[1]<=sg[0]||g[0]>=sg[1]){ nsg.push(sg); return; }
+      if(g[0]>sg[0]) nsg.push([sg[0],g[0]]); if(g[1]<sg[1]) nsg.push([g[1],sg[1]]); }); segs=nsg; });
+    segs.forEach(function(sg){
+      Fface(F,sg[0],sg[1],0.04,G,PH,GLASS,1);
+      Fbox(F,sg[0],sg[1],0,0.14,G+3.0,G+3.12,BRONZE,0.8);
+      for(var s=sg[0]+0.05;s<=sg[1];s+=1.55) Fbox(F,s-0.05,s+0.05,0,0.14,G,PH,BRONZE,0.8);
+    });
+    gaps.forEach(function(g){   /* a white surround round each passage mouth */
+      Fbox(F,g[0]-0.3,g[0],0,0.2,G,PH+0.3,WHITE,0.8); Fbox(F,g[1],g[1]+0.3,0,0.2,G,PH+0.3,WHITE,0.8); });
+    /* the balcony slab: a white overhang over the glass, with its rail */
+    var sl=Fbox(F,-F.h,F.h,0,2.4,PH,G+5.0,WHITE,0.82); under(sl,PH,WHITE,0.74);
+    var sr=F.h-0.1;
+    Fbox(F,-sr,sr,2.26,2.34,G+5.95,G+6.05,RAIL,0.8);
+    Fbox(F,-sr,sr,2.27,2.33,G+5.1,G+5.16,RAIL,0.8);
+    for(var s2=-sr;s2<=sr;s2+=0.34) Fbox(F,s2-0.025,s2+0.025,2.275,2.325,G+5.0,G+5.98,RAIL,0.75);
+    /* the upper arcade */
+    var ar=arches(F,-F.p,F.p,F.nb,G+5.0,CROWN,H,0.9,0.8,1.6,BRICK,CREAM,0);
+    ar.mids.forEach(function(m,j){
+      /* tall dark windows and doors on the gallery wall behind each arch */
+      Fface(F,m-1.25,m+1.25,0.03,G+5.0,CROWN-1.4,CREAM,0.9);
+      Fface(F,m-1.05,m+1.05,0.05,G+5.0,CROWN-1.6,0x3A2E28,1);
+      Fbox(F,m-0.05,m+0.05,0,0.1,G+5.0,CROWN-1.6,BRONZE,0.8);
+      /* flags on short poles off the rail, every other bay */
+      if(j%2===0){
+        Fbox(F,m-0.04,m+0.04,2.36,2.44,G+5.0,G+7.7,0x6A6A6A,0.8);
+        flag(F,m+0.04,2.42,G+6.85,1.1,0.72);
+      }
+    });
+  });
+
+  /* ================================================================
+     the outside
+     ================================================================ */
+  /* vertical brick fins with dark slots between them */
+  function fins(F,s0,s1){
+    if(s1-s0<1.5) return;
+    Fface(F,s0,s1,0.03,G,H-1.7,SLOT,1);
+    for(var s=s0+0.4;s<s1-0.2;s+=1.75) Fbox(F,s-0.24,s+0.24,0,0.8,G-0.05,H-1.7,BRICK,0.55);
+    solid(Frect(F,s0,s1,0,0.8),H);
+  }
+  function surround(F,g){       /* white frame round a passage on an outer wall */
+    Fbox(F,g[0]-0.45,g[0],0,0.3,G,PH+0.45,WHITE,0.8); Fbox(F,g[1],g[1]+0.45,0,0.3,G,PH+0.45,WHITE,0.8);
+    Fbox(F,g[0]-0.45,g[1]+0.45,0,0.3,PH,PH+0.45,WHITE,0.8);
+  }
+  fins(EXT.N,-U+1.5,U-1.5);
+  fins(EXT.W,-V+1.5,PW[0]-0.9); fins(EXT.W,PW[1]+0.9,V-1.5); surround(EXT.W,PW);
+  fins(EXT.E,-V+1.5,PE[0]-0.9); fins(EXT.E,PE[1]+0.9,V-LOG-0.9); surround(EXT.E,PE);
+
+  /* the south arcade, toward Tommy Trojan, with flags in the bays */
+  var FS=EXT.S, CR_S=G+11.1;
+  var arS=arches(FS,UA0,U,BAYS_S,G,CR_S,H,1.15,-1.0,0,BRICK,CREAM,H);
+  var lc=box(UA0,U,V-LOG,V-1.0,G+11.4,H,BRICK,0.56); under(lc,G+11.4,CREAM,0.62);
+  arS.mids.forEach(function(m){
+    if(Math.abs(m)<2.6){       /* the passage into the courtyard */
+      Fbox(FS,PS[0]-0.4,PS[0],-LOG,-LOG+0.25,G,PH+0.4,WHITE,0.8); Fbox(FS,PS[1],PS[1]+0.4,-LOG,-LOG+0.25,G,PH+0.4,WHITE,0.8);
+      Fbox(FS,PS[0]-0.4,PS[1]+0.4,-LOG,-LOG+0.25,PH,PH+0.4,WHITE,0.8);
+    } else {
+      Fface(FS,m-1.45,m+1.45,-LOG+0.02,G,G+3.6,WHITE,0.85);
+      Fface(FS,m-1.3,m+1.3,-LOG+0.04,G,G+3.45,GLASS,1);
+      Fbox(FS,m-0.05,m+0.05,-LOG,-LOG+0.1,G,G+3.45,BRONZE,0.8);
+      Fface(FS,m-0.7,m+0.7,-LOG+0.04,G+4.4,G+10.2,0x3A2E28,1);
+    }
+    Fbox(FS,m-0.85,m+0.85,-0.56,-0.48,G+4.6,G+4.68,0x6A6A6A,0.8);
+    flag(FS,m-0.65,-0.5,G+3.75,1.3,0.85);
+  });
+
+  /* ================================================================
+     podium and broad low steps all round
+     ================================================================ */
+  var STEPS=[[3.5,G],[4.1,G-0.375],[4.7,G-0.75],[5.3,G-1.125]];   /* outer offset of each level, its height */
+  for(k=0;k<STEPS.length;k++){
+    var o=STEPS[k][0], hy=STEPS[k][1], lo=hy-0.375;
+    Object.keys(EXT).forEach(function(kk){ var F=EXT[kk]; Fface(F,-F.h-o,F.h+o,o,lo,hy,STEP,1); });
+    if(k>0){
+      var oi=STEPS[k-1][0];
+      flatHoled(M,rect(-U-o,U+o,-V-o,V+o),[rect(-U-oi,U+oi,-V-oi,V+oi)],hy,STEP,1);
+      frame([-U-oi,U+oi,-V-oi,V+oi],[-U-o,U+o,-V-o,V+o]).forEach(function(q){ cols.push([rect(q[0],q[1],q[2],q[3]),hy]); });
+    }
+  }
+
+  /* ================================================================
+     the sunken round amphitheatre
+     ================================================================ */
+  var AU=CU+2.5, AV=CV, RA=[7.6,6.2,4.9,3.7], ZA=[G-0.375,G-0.75,G-1.125], NS=28;
+  function circ(r){ var out=[]; for(var j=0;j<NS;j++){ var t=j/NS*Math.PI*2; out.push(P(AU+Math.cos(t)*r,AV+Math.sin(t)*r)); } return ccw(out); }
+  function cp(r,t,y){ return W3(AU+Math.cos(t)*r,AV+Math.sin(t)*r,y); }
+  var PR=STEPS[0][0], POD=[-U-PR,U+PR,-V-PR,V+PR];
+  flatHoled(M,rect(POD[0],POD[1],POD[2],POD[3]),[circ(RA[0])],G,PAVE,1);
+  var SQ=[AU-RA[0],AU+RA[0],AV-RA[0],AV+RA[0]];
+  frame(SQ,POD).forEach(function(q){ cols.push([rect(q[0],q[1],q[2],q[3]),G]); });
+  var up=[0,1,0];
+  for(var j=0;j<NS;j++){
+    var t0=j/NS*Math.PI*2, t1=(j+1)/NS*Math.PI*2, tm=(t0+t1)/2;
+    var inw=WN(-Math.cos(tm),-Math.sin(tm));
+    for(k=0;k<RA.length;k++){
+      var ytop=k===0?G:ZA[k-1], ylo=k<3?ZA[k]:0.0;
+      q4(cp(RA[k],t0,ylo),cp(RA[k],t0,ytop),cp(RA[k],t1,ytop),cp(RA[k],t1,ylo),rgb(k%2?CONC:BRICKD,0.85),inw);
+      if(k<3){
+        q4(cp(RA[k],t0,ylo),cp(RA[k],t1,ylo),cp(RA[k+1],t1,ylo),cp(RA[k+1],t0,ylo),rgb(k%2?BRICK:CONC,k%2?0.9:1),up);
+        cols.push([ccw([P(AU+Math.cos(t0)*RA[k],AV+Math.sin(t0)*RA[k]),P(AU+Math.cos(t1)*RA[k],AV+Math.sin(t1)*RA[k]),
+                        P(AU+Math.cos(t1)*RA[k+1],AV+Math.sin(t1)*RA[k+1]),P(AU+Math.cos(t0)*RA[k+1],AV+Math.sin(t0)*RA[k+1])]),ylo]);
+      }
+    }
+    /* the paving between the top ring and the square round it */
+    var R0=RA[0];
+    var hit=function(t){ var c=Math.cos(t), s=Math.sin(t), m=R0/Math.max(Math.abs(c),Math.abs(s)); return P(AU+c*m,AV+s*m); };
+    var poly=[P(AU+Math.cos(t0)*R0,AV+Math.sin(t0)*R0),P(AU+Math.cos(t1)*R0,AV+Math.sin(t1)*R0),hit(t1)];
+    for(var cq=0;cq<4;cq++){ var ca=Math.PI/4+cq*Math.PI/2; if(ca>t0+1e-4&&ca<t1-1e-4) poly.push(P(AU+R0*Math.SQRT2*Math.cos(ca),AV+R0*Math.SQRT2*Math.sin(ca))); }
+    poly.push(hit(t0));
+    cols.push([ccw(poly),G]);
+  }
+  flat(MG,circ(RA[3]),0.03,CONC,0.95);
+  flat(MG,circ(RA[3]*0.55),0.045,BRICK,0.85);
+
+  /* hedges in long boxes along the glass, and a tree */
+  function hedge(u0,u1,v0,v1){
+    box(u0,u1,v0,v1,G,G+0.72,HEDGE,0.6); box(u0+0.08,u1-0.08,v0+0.08,v1-0.08,G+0.72,G+0.9,HEDGET,0.85);
+    cols.push([rect(u0,u1,v0,v1),G+0.9]);
+  }
+  hedge(CU-7.6,CU-1.6,ov0-1.2,ov0-0.1); hedge(CU+1.6,CU+8.4,ov0-1.2,ov0-0.1); hedge(CU+11.2,ou1+1.4,ov0-1.2,ov0-0.1);
+  hedge(ou0-1.4,PS[0]-1.2,ov1+0.3,ov1+1.4); hedge(PS[1]+1.2,ou1+1.4,ov1+0.3,ov1+1.4);
+  hedge(ou1+0.2,ou1+1.3,CV-6.5,PE[0]-0.8); hedge(ou1+0.2,ou1+1.3,PE[1]+0.8,CV+7.0);
+  var TP=[CU+13.4,CV-4.4];
+  var pl=box(TP[0]-1.3,TP[0]+1.3,TP[1]-1.3,TP[1]+1.3,G,G+0.55,CONC,0.7); solid(pl,G+0.55);
+  flat(M,rect(TP[0]-1.1,TP[0]+1.1,TP[1]-1.1,TP[1]+1.1),G+0.56,0x4A3828,1);
+
+  /* ================================================================
+     the tower in the courtyard's north west corner, and its lattice globe
+     ================================================================ */
+  var TW=UV(117.47,-66.15), TU=TW[0], TV=TW[1], TOPT=44.8;
+  function tb(u0,u1,v0,v1,y0,y1,col,sh){ return box(TU+u0,TU+u1,TV+v0,TV+v1,y0,y1,col,sh); }
+  tb(-3.0,3.0,-3.0,3.0,0,38.2,CREAM,0.7);                     /* the pale channel down each face */
+  [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(function(c){
+    var a3=0.62, b3=3.65;
+    tb(c[0]<0?-b3:a3,c[0]<0?-a3:b3,c[1]<0?-b3:a3,c[1]<0?-a3:b3,0,38.2,BRICK,0.55);
+    tb(c[0]<0?-3.95:2.75,c[0]<0?-2.75:3.95,c[1]<0?-3.95:2.75,c[1]<0?-2.75:3.95,38.2,TOPT,BRICK,0.55);
+  });
+  tb(-3.8,3.8,-3.8,3.8,37.9,38.2,BRICK,0.6);
+  tb(-3.0,3.0,-3.0,3.0,38.2,TOPT-0.6,DARK,0.8);               /* the open belfry */
+  [-1,1].forEach(function(sg){
+    [-1.45,1.45].forEach(function(s){
+      tb(s-0.2,s+0.2,sg<0?-3.95:3.0,sg<0?-3.0:3.95,38.2,TOPT,BRICK,0.55);
+      tb(sg<0?-3.95:3.0,sg<0?-3.0:3.95,s-0.2,s+0.2,38.2,TOPT,BRICK,0.55);
+    });
+    tb(-0.22,0.22,sg<0?-3.6:3.0,sg<0?-3.0:3.6,38.2,TOPT,CREAM,0.7);
+    tb(sg<0?-3.6:3.0,sg<0?-3.0:3.6,-0.22,0.22,38.2,TOPT,CREAM,0.7);
+  });
+  tb(-3.95,3.95,-3.95,3.95,TOPT-0.6,TOPT,BRICK,0.6);
+  tb(-3.7,3.7,-3.7,3.7,TOPT,TOPT+0.22,WHITE,0.8);
+  solid(rect(TU-3.65,TU+3.65,TV-3.65,TV+3.65),51);
+  (function(){
+    var c0=P(TU,TV), cx=c0[0], cz=c0[1], gr=2.95, cy=TOPT+0.22+gr-0.1, col=rgb(0xBDB8AC,1), w=0.17, NG=20;
+    function tube(A,Bq){
+      var d=[Bq[0]-A[0],Bq[1]-A[1],Bq[2]-A[2]], l=Math.hypot(d[0],d[1],d[2]); d=[d[0]/l,d[1]/l,d[2]/l];
+      var upv=Math.abs(d[1])<0.9?[0,1,0]:[1,0,0];
+      var p=[d[1]*upv[2]-d[2]*upv[1],d[2]*upv[0]-d[0]*upv[2],d[0]*upv[1]-d[1]*upv[0]], pl2=Math.hypot(p[0],p[1],p[2]);
+      p=[p[0]/pl2*w/2,p[1]/pl2*w/2,p[2]/pl2*w/2];
+      var q=[d[1]*p[2]-d[2]*p[1],d[2]*p[0]-d[0]*p[2],d[0]*p[1]-d[1]*p[0]];
+      function o(X,a,bb){ return [X[0]+a[0]+bb[0],X[1]+a[1]+bb[1],X[2]+a[2]+bb[2]]; }
+      var neg=function(v){ return [-v[0],-v[1],-v[2]]; };
+      [[p,q],[q,neg(p)],[neg(p),neg(q)],[neg(q),p]].forEach(function(pr){
+        var e=pr[0], f=pr[1];
+        q4(o(A,e,f),o(A,e,neg(f)),o(Bq,e,neg(f)),o(Bq,e,f),col,e);
+      });
+    }
+    for(var mI=0;mI<6;mI++){
+      var ph=mI*Math.PI/6;
+      for(var jj=0;jj<NG;jj++){
+        var a0=jj/NG*Math.PI*2, a1=(jj+1)/NG*Math.PI*2;
+        tube([cx+Math.cos(a0)*Math.cos(ph)*gr,cy+Math.sin(a0)*gr,cz+Math.cos(a0)*Math.sin(ph)*gr],
+             [cx+Math.cos(a1)*Math.cos(ph)*gr,cy+Math.sin(a1)*gr,cz+Math.cos(a1)*Math.sin(ph)*gr]);
+      }
+    }
+    [-60,-30,0,30,60].forEach(function(lat){
+      var la=lat*Math.PI/180, rr2=Math.cos(la)*gr, yy=cy+Math.sin(la)*gr;
+      for(var jj=0;jj<NG;jj++){
+        var a0=jj/NG*Math.PI*2, a1=(jj+1)/NG*Math.PI*2;
+        tube([cx+Math.cos(a0)*rr2,yy,cz+Math.sin(a0)*rr2],[cx+Math.cos(a1)*rr2,yy,cz+Math.sin(a1)*rr2]);
+      }
+    });
+  })();
+
+  /* ================================================================
+     keep the landscape out, put the courtyard tree in
+     ================================================================ */
+  var keep=rect(-U-6,U+6,-V-6,V+6);
+  NO_PLANT.push(keep); NO_LAWN_TREES.push(keep);
+  for(i=TREE_POS.length-1;i>=0;i--) if(inRing(keep,TREE_POS[i][0],TREE_POS[i][1])) TREE_POS.splice(i,1);
+  var tp=P(TP[0],TP[1]); TREE_POS.push([tp[0],tp[1],0,'syc',1.35]);
+
+  B.h=RT;
+  cols.forEach(function(c){ addCollider(c[0],c[1]); });
+  var mw=new T.Mesh(M.geom(),matWorld); mw.frustumCulled=false; scene.add(mw);
+  var mg=new T.Mesh(MG.geom(),matGround); mg.frustumCulled=false; scene.add(mg);
+  window.__dmc={tris:M.count()+MG.count(),U:U,V:V,open:[ou0,ou1,ov0,ov1],P:P};
+})();
+/* ==================================================================
    Alumni Park, in front of Doheny Memorial Library. Laid out on the
    library's axis: limestone steps down from the porch onto a long walk
    of rose brick, a round brick plaza with a white two-tier fountain in
@@ -10568,6 +10913,314 @@ function fenceCuts(ax,az,bx,bz){
   window.__alum={flowers:flowers.length,bushes:bushes.length,ve:VE,fc:FC,n:[F.nx,F.nz]};
 })();
 /* ==================================================================
+   Childs Way: the gated campus street that runs from the corner of
+   Alumni Park along the south side of Doheny Library, past Hubbard and
+   Lewis halls, and ends in the square paved plaza where Pardee Way turns
+   south between Lewis Hall (Price School) and Popovich Hall.
+   As built: a 7 m pale concrete carriageway crossed by brick bands about
+   every 19.5 m, brick parking bays with nose-in stalls on both sides
+   between tree planters, little brown swing gates folded back at the
+   ends, campus lamps, and a plaza of big concrete squares with bollards
+   on its east side. Data layer (CHILDS, a_world.js) has already taken
+   the OSM walk out and given the crowd the street.
+   Local frame: s along the street from its west end, t across (+ south).
+   ================================================================== */
+(function(){
+  if(!CHILDS) return;
+  var P=CHILDS.P, loc=CHILDS.loc, L=CHILDS.L, ux=CHILDS.ux, uz=CHILDS.uz;
+  var S0=1.5, SG=78.5, SE=186;          /* street start, west gate (OSM lift gate), plaza edge */
+  var RH=3.5, GT=0.5, PD=5.0;            /* half carriageway, gutter strip, stall depth */
+  var PS0=RH+GT, PS1=RH+GT+PD;           /* parking strip from |t|=4 to 9 */
+  var SN1=150;                           /* north stalls stop where the walk to Doheny's east end runs */
+  var MG=new Mesher(), MW=new Mesher();
+  var CONC=0xC4BFB4, CONC_D=0xB3AEA3, BRICK=0x9C5845, BRICK_D=0x83462F, BAY=0xA9654F,
+      LINE=0xEDEBE4, GATE=0x5A3B26, GATE_D=0x47301F, CURB=0xC9C2B2, SOIL=0x4E3B2C, BOLL=0x3A3B3E;
+  function hs(a,b,c){ var x=Math.sin(a*12.9898+b*78.233+c*37.719)*43758.5453; return x-Math.floor(x); }
+  function ccw(r){ if(ringArea(r)<0) r.reverse(); return r; }
+  function rect(s0,s1,t0,t1){ return ccw([P(s0,t0),P(s1,t0),P(s1,t1),P(s0,t1)]); }
+  /* thin strips go down in short pieces: triangulate() drops needle triangles */
+  function slab(s0,s1,t0,t1,y,col,sh){
+    var ds=s1-s0, dt=t1-t0, ns=Math.max(1,Math.ceil(ds/Math.max(2,dt*20))), nt=Math.max(1,Math.ceil(dt/Math.max(2,ds*20)));
+    for(var a=0;a<ns;a++) for(var b=0;b<nt;b++)
+      flat(MG,rect(s0+ds*a/ns,s0+ds*(a+1)/ns,t0+dt*b/nt,t0+dt*(b+1)/nt),y,col,sh===undefined?1:sh);
+  }
+  function box(s0,s1,t0,t1,y0,y1,col,sh){ prism(MW,rect(s0,s1,t0,t1),y0,y1,col,col,sh===undefined?0.66:sh); }
+  function seg(s0,t0,s1,t1,y0,y1,w,col,sh){ segBox(MW,P(s0,t0),P(s1,t1),y0,y1,w,col,sh); }
+
+  /* ---- clear the old planting off the street and the plaza ---- */
+  var PZ=[[SE,226,-7,12.6],[198.6,214.6,12.6,22]];      /* plaza: main square, and the mouth of Pardee Way */
+  function onStreet(l,pad){
+    var hw=(l[0]>SG-2?PS1:RH+1.2)+pad;
+    if(l[0]>S0-pad&&l[0]<SE+pad&&Math.abs(l[1])<hw) return true;
+    for(var i=0;i<PZ.length;i++) if(l[0]>PZ[i][0]-pad&&l[0]<PZ[i][1]+pad&&l[1]>PZ[i][2]-pad&&l[1]<PZ[i][3]+pad) return true;
+    return false;
+  }
+  for(var i=TREE_POS.length-1;i>=0;i--) if(onStreet(loc(TREE_POS[i]),1.5)) TREE_POS.splice(i,1);
+  var FOOT=[rect(S0,SG,-RH-1.7,RH+1.7),rect(SG-2,SE,-PS1-0.6,PS1+0.6)];
+  PZ.forEach(function(z){ FOOT.push(rect(z[0]-0.6,z[1]+0.6,z[2]-0.6,z[3]+0.6)); });
+  FOOT.forEach(function(r){ NO_PLANT.push(r); NO_LAWN_TREES.push(r); });
+
+  /* ---- where walks cross the parking strips: keep them open ---- */
+  var GAPS={n:[],s:[]};
+  PATHS.forEach(function(pa){
+    if(pa.hide) return;
+    var hw=pa.w>=2.5?(pa.w*1.3+1.0)/2+0.62:pa.w*0.6, q=pa.pts;
+    for(var k=0;k<q.length-1;k++){
+      var a=loc(q[k]), b=loc(q[k+1]);
+      [-1,1].forEach(function(sd){
+        var tl=sd*(PS0+PS1)/2, lo=Math.min(a[1],b[1]), hi=Math.max(a[1],b[1]);
+        if(tl<lo||tl>hi||hi-lo<0.5) return;
+        var s=a[0]+(b[0]-a[0])*(tl-a[1])/(b[1]-a[1]);
+        if(s>SG-3&&s<SE+3) GAPS[sd<0?'n':'s'].push([s-hw-0.3,s+hw+0.3]);
+      });
+    }
+  });
+  function gapAt(side,s0,s1){ var g=GAPS[side];
+    for(var i=0;i<g.length;i++) if(s1>g[i][0]&&s0<g[i][1]) return g[i]; return null; }
+
+  /* ---- the carriageway: pale concrete, brick edges, brick cross bands ---- */
+  slab(S0,SE,-RH,RH,0.150,CONC,1);
+  for(var s=S0+6;s<SE-1;s+=6.5) slab(s,s+0.07,-RH,RH,0.153,CONC_D,1);         /* score joints */
+  slab(S0,SE,-0.05,0.05,0.153,CONC_D,1);
+  var BANDS=[];
+  for(s=18;s<SE-4;s+=19.5) BANDS.push(s);
+  BANDS.forEach(function(b){ slab(b-1.2,b+1.2,-RH,RH,0.155,BRICK,1);
+    for(var sd=-1;sd<=1;sd+=2) slab(b-1.2,b+1.2,sd*RH-0.1,sd*RH+0.1,0.157,BRICK_D,1); });
+  /* west of the gate: just a brick edge, the park and the old trees come right up */
+  for(var sd=-1;sd<=1;sd+=2){
+    slab(S0,SG,sd>0?RH:-RH-1.2,sd>0?RH+1.2:-RH,0.150,BRICK,1);
+    slab(S0,SG,sd>0?RH+1.05:-RH-1.2,sd>0?RH+1.2:-RH-1.05,0.153,BRICK_D,1);
+  }
+
+  /* ---- parking bays, planters, stalls ---- */
+  var cars=[], STALL=2.6;
+  var PL=BANDS.filter(function(b){ return b>SG+5; });          /* planters line up with the cross bands */
+  var bays=[], edges=[SG+1.6].concat(PL).concat([SE]);
+  for(i=0;i<edges.length-1;i++) bays.push([edges[i]+(i?1.5:0),edges[i+1]-(i<edges.length-2?1.5:0)]);
+  ['n','s'].forEach(function(side){
+    var sg=side==='n'?-1:1, sEnd=side==='n'?SN1:SE, t0=sg*PS0, t1=sg*PS1, tm=sg*(PS0+PS1)/2;
+    var lo=Math.min(t0,t1), hi=Math.max(t0,t1);
+    /* gutter strip and the brick bay floor, broken where a walk crosses */
+    var runs=[[SG-1.5,sEnd]];
+    GAPS[side].forEach(function(g){
+      var nr=[]; runs.forEach(function(r){
+        if(g[1]<=r[0]||g[0]>=r[1]){ nr.push(r); return; }
+        if(g[0]>r[0]) nr.push([r[0],g[0]]); if(g[1]<r[1]) nr.push([g[1],r[1]]); });
+      runs=nr; });
+    slab(SG-1.5,SE,sg>0?RH:-PS0,sg>0?PS0:-RH,0.152,BRICK_D,1);
+    runs.forEach(function(r){ if(r[1]-r[0]<0.3) return;
+      slab(r[0],r[1],lo,hi,0.151,BAY,1);
+      slab(r[0],r[1],sg>0?hi-0.25:lo,sg>0?hi:lo+0.25,0.154,CURB,1);
+    });
+    GAPS[side].forEach(function(g){ var a=Math.max(g[0],SG-1.5), b=Math.min(g[1],sEnd); if(b>a) slab(a,b,lo,hi,0.151,0xC8C2B2,1); });
+    if(side==='n'&&SN1<SE) slab(SN1,SE,-RH-1.2,-RH,0.150,BRICK,1);
+    /* tree planters with a low concrete kerb, one at every cross band */
+    PL.forEach(function(b,pi){
+      if(b+1.3>sEnd||gapAt(side,b-1.3,b+1.3)) return;
+      box(b-1.3,b+1.3,lo+0.2,hi-0.2,0.10,0.42,CURB,0.7);
+      slab(b-1.05,b+1.05,lo+0.45,hi-0.45,0.43,SOIL,1);
+      var tp=P(b,tm);
+      TREE_POS.push([tp[0],tp[1],0,['syc','ficus','oak','syc'][(pi+(sg>0?1:0))%4],1.05+hs(b,sg,3)*0.3]);
+      if((pi+(sg>0?1:0))%2===0){ var lp=P(b+1.75,sg*(PS1-0.4)); campusLamp(MW,lp[0],lp[1],3.6,false); }
+    });
+    /* nose-in stalls between the planters, and the cars in them */
+    bays.forEach(function(by,bi){
+      var b0=by[0], b1=Math.min(by[1],sEnd-0.3);
+      if(bi===bays.length-1) b1=Math.min(b1,SE-4.3);              /* leave room for the folded gate */
+      var n=Math.floor((b1-b0)/STALL); if(n<1) return;
+      var st=(b0+b1)/2-n*STALL/2;
+      for(var k=0;k<n;k++){
+        var a=st+k*STALL, c=a+STALL/2;
+        if(gapAt(side,a,a+STALL)) continue;
+        for(var e=0;e<2;e++){ if(e===1&&k<n-1) continue;
+          var ls=e?a+STALL:a; slab(ls-0.06,ls+0.06,lo+0.25,hi-0.3,0.156,LINE,1); }
+        var h=hs(c,sg,7);
+        if(h<0.74) cars.push([c,sg*(PS0+2.55),sg,h]);
+      }
+    });
+  });
+
+  /* ---- little brown swing gates, folded back open along each edge ---- */
+  function gateLeaf(sh,sd,dir){                 /* hinge at s=sh, side sd, leaf runs toward dir*s */
+    var t=sd*(RH+0.22), Lg=3.3, s1=sh+dir*Lg;
+    var hp=P(sh,t), kp=P(sh+dir*(Lg+0.2),t);
+    postAt(MW,hp[0],hp[1],0,1.25,0.09,GATE_D,0.7);                  /* hinge post */
+    postAt(MW,kp[0],kp[1],0,0.95,0.06,GATE_D,0.7);                  /* keeper post the open leaf is tied to */
+    [0.28,1.02].forEach(function(y){ seg(sh+dir*0.1,t,s1,t,y,y+0.07,0.07,GATE,0.75); });
+    seg(sh+dir*0.1,t,s1,t,0.62,0.66,0.05,GATE,0.75);
+    for(var q=0.1;q<=Lg+0.01;q+=0.32){ var pq=P(sh+dir*q,t); postAt(MW,pq[0],pq[1],0.28,1.06,0.022,GATE,0.75); }
+  }
+  for(sd=-1;sd<=1;sd+=2){ gateLeaf(SG,sd,-1); gateLeaf(SE-0.4,sd,-1); }
+
+  /* ---- the plaza between Lewis and Popovich: big concrete squares ---- */
+  var PQ=0xCCC6B9, JOINT=0x8E897F;
+  PZ.forEach(function(z){
+    slab(z[0],z[1],z[2],z[3],0.150,PQ,1);
+    for(var a=z[0]+3;a<z[1]-0.2;a+=3) slab(a-0.08,a+0.08,z[2],z[3],0.153,JOINT,1);
+    for(var b=Math.ceil(z[2]/3)*3;b<z[3]-0.2;b+=3) if(b>z[2]+0.2) slab(z[0],z[1],b-0.08,b+0.08,0.153,JOINT,1);
+  });
+  slab(SE,SE+1.0,-7,12.6,0.155,BRICK,1);                                 /* brick band where the street meets it */
+  slab(SE,226,-7.8,-7,0.152,BRICK,1);
+  [-6,-4,-2,0,2].forEach(function(t){ var p=P(226.4,t); postAt(MW,p[0],p[1],0,0.95,0.11,BOLL,0.7); });
+
+  /* ---- parked cars, instanced ---- */
+  if(cars.length){
+    var CARC=[0xF2F2F0,0x1E1E20,0x8A8D91,0xB7BABD,0x9C1C22,0x1F3B6B,0xE9E4D8,0x3C4A3E,0x5B5F63,0x2F2F31,0xD8D4CC,0x6E7378];
+    var cb=new T.BoxGeometry(1,1,1); cb.translate(0,0.5,0);
+    var D=new T.Object3D(), col=new T.Color(), ang=Math.atan2(ux,-uz);
+    var mk=function(fn){
+      var im=new T.InstancedMesh(cb,new T.MeshLambertMaterial({color:0xFFFFFF,flatShading:true}),cars.length);
+      for(var i=0;i<cars.length;i++){ fn(cars[i]); D.updateMatrix(); im.setMatrixAt(i,D.matrix); im.setColorAt(i,col); }
+      if(im.instanceColor) im.instanceColor.needsUpdate=true;
+      im.frustumCulled=false; im.raycast=function(){}; scene.add(im); return im;
+    };
+    var at=function(c,dt,y){ var p=P(c[0],c[1]+c[2]*dt); D.position.set(p[0],y,p[1]); D.rotation.set(0,-ang,0); };
+    mk(function(c){ at(c,0,0.12); D.scale.set(3.9,0.36,1.62); col.setHex(0x1C1D20); });                     /* tyres */
+    mk(function(c){ at(c,0,0.34); D.scale.set(4.4,0.70,1.80); col.setHex(CARC[Math.floor(c[3]*97)%CARC.length]); });
+    mk(function(c){ at(c,0.25,1.04); D.scale.set(2.3,0.46,1.62); col.setHex(0x2A3036); });                   /* glass */
+    mk(function(c){ at(c,0.30,1.50); D.scale.set(2.0,0.08,1.56); col.setHex(CARC[Math.floor(c[3]*97)%CARC.length]); });  /* roof */
+    cars.forEach(function(c){ var p=P(c[0],c[1]); addCollider(oriRect(p[0],p[1],-uz,ux,2.25,0.95),1.5); });
+  }
+
+  /* ---- finish ---- */
+  var mw=new T.Mesh(MW.geom(),matWorld); mw.frustumCulled=false; scene.add(mw);
+  var mg=new T.Mesh(MG.geom(),matGround); mg.frustumCulled=false; scene.add(mg);
+  ROADS.push({w:7,pts:[P(S0,0),P(SE,0)]});           /* minimap, and keeps lawn planting off it */
+  window.__childs={cars:cars.length,bands:BANDS.length,gaps:GAPS,tris:MW.count()+MG.count()};
+})();
+/* ==================================================================
+   Hahn Central Plaza, in front of Tommy Trojan. The real paving is a
+   grid of red brick bands making squares of buff brick, with a red
+   brick X in each square; the diagonals line up from square to square,
+   so they read as long lines across the plaza. Drawn cheaply: one buff
+   sheet, then long clipped strips for the diagonals and the bands, all
+   flat quads in one ground mesh. Tommy stands on a stepped gray stone
+   base, with lamp posts on brick pedestals either side.
+   Local frame (HAHN, a_world.js): origin at Tommy, u east, v south.
+   ================================================================== */
+(function(){
+  if(!HAHN) return;
+  var P=HAHN.P, L=HAHN.L, du=HAHN.du;
+  var S=5.4, BAND=0.62, DIAG=0.26, EDGE=0.95;          /* square pitch, band widths, border */
+  var BUFF=0xC7BDAA, RED=0x7D4238, RED_D=0x703A31, REDX=0x874A3F;
+  var MG=new Mesher(), MW=new Mesher();
+  var FTN=HAHN.loc([18,43]), TRV=HAHN.loc([20,61]);    /* fountain and Traveler's bed, cut out */
+  var HOLES=[[FTN[0],FTN[1],7.25],[TRV[0],TRV[1],7.05]];
+  var HB=3.75;                                          /* half width of Tommy's bottom step */
+  function ccw(r){ if(ringArea(r)<0) r.reverse(); return r; }
+
+  /* the parts of the line o+t*d (|d|=1) inside the outline and outside the holes */
+  function clip(o,d){
+    var ts=[], i, n=L.length;
+    for(i=0;i<n;i++){
+      var a=L[i], b=L[(i+1)%n], ex=b[0]-a[0], ez=b[1]-a[1];
+      var den=d[0]*ez-d[1]*ex; if(Math.abs(den)<1e-9) continue;
+      var wx=a[0]-o[0], wz=a[1]-o[1];
+      var t=(wx*ez-wz*ex)/den, s=(wx*d[1]-wz*d[0])/den;
+      if(s>=0&&s<1) ts.push(t);
+    }
+    ts.sort(function(x,y){ return x-y; });
+    var segs=[];
+    for(i=0;i+1<ts.length;i+=2) segs.push([ts[i],ts[i+1]]);
+    for(var h=0;h<HOLES.length;h++){
+      var H=HOLES[h], px=o[0]-H[0], pz=o[1]-H[1];
+      var bq=px*d[0]+pz*d[1], cq=px*px+pz*pz-H[2]*H[2], disc=bq*bq-cq;
+      if(disc<=0) continue;
+      var h0=-bq-Math.sqrt(disc), h1=-bq+Math.sqrt(disc), out=[];
+      segs.forEach(function(g){
+        if(h1<=g[0]||h0>=g[1]){ out.push(g); return; }
+        if(h0>g[0]) out.push([g[0],h0]);
+        if(h1<g[1]) out.push([h1,g[1]]);
+      });
+      segs=out;
+    }
+    return segs;
+  }
+  /* a flat strip of brick along the clipped line */
+  function strip(o,d,w,y,col){
+    var c=rgb(col,1), nu=-d[1]*w/2, nv=d[0]*w/2;
+    clip(o,d).forEach(function(g){
+      if(g[1]-g[0]<0.05) return;
+      var a=[o[0]+d[0]*g[0],o[1]+d[1]*g[0]], b=[o[0]+d[0]*g[1],o[1]+d[1]*g[1]];
+      var A=P(a[0]+nu,a[1]+nv), B=P(b[0]+nu,b[1]+nv), C=P(b[0]-nu,b[1]-nv), D=P(a[0]-nu,a[1]-nv);
+      MG.quad([A[0],y,A[1]],[B[0],y,B[1]],[C[0],y,C[1]],[D[0],y,D[1]],c,c,c,c);
+    });
+  }
+
+  /* ---- buff field with the fountain and Traveler's bed left open ---- */
+  var holes=HOLES.map(function(H){
+    return ngon(0,0,H[2],32,0).map(function(q){ return P(H[0]+q[0],H[1]+q[1]); }).reverse();
+  });
+  var outer=ccw(L.map(function(p){ return P(p[0],p[1]); }));
+  holes.forEach(function(h){ if(ringArea(h)>0) h.reverse(); });
+  flatHoled(MG,outer,holes,0.150,BUFF,1);
+
+  /* ---- the X in every square: diagonals through the band crossings ---- */
+  var R2=Math.SQRT1_2, k;
+  for(k=-6;k<=30;k++){
+    strip([k*S/2,-k*S/2],[R2,R2],DIAG,0.155,REDX);       /* u-v = k*S */
+    strip([k*S/2, k*S/2],[R2,-R2],DIAG,0.155,REDX);      /* u+v = k*S */
+  }
+  /* ---- the red bands: squares centred on Tommy ---- */
+  for(k=-3;k<=12;k++){
+    strip([(k+0.5)*S,0],[0,1],BAND,0.160,RED);
+    strip([0,(k+0.5)*S],[1,0],BAND,0.160,RED);
+  }
+  /* ---- a darker soldier course round the edge ---- */
+  function reflex(j){
+    var n=L.length, p=L[(j+n-1)%n], q=L[j], r=L[(j+1)%n];
+    return (q[0]-p[0])*(r[1]-q[1])-(q[1]-p[1])*(r[0]-q[0])<0;
+  }
+  for(var i=0;i<L.length;i++){
+    var a=L[i], b=L[(i+1)%L.length], ex=b[0]-a[0], ez=b[1]-a[1], len=Math.hypot(ex,ez);
+    ex/=len; ez/=len;
+    var nu=-ez*EDGE/2, nv=ex*EDGE/2, c=rgb(RED_D,1);
+    /* the inside is to the left of each edge: shift the strip inward, and run it on
+       past inside corners so they close up */
+    var e0=reflex(i)?EDGE:0, e1=reflex((i+1)%L.length)?EDGE:0;
+    var a0=[a[0]-ex*e0+nu,a[1]-ez*e0+nv], b0=[b[0]+ex*e1+nu,b[1]+ez*e1+nv];
+    var A=P(a0[0]+nu,a0[1]+nv), B=P(b0[0]+nu,b0[1]+nv), C=P(b0[0]-nu,b0[1]-nv), D=P(a0[0]-nu,a0[1]-nv);
+    MG.quad([A[0],0.163,A[1]],[B[0],0.163,B[1]],[C[0],0.163,C[1]],[D[0],0.163,D[1]],c,c,c,c);
+  }
+  /* brick rings round the fountain kerb and Traveler's bed */
+  HOLES.forEach(function(H){
+    var r=ngon(0,0,H[2]+0.45,32,0).map(function(q){ return P(H[0]+q[0],H[1]+q[1]); });
+    r.push(r[0]); ribbon(MG,r,0.9,0.163,RED_D,1);
+  });
+
+  /* ---- Tommy's stepped base: three courses of gray granite ---- */
+  var T0=P(0,0), ux=du[0], uz=du[1], hb, st;
+  for(st=0;st<3;st++){
+    hb=HB-st*0.55;
+    oriBox(MW,T0[0],T0[1],ux,uz,hb,hb,0,0.17*(st+1),st%2?0xB4B5B1:0xA6A7A3,0.66);
+    addCollider(oriRect(T0[0],T0[1],ux,uz,hb,hb),0.17*(st+1));
+  }
+
+  /* ---- lamp posts on brick pedestals with cream caps ---- */
+  var post=new T.MeshLambertMaterial({color:0x34393A,flatShading:true});
+  var glob=new T.MeshLambertMaterial({color:0xFFF8E6,emissive:0x6B6650,flatShading:true});
+  var postG=new T.CylinderGeometry(0.075,0.11,4.3,7), globG=new T.SphereGeometry(0.21,8,6),
+      armG=new T.BoxGeometry(1.0,0.07,0.07);
+  [[-5.0,9.0],[10.6,-7.4],[-5.0,-6.6]].forEach(function(q){
+    var p=P(q[0],q[1]);
+    oriBox(MW,p[0],p[1],ux,uz,0.80,0.80,0.15,0.30,0xE6DCC4,0.7);   /* cream plinth   */
+    oriBox(MW,p[0],p[1],ux,uz,0.50,0.50,0.30,1.15,0xA2503C,0.6);   /* brick pedestal */
+    oriBox(MW,p[0],p[1],ux,uz,0.60,0.60,1.15,1.30,0xEADFC6,0.7);   /* cream cap      */
+    var m=new T.Mesh(postG,post); m.position.set(p[0],1.30+2.15,p[1]); scene.add(m);
+    var arm=new T.Mesh(armG,post); arm.position.set(p[0],5.25,p[1]); arm.rotation.y=HAHN.rot; scene.add(arm);
+    for(var s=-1;s<=1;s++){
+      var gl=new T.Mesh(globG,glob);
+      if(s) gl.position.set(p[0]+du[1]*0.45*s,5.52,p[1]-du[0]*0.45*s);
+      else gl.position.set(p[0],5.85,p[1]);
+      scene.add(gl);
+    }
+    addCollider(oriRect(p[0],p[1],ux,uz,0.6,0.6),1.3);
+  });
+
+  var mg=new T.Mesh(MG.geom(),matGround); mg.frustumCulled=false; mg.receiveShadow=true; scene.add(mg);
+  var mw=new T.Mesh(MW.geom(),matWorld); mw.frustumCulled=false; mw.castShadow=true; mw.receiveShadow=true; scene.add(mw);
+})();
+/* ==================================================================
    The edge of the tour: an invisible wall round the area Jamie marked
    on the map. North it stops a block above USC Village, east just past
    the 110 beyond Galen Center, south below the Coliseum at 40th Place,
@@ -10605,6 +11258,215 @@ function boundsClamp(o){
   for(it=0;it<40&&!inBounds(o.x,o.z);it++){ o.x+=(60-o.x)*0.05; o.z+=(150-o.z)*0.05; }
   return true;
 }
+/* ==================================================================
+   Ralph and Goldy Lewis Hall (RGL), home of the USC Price School of
+   Public Policy, 650 Childs Way (built 1995-97). a_world.js leaves the
+   footprint empty (HAND_HALLS).
+
+   A long three storey brick block on the campus grid, under a red
+   clay tile hip roof, with a raised lantern of small arched windows on
+   the roof. The north front faces Childs Way: a shallow projecting
+   centre block, three storeys under its own tile roof, carries a cast
+   stone entrance pavilion two storeys tall (two round columns, glass
+   between, RALPH AND GOLDY LEWIS HALL cut in the entablature). Its top
+   is a balcony with slender cypress in planters in front of the third
+   floor. Cream stone bands run round at the floor lines and under the
+   eave. A brick walk with a concrete centre leads up from Childs Way
+   past a row of cast stone bollards, between hedges and lamp posts.
+
+   Footprint from OpenStreetMap (way 406923981, 4 levels, 16.4 m),
+   shifted onto this map the same way as its neighbours. Everything is
+   laid out in grid coordinates: u runs grid east along the long side,
+   v runs grid north, out of the front.
+   ================================================================== */
+(function(){
+  var B=null; for(var bi=0;bi<CAMPUS.length;bi++) if(CAMPUS[bi].name==='Lewis Hall') B=CAMPUS[bi];
+  if(!B) return;
+  var M=new Mesher(), MG=new Mesher(), cols=[];
+  var A=27.6*Math.PI/180, EX=Math.cos(A), EZ=Math.sin(A), NX=Math.sin(A), NZ=-Math.cos(A);
+  function W(u,v){ return [u*EX+v*NX, u*EZ+v*NZ]; }
+  function ccw(r){ if(ringArea(r)<0) r.reverse(); return r; }
+  function rect(u0,u1,v0,v1){ return ccw([W(u0,v0),W(u1,v0),W(u1,v1),W(u0,v1)]); }
+  function solid(r,h){ cols.push([r,h]); }
+  /* a wall frame: centre (u,v) in grid terms, outward normal along grid (ou,ov) */
+  function frame(u,v,ou,ov,L){
+    var c=W(u,v), nx=ou*EX+ov*NX, nz=ou*EZ+ov*NZ;
+    return {x:c[0],z:c[1],dx:-nz,dz:nx,nx:nx,nz:nz,L:L};
+  }
+
+  var BRICK=0xA9563E, BRICKD=0x8E4733, CAST=0xDCD2BB, CASTD=0xC2B79E, CREAM=0xE6DCC6,
+      TILE=0xB0563A, TILED=0x8A3F28, GLASS=0x2C3841, GLASSL=0x4A5F6E, RED=0x7E2C22,
+      DARK=0x23292E, GREEN=0x2F5A2A, CYP=0x2A4A26;
+  var H=11.2, EAVE=11.45;
+  /* the main block, the projecting centre block and the entrance pavilion (grid coords) */
+  var U0=189.9, U1=247.6, VS=-62.2, VN=-41.8;
+  var PC=211.3, PW=11.9, VP=-37.2;        /* centre block: u PC+-PW, v VN..VP */
+  var EW=6.0, ED=2.6;                     /* pavilion: u PC+-EW, v VP..VP+ED */
+
+  var main=rect(U0,U1,VS,VN), wing=rect(PC-PW,PC+PW,VN-0.3,VP);
+  [[main,H],[wing,H]].forEach(function(m){
+    var r=m[0];
+    prism(M,r,0,H,BRICK,0x8F8A80,0.55); solid(r,EAVE+1.5);
+    band(M,r,0,0.75,0.14,CASTD,0.95,0.7,true);
+    band(M,r,3.85,4.05,0.08,CREAM,1,0.75,true);
+    band(M,r,7.55,7.85,0.12,CREAM,1,0.78,true);
+    band(M,r,10.55,H,0.1,CREAM,1,0.8,true);
+    band(M,r,10.4,10.55,0.05,CASTD,0.9,0.7,true);
+  });
+  /* tile roofs: the long main roof, the cross roof over the centre block */
+  var er=offsetRing(main,0.85);
+  band(M,er,H,EAVE,0,TILED,0.85,0.55);
+  hipRoof(M,er,EAVE,2.7,4.8,TILE);
+  var ew=ccw([W(PC-PW,-49),W(PC+PW,-49),W(PC+PW,VP),W(PC-PW,VP)]); ew=offsetRing(ew,0.85);
+  band(M,ew,H,EAVE,0,TILED,0.85,0.55);
+  hipRoof(M,ew,EAVE,1.6,2.9,TILE);
+  /* the raised lantern: a ring of small arched windows under its own hip roof */
+  var LU=207.0, LV=-48.6, LW=6.2, LD=4.0, LB=13.2, LT=17.8;
+  var lan=rect(LU-LW,LU+LW,LV-LD,LV+LD);
+  prism(M,lan,LB,LT,BRICK,BRICK,0.6);
+  band(M,lan,LT-0.4,LT,0.08,CREAM,1,0.8,true);
+  band(M,lan,15.1,15.35,0.06,CREAM,0.95,0.75,true);
+  [[0,1,LW,LD],[0,-1,LW,LD],[1,0,LD,LW],[-1,0,LD,LW]].forEach(function(s){
+    var F=frame(LU+s[0]*s[3],LV+s[1]*s[3],s[0],s[1],s[2]*2), K=wallKit(M,F), n=s[1]?5:3;
+    for(var k=0;k<n;k++){ var u=-s[2]+(k+0.5)*(2*s[2]/n);
+      K.face(u,0.05,15.5,1.15,1.0,0.57,CREAM,1); K.face(u,0.08,15.6,0.86,0.95,0.43,GLASSL,1); }
+  });
+  var lr=offsetRing(lan,0.55); band(M,lr,LT,LT+0.2,0,TILED,0.85,0.55); hipRoof(M,lr,LT+0.2,1.7,2.4,TILE);
+
+  /* ---------- windows ---------- */
+  function win1(K,u){ K.face(u,0.04,0.95,2.0,2.45,0,CAST,1); K.face(u,0.07,1.05,1.7,2.25,0,GLASS,1);
+    K.face(u,0.09,1.05,0.08,2.25,0,CREAM,0.95); K.face(u,0.06,0.85,2.2,0.16,0,CREAM,1); }
+  function win2(K,u){ K.face(u,0.04,4.6,2.0,2.4,0,CREAM,1); K.face(u,0.07,4.7,1.72,2.2,0,GLASS,1);
+    K.face(u,0.09,4.7,0.08,2.2,0,CREAM,0.95); K.face(u,0.09,6.15,1.72,0.07,0,CREAM,0.95); }
+  function win3(K,u,w){ w=w||2.3;
+    K.face(u,0.04,8.25,w+0.3,2.05,0,CREAM,1); K.face(u,0.07,8.35,w,1.85,0,GLASS,1);
+    [-w/2+0.05,-w/6,w/6,w/2-0.05].forEach(function(o){ K.face(u+o,0.09,8.35,0.09,1.85,0,RED,1); });
+    K.face(u,0.09,9.6,w,0.08,0,RED,1); K.face(u,0.09,8.35,w,0.08,0,RED,1); K.face(u,0.09,10.12,w,0.08,0,RED,1);
+    K.face(u,0.06,8.12,w+0.5,0.16,0,CAST,1); }
+  /* a run of window bays on a wall, leaving out [a,b] spans in skip */
+  function rows(F,pitch,skip,f1,door){
+    var K=wallKit(M,F), n=Math.max(1,Math.round((F.L-2.4)/pitch)), p=(F.L-2.4)/n;
+    for(var k=0;k<n;k++){
+      var u=-F.L/2+1.2+(k+0.5)*p, bad=false;
+      (skip||[]).forEach(function(s){ if(u>s[0]-1.4&&u<s[1]+1.4) bad=true; });
+      if(bad) continue;
+      if(door!==undefined&&k===door){
+        K.face(u,0.04,0,2.8,3.3,0,CAST,1); K.face(u,0.08,0,2.2,3.0,0,DARK,1); K.face(u,0.1,0,0.08,3.0,0,CAST,0.9);
+      } else if(f1!==false) win1(K,u);
+      win2(K,u); win3(K,u);
+      /* a brick pier between bays, a shade proud of the wall */
+      if(k<n-1){ var ub=u+p/2; K.box(ub-0.3,ub+0.3,-0.05,0.12,0.75,10.4,BRICKD,0.62); }
+    }
+    return K;
+  }
+  var PU=PC-(U0+U1)/2;     /* centre block's u on the north wall frame */
+  rows(frame((U0+U1)/2,VN,0,1,U1-U0),3.9,[[PU-PW,PU+PW]]);
+  rows(frame((U0+U1)/2,VS,0,-1,U1-U0),3.9,[],true,7);
+  rows(frame(U1,(VS+VN)/2,1,0,VN-VS),3.9,[],true,2);
+  rows(frame(U0,(VS+VN)/2,-1,0,VN-VS),3.9,[]);
+  rows(frame(PC+PW,(VN+VP)/2,1,0,VP-VN),3.0,[]);
+  rows(frame(PC-PW,(VN+VP)/2,-1,0,VP-VN),3.0,[]);
+  /* the centre block's front: a bay of windows each side of the pavilion, third floor right across */
+  var FC=frame(PC,VP,0,1,PW*2), KC=wallKit(M,FC);
+  [-PW+2.9,PW-2.9].forEach(function(u){ win1(KC,u); win2(KC,u); });
+  [-9.0,-4.5,0,4.5,9.0].forEach(function(u){ win3(KC,u,2.6); });
+
+  /* ---------- the entrance pavilion ---------- */
+  var KP=wallKit(M,FC), PT=8.0, ENT=6.7, REC=1.5;
+  /* outer piers, solid cast stone, a dark door in each */
+  [-1,1].forEach(function(s){
+    var r=KP.box(s>0?EW-1.0:-EW,s>0?EW:-EW+1.0,-0.1,ED,0,ENT,CAST,0.68); solid(r,PT);
+    var r2=KP.box(s>0?1.9:-4.95,s>0?4.95:-1.9,-0.1,ED-REC,0,ENT,CAST,0.68); solid(r2,PT);
+  });
+  /* the entablature with the name, and the base */
+  KP.box(-EW-0.15,EW+0.15,-0.1,ED+0.15,ENT,ENT+0.25,CASTD,0.7);
+  KP.box(-EW,EW,-0.1,ED,ENT+0.25,PT-0.3,CAST,0.72);
+  KP.box(-EW-0.2,EW+0.2,-0.1,ED+0.22,PT-0.3,PT,CREAM,0.75);
+  KP.box(-EW-0.1,EW+0.1,-0.1,ED+0.1,0,0.35,CASTD,0.7);
+  var nm=KP.P(0,ED); facadeText('RALPH AND GOLDY LEWIS HALL',nm[0],nm[1],FC.nx,FC.nz,7.33,10.4,0.62,'#6E6553');
+  /* the recessed bays: glass above, stone and a dark door below at the sides, glass doors in the middle */
+  var gv=ED-REC+0.02;
+  [-1,1].forEach(function(s){ var u=s*3.42;
+    KP.face(u,gv,4.3,2.6,2.2,0,GLASS,1); KP.face(u,gv+0.02,4.3,0.08,2.2,0,CAST,0.9);
+    KP.face(u,gv+0.02,4.1,2.7,0.2,0,CAST,1);
+    KP.face(u,gv,0,1.3,2.7,0,DARK,1); });
+  var gc=ED-REC-0.4;
+  KP.face(0,gc,0,3.8,6.5,0,GLASS,1);
+  KP.face(0,gc+0.02,2.95,3.8,1.0,0,DARK,0.9);
+  [-1.9,-0.95,0,0.95,1.9].forEach(function(o){ KP.face(o,gc+0.04,0,0.09,6.5,0,0x3A3A36,1); });
+  [2.95,3.95].forEach(function(y){ KP.face(0,gc+0.04,y,3.8,0.08,0,0x3A3A36,1); });
+  facadeText('USC PRICE SCHOOL OF PUBLIC POLICY',KP.P(0,gc+0.05)[0],KP.P(0,gc+0.05)[1],FC.nx,FC.nz,3.45,3.3,0.3,'#E8E2D2');
+  /* porch floor and soffit */
+  var pf=ccw([KP.P(-4.95,gc),KP.P(4.95,gc),KP.P(4.95,ED),KP.P(-4.95,ED)]);
+  prism(M,pf,0,0.12,CASTD,0xC9C1AE,0.7);
+  var sof=ccw([KP.P(-4.95,gc),KP.P(4.95,gc),KP.P(4.95,ED),KP.P(-4.95,ED)]);
+  var sf=triangulate(sof), cs=rgb(CAST,0.7);
+  for(var i=0;i<sf.length;i++){ var a=sof[sf[i][0]],b=sof[sf[i][1]],c=sof[sf[i][2]];
+    M.tri([a[0],ENT,a[1]],[b[0],ENT,b[1]],[c[0],ENT,c[1]],cs,cs,cs); }
+  /* the two round columns */
+  [-1.9,1.9].forEach(function(u){ var p=KP.P(u,ED-0.5);
+    prism(M,ccw(ngon(p[0],p[1],0.52,12,0)),0,0.45,CAST,CAST,0.7);
+    prism(M,ccw(ngon(p[0],p[1],0.38,12,0)),0.45,ENT-0.4,CAST,CAST,0.62);
+    prism(M,ccw(ngon(p[0],p[1],0.52,12,0)),ENT-0.4,ENT,CAST,CAST,0.75);
+    cols.push([ccw(ngon(p[0],p[1],0.45,8,0)),ENT]); });
+  /* back wall of the porch is solid for walking */
+  solid(ccw([KP.P(-4.95,-0.1),KP.P(4.95,-0.1),KP.P(4.95,gc),KP.P(-4.95,gc)]),PT);
+
+  /* ---------- the third floor balcony with its cypress ---------- */
+  var BD=1.25;
+  KC.box(-PW,-EW,0,BD,7.5,7.85,CREAM,0.75); KC.box(EW,PW,0,BD,7.5,7.85,CREAM,0.75);
+  var rail=function(u0,v0,u1,v1){ var a=KC.P(u0,v0), b=KC.P(u1,v1);
+    segBox(M,a,b,8.75,8.85,0.1,CREAM,0.8); segBox(M,a,b,PT,8.1,0.12,CREAM,0.75);
+    var L=Math.hypot(u1-u0,v1-v0), n=Math.max(1,Math.round(L/0.35));
+    for(var k=0;k<=n;k++){ var t=k/n, q=KC.P(u0+(u1-u0)*t,v0+(v1-v0)*t); postAt(M,q[0],q[1],7.85,8.75,0.025,CREAM,0.75); } };
+  rail(-PW,BD-0.08,-EW,BD-0.08); rail(EW,BD-0.08,PW,BD-0.08);
+  rail(-EW,ED+0.05,EW,ED+0.05); rail(-EW,BD-0.08,-EW,ED+0.05); rail(EW,BD-0.08,EW,ED+0.05);
+  [-9.4,-5.6,-1.9,1.9,5.6,9.4].forEach(function(u){
+    var v=Math.abs(u)<EW?ED-0.55:BD-0.5, p=KC.P(u,v), y0=Math.abs(u)<EW?PT:7.85;
+    prism(M,ccw(ngon(p[0],p[1],0.36,4,Math.PI/4+A)),y0,y0+0.55,CAST,CREAM,0.7);
+    coneRoof(M,p[0],p[1],0.34,y0+0.55,3.1,CYP,7);
+  });
+
+  /* ---------- the walk up from Childs Way ---------- */
+  var VW=-23.6, V1=VP+ED;           /* Childs Way walk centre line, pavilion front */
+  var walk=rect(PC-3.4,PC+3.4,V1,VW), band2=rect(PC-1.35,PC+1.35,V1,VW);
+  flat(MG,walk,0.112,0x9C4E3A,0.96);
+  flat(MG,band2,0.138,0xC9C3B5,1);
+  /* the forecourt, a little wider, right at the doors */
+  flat(MG,rect(PC-EW-1.2,PC+EW+1.2,V1,V1+3.2),0.116,0x9C4E3A,0.96);
+  /* cast stone bollards across the walk */
+  [-3.0,-1.8,-0.6,0.6,1.8,3.0].forEach(function(o){
+    var p=W(PC+o,V1+4.2), r=ccw(ngon(p[0],p[1],0.2,8,0));
+    prism(M,r,0,0.75,CAST,CAST,0.65);
+    prism(M,ccw(ngon(p[0],p[1],0.26,8,0)),0.75,0.88,CASTD,CREAM,0.7);
+    prism(M,ccw(ngon(p[0],p[1],0.14,8,0)),0.88,1.05,DARK,DARK,0.7);
+    cols.push([ccw(ngon(p[0],p[1],0.22,6,0)),1.0]); });
+  /* clipped hedges along the front, a brick planter with a cream cap at the street end */
+  var hedge=function(u0,u1,v0,v1,h){ var r=rect(u0,u1,v0,v1); prism(M,r,0,h,GREEN,0x3B6C33,0.6); solid(r,h); };
+  hedge(PC-PW+0.4,PC-EW-1.4,V1-1.0,V1+0.3,1.0);
+  hedge(PC+EW+1.4,PC+PW-0.4,V1-1.0,V1+0.3,1.0);
+  hedge(U0+1.0,PC-PW-0.6,VN+1.0,VN+2.1,0.9);
+  hedge(PC+PW+0.6,U1-1.0,VN+1.0,VN+2.1,0.9);
+  var pl=rect(PC+3.9,PC+3.9+1.6,V1+7.0,VW-2.4);
+  prism(M,pl,0,0.75,BRICKD,CREAM,0.62); solid(pl,0.9);
+  band(M,pl,0.75,0.88,0.06,CREAM,1,0.75);
+  prism(M,offsetRing(pl,-0.15),0.88,1.5,GREEN,0x3B6C33,0.6);
+  hedge(PC+3.9,PC+3.9+1.4,V1+6.0,V1+7.0,1.05);
+  /* lamp posts either side */
+  [[-4.3,V1+6.5],[4.3,V1+9.0],[-4.3,VW-2.2]].forEach(function(q){ var p=W(PC+q[0],q[1]); campusLamp(M,p[0],p[1],4.2,false); });
+
+  /* keep trees and props off the building and the walk */
+  var keep=[offsetRing(main,3.5),offsetRing(wing,3),rect(PC-5.5,PC+5.5,V1-0.5,VW-1.0)];
+  keep.forEach(function(r){ NO_PLANT.push(r); NO_LAWN_TREES.push(r); });
+  for(var t=TREE_POS.length-1;t>=0;t--) for(var q=0;q<keep.length;q++)
+    if(inRing(keep[q],TREE_POS[t][0],TREE_POS[t][1])){ TREE_POS.splice(t,1); break; }
+
+  B.h=19.6;
+  cols.forEach(function(c){ addCollider(c[0],c[1]); });
+  var mw=new T.Mesh(M.geom(),matWorld); mw.frustumCulled=false; mw.castShadow=true; mw.receiveShadow=true; scene.add(mw);
+  var mg=new T.Mesh(MG.geom(),matGround); mg.frustumCulled=false; mg.receiveShadow=true; scene.add(mg);
+  window.__lewis={tris:M.count()};
+})();
 /* ==================================================================
    Landscape pass.
    Every tree on campus is built here, once all the placement lists are
