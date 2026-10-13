@@ -134,6 +134,35 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   through the south arcade, the west front or the east front. Its CUSTOM entry in `a_world.js` is a stub.
 - Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
+## Crowd (`e_crowd.js`)
+
+- Walk graph: every `PATHS` walk at least 1.6 m wide, hidden crowd walks included, inside the campus box.
+  Points within 1.6 m merge, crossings split both walks, a walk ending within reach of another joins it
+  (T junction). Edges are dropped where `fenceCuts` says they cross the perimeter fence, where they pass
+  through a building (collider over 2.5 m), and at points inside anything over 0.9 m (beds, basins). Each
+  half edge stores how far each side of the centreline is clear (walk width, less colliders over 0.3 m).
+  Only the largest connected network is used. CSR typed arrays in `CG`.
+- Destinations (`DEST`): up to three doors per named campus building (walk points within 9 m of the
+  footprint), landmarks from `NAMED_PLACES`, gathering points in each of `PLAZAS`, benches (`BENCHES`,
+  exported by the props pass in `a_world.js`), and the Expo/USC station. Weights are scaled by `hot(x,z)`
+  (Hahn Plaza, TCC, the Village, the station, points along Trousdale; the far edges count half).
+- Trips: pick a weighted destination near a random preferred trip length, route with a next-hop table per
+  destination node (Dijkstra, built on first use and cached, about 250 tables). On arrival: go in at a door
+  (shrink into the wall, reappear later at a weighted random door or the station), sit on a free bench seat,
+  stand facing the landmark or in a little circle if in a group, or carry straight on.
+- Walking: each student has a lane (fraction of the clear width, mostly keep right, drifting slowly), a
+  speed (strollers to hurried) with small variation, steers at a capped turn rate toward a look-ahead point
+  that rounds onto the next edge, so corners are cut. Groups of 2-3 (about a third of people) follow a
+  leader side by side on wide walks, single file on narrow ones.
+- Avoidance only within 130 m of the camera: a 4096-bucket spatial hash rebuilt each frame; separation,
+  oncoming people step aside (both to their right when head on), slower people ahead are overtaken or
+  followed, the player counts as a person. A student with no progress for 8 s is put back on the walk.
+- Cost: no per-frame allocation. Matrices every frame near the camera, every 3rd frame further out (6th on
+  ladder rung 3+), none past the fog. Measured about 0.3 ms per update for 1000 students in headless
+  Chromium, against about 0.4 ms for the old line-walking crowd.
+- Dev hooks (dev loop only): `window.__crowd()` returns `CROWD_DEV` (students, destinations, graph, counters);
+  `window.__crowdTick(dt,n)` runs the crowd n steps and returns ms per step.
+
 ## Touch and performance
 
 - Touch (`c_main.js`, markup and CSS in `head.html`): `body.touch` is set for coarse pointers or on

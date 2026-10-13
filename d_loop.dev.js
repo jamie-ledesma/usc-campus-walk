@@ -370,6 +370,8 @@ window.__cull=function(){ var v=0; for(var i=0;i<CULL.length;i++) if(CULL[i][0].
 window.__attract=function(i,t){ attPin=(i===undefined)?null:[i,t]; };
 window.__bounds={inBounds:inBounds,clamp:boundsClamp,ring:BOUNDS,spots:function(){ return SPOTS.filter(function(s){ return !inBounds(s.x,s.z); }).map(function(s){ return s.name; }); }};
 window.__step=function(dt,n){ for(var i=0;i<n;i++) update(dt); };
+window.__crowd=function(){ return CROWD_DEV; };
+window.__crowdTick=function(dt,n){ var t=performance.now(); for(var i=0;i<n;i++) updateCrowd(dt); return (performance.now()-t)/n; };
 window.__band=function(){ return {on:bandOn,playing:_bandSrc.length,dur:_bandBuf?+_bandBuf.duration.toFixed(2):null,ends:+_bandEnds.toFixed(1),gain:_bandGain?+_bandGain.gain.value.toFixed(4):null,ac:AC&&AC.state,t:AC&&+AC.currentTime.toFixed(1)}; };
 window.__cam=function(x,y,z,tx,ty,tz){
   var dx=tx-x, dy=ty-y, dz=tz-z, hL=Math.hypot(dx,dz)||1e-6;
