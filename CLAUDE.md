@@ -95,6 +95,12 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   as long lines), darker border, all flat quads in one ground mesh with the fountain and Traveler's
   bed cut out. Tommy stands on three gray granite steps (`HAHN.baseH`), turned to the grid and facing
   the plaza; three lamps on brick pedestals with cream caps. NO_PLANT keeps props and trees off it.
+- `a2l_road.js`: Childs Way, the gated campus street from the corner of Alumni Park along Doheny's south
+  side to the square-paved plaza where Pardee Way turns south between Lewis Hall (Price) and Popovich Hall.
+  Pale concrete with brick cross bands, brick bays of nose-in parking on both sides between tree planters,
+  instanced parked cars (colliders), little brown swing gates folded open at the OSM lift gate and at the
+  plaza, bollards on the plaza's east side. `CHILDS` in `a_world.js` removes the old OSM walk and adds a
+  hidden crowd path; a2l pushes the street into `ROADS` (minimap) after the ground pass so no asphalt is drawn.
 - `a2j_bounds.js`: the invisible wall (`BOUNDS`, from Jamie's map: a block north of the Village,
   just east of the 110, below the Coliseum at 40th Pl, a block west of Vermont). `boundsClamp(P)` runs
   each frame in `update()` and slides the player along it; flying is capped at 240 m. Nothing is
