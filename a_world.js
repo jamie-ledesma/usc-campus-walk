@@ -168,6 +168,22 @@ var ALUM=null;
   ALUM={F:F,P:P,loc:loc,U:U,V0:V0,V1:V1,FV:FV,VB:VB,BW:BW};
 })();
 
+/* Childs Way, the gated campus street along Doheny's south side that ends in
+   the paved plaza between Lewis and Popovich halls, is built in a2l_road.js:
+   take its OSM walk out and give the crowd the street (hide: drawn by a2l).
+   Local frame: s along the street from its west end, t across it (+ south). */
+var CHILDS=null;
+(function(){
+  var A=[42,47], B=[224,143], L=Math.hypot(B[0]-A[0],B[1]-A[1]),
+      ux=(B[0]-A[0])/L, uz=(B[1]-A[1])/L;
+  function P(s,t){ return [A[0]+ux*s-uz*t, A[1]+uz*s+ux*t]; }
+  function loc(p){ var x=p[0]-A[0], z=p[1]-A[1]; return [x*ux+z*uz, -x*uz+z*ux]; }
+  PATHS=PATHS.filter(function(p){ return !p.pts.every(function(q){
+    var l=loc(q); return l[0]>-1&&l[0]<L+1&&Math.abs(l[1])<2; }); });
+  PATHS.push({w:3,hide:1,pts:[P(1.5,0),P(L,0)]});
+  CHILDS={P:P,loc:loc,L:L,ux:ux,uz:uz};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
