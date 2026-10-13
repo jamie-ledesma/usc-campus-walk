@@ -18,14 +18,17 @@ var FENCE_RUNS=[], FENCE_GATES=[];
   var RING=[[-550,-523.7],[-280.7,-524.5],[-249.1,-520.7],[-223.1,-514.2],[-163.5,-482.9],[57.6,-360.9],
             [117.6,-329.8],[238.6,-264.8],[273.6,-246.8],[396.5,-180.4],[421.5,-172.4],[478.1,-141.8],   /* Jefferson */
             [274.8,239.4],                                                                               /* Figueroa */
-            [218,244.5],[162,244.2],[158,243.3],[43,243.3],[3,238.7],[-93,238.7],[-133,243.3],
+            [218,244.5],
+            [210.65,243.82],[195.97,236.07],[197.75,232.71],[164.31,215.08],[149.4,243.3],             /* round the Pardee forecourt */
+            [43,243.3],[3,238.7],[-93,238.7],[-133,243.3],
             [-550,243.3]];                                                                               /* Exposition, then Vermont */
   var GATES=[
     {name:'McClintock Avenue entrance', x:-163,  z:-483,   hw:8},
     {name:'Watt Way entrance (Jefferson)', x:6.8, z:-388.9, hw:7},
     {name:'Royal Street entrance',      x:182.7, z:-294.8, hw:8},
     {name:'McCarthy Way entrance',      x:397.5, z:9,      hw:9},
-    {name:'Pardee Way entrance',        x:170.5, z:244.2,  hw:13},
+    {name:'Pardee Way entrance',        x:177.4, z:221.98, hw:23, own:1},   /* gate line and west gate: a2p_pardee.js */
+    {name:'Popovich Hall arcade',       x:201.63,z:239.06, hw:10.2, own:1, noGate:1},
     {name:'Trousdale Parkway entrance', x:-86,   z:238.7,  hw:22},
     {name:'Watt Way entrance (Exposition)', x:-330, z:243.3, hw:7},
     {name:'Downey Way entrance',        x:-550,  z:-155.5, hw:7}
@@ -153,7 +156,9 @@ var FENCE_RUNS=[], FENCE_GATES=[];
   OPEN.forEach(function(O){
     var a=at(O[0]), b=at(O[1]), W=O[1]-O[0];
     if(inBuilding(a[0],a[1])&&inBuilding(b[0],b[1])) return;
-    if(O[2]==='ped'){
+    if(O[2]==='ped'&&O[3].own){                    /* drawn by its own file */
+      if(!O[3].noGate) FENCE_GATES.push({name:O[3].name,x:(a[0]+b[0])/2,z:(a[1]+b[1])/2,hw:W/2});
+    } else if(O[2]==='ped'){
       pier(a); pier(b);
       var nb=Math.max(2,Math.round((W-1.6)/1.8));
       for(var k=0;k<nb;k++){ var p=at(O[0]+0.8+(W-1.6)*(k+0.5)/nb); bollard(p[0],p[1]); }

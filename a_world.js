@@ -184,6 +184,27 @@ var CHILDS=null;
   CHILDS={P:P,loc:loc,L:L,ux:ux,uz:uz};
 })();
 
+/* The Pardee Way entrance off Exposition (forecourt, fountain, gate, booth) and
+   Pardee Way up to Childs Way are built in a2p_pardee.js, in the Childs Way frame.
+   Take out the OSM fountain, the U drive and the centre walk, and give the crowd
+   a walk that keeps clear of the booth (hide: a2p draws the paving). */
+var PARDEE=null;
+(function(){
+  if(!CHILDS) return;
+  var P=CHILDS.P, loc=CHILDS.loc, i;
+  function inF(p){ var l=loc(p); return l[0]>190&&l[0]<224&&l[1]>92&&l[1]<128; }
+  for(i=WATER.length-1;i>=0;i--) if(inF(centroid(WATER[i]))) WATER.splice(i,1);
+  ROADS=ROADS.filter(function(r){ return !(r.w<8&&r.pts.every(inF)); });
+  PATHS=PATHS.filter(function(p){ return !p.pts.every(function(q){
+    var l=loc(q); return Math.abs(l[0]-205.4)<2.6&&l[1]>-1&&l[1]<98; }); });
+  PATHS.push({w:2.4,hide:1,pts:[P(205.8,0),P(205.6,22),P(202.2,38),P(202.2,92),P(204.7,96.6)]},
+             {w:2.4,hide:1,pts:[P(204.7,96.6),P(198.4,103),P(197.8,117.5)]});
+  /* the founder's statue in front of Widney Alumni House is drawn by a2p, not as a generic pedestal */
+  POINTS=POINTS.filter(function(p){ return !/Widney/.test(p.name); });
+  function R(s0,s1,t0,t1){ return [P(s0,t0),P(s1,t0),P(s1,t1),P(s0,t1)]; }
+  PARDEE={P:P,loc:loc,foot:[R(186.6,225,88,126),R(198.8,212.2,18,92),R(223.5,242,84,97)]};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -2868,6 +2889,7 @@ if(SCI.main){
 CAMPUS.forEach(function(B){ if(HAND_HALLS[B.name]) NO_PLANT.push(offsetRing(B.ring,B.name==='Michelson Hall'?3:5)); });
 /* nothing grows in the E Line median */
 NO_PLANT.push([[EXPO.xw,255],[300,255],[300,269],[EXPO.xw,269]]);
+if(PARDEE) PARDEE.foot.forEach(function(r){ NO_PLANT.push(r); });   /* no benches or lamps on the Pardee paving (a2p) */
 /* McCarthy Quad is open lawn, and the Fertitta Hall courtyard is paved seating (a2f_courts.js) */
 var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,221],[231,224],[236.5,208],[237.5,199]];
 (function(){

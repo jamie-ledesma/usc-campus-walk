@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -104,9 +104,19 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
 - `a2l_road.js`: Childs Way, the gated campus street from the corner of Alumni Park along Doheny's south
   side to the square-paved plaza where Pardee Way turns south between Lewis Hall (Price) and Popovich Hall.
   Pale concrete with brick cross bands, brick bays of nose-in parking on both sides between tree planters,
-  instanced parked cars (colliders), little brown swing gates folded open at the OSM lift gate and at the
-  plaza, bollards on the plaza's east side. `CHILDS` in `a_world.js` removes the old OSM walk and adds a
+  instanced parked cars (colliders), simple low brown fences along both edges at the OSM lift gate and at
+  the plaza, bollards on the plaza's east side. `CHILDS` in `a_world.js` removes the old OSM walk and adds a
   hidden crowd path; a2l pushes the street into `ROADS` (minimap) after the ground pass so no asphalt is drawn.
+- `a2p_pardee.js`: the Pardee Way entrance off Exposition and Pardee Way up to Childs Way (Childs Way frame,
+  `PARDEE` in `a_world.js`, which drops the OSM fountain, the U drive roads and the centre walk, adds hidden crowd
+  walks, and keeps props off the paving). Herringbone brick forecourt (one canvas texture, uv on the grid), the
+  U drive round the 125th Anniversary Fountain (U plan: cream back wall between brick piers, bronze medallion
+  spouts, stepped tiers), the gate line between VPD and Popovich (brick piers with cast stone caps and USC seals,
+  black iron gates standing open, iron railings, a tile-roofed brick pavilion against VPD), the brick loggia of
+  iron-filled arches along Popovich's Exposition side, the attendant booth on its island with stop sign and
+  bollards, the concrete drive with brick edges, hedges, trees, lamps and the rill along Popovich, and the
+  Robert M. Widney statue in front of Widney Alumni House (the generic `Joe Widney` point is dropped). The fence
+  (`a2h_fence.js`) detours round the forecourt and leaves the gate line and the loggia to a2p (`GATES` `own:1`).
 - `a2j_bounds.js`: the invisible wall (`BOUNDS`, from Jamie's map: a block north of the Village,
   just east of the 110, below the Coliseum at 40th Pl, a block west of Vermont). `boundsClamp(P)` runs
   each frame in `update()` and slides the player along it; flying is capped at 240 m. Nothing is
@@ -147,8 +157,8 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
 
 - `a2h_fence.js`: black steel picket fence (2.15 m) round campus on Vermont, Jefferson, Figueroa
   and Exposition. Jamie asked for this in v24, replacing his earlier request for no fence.
-  `RING` is the line, `GATES` the eight pedestrian entrances from USC's entrance map (brick piers
-  and bollards). Other driveways crossing the line get an opening with a barrier arm; buildings on
+  `RING` is the line, `GATES` the pedestrian entrances from USC's entrance map (brick piers
+  and bollards; `own:1` entries are drawn by their own file, e.g. Pardee Way in `a2p_pardee.js`). Other driveways crossing the line get an opening with a barrier arm; buildings on
   the line replace the fence. Pickets are a canvas texture on one quad per span; posts are geometry.
 - `FENCE_RUNS` (solid stretches) and `fenceCuts()` are used by `e_crowd.js` so students only cross
   at entrances, and by the minimap in `c_main.js`.
