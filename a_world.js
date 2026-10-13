@@ -3915,6 +3915,7 @@ var TREE_POS=[];
 })();
 
 /* ================================================== campus props & planting */
+var BENCHES=[];                     /* [x,z,yaw] of every bench; the crowd sits on them */
 (function(){
   var lampPts=[], benchPts=[], rackPts=[], palmRow=[], shadeRow=[], hedgeRow=[];
   /* a coarse hash of every walk, so nothing gets planted across a crossing */
@@ -4151,6 +4152,7 @@ var TREE_POS=[];
     D.translateX(0.78); D.updateMatrix(); iLegB.setMatrixAt(i,D.matrix);
     box(q2[0],q2[1],0.62,0.85);
   }
+  BENCHES=benchPts;
   iSeat.count=iBack.count=iLegA.count=iLegB.count=Math.max(1,benchPts.length);
   [iSeat,iBack,iLegA,iLegB].forEach(function(m){ m.frustumCulled=false; m.raycast=function(){}; scene.add(m); });
 
