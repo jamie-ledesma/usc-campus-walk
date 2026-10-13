@@ -1138,8 +1138,8 @@ function(M,B,ring,c,d){
 }
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
-/* built by hand in a2i_halls.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22};
+/* built by hand in a2i_halls.js and a2o_lewis.js: the generic pass leaves these footprints empty */
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -2680,7 +2680,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7){
+    if(st!=='d'&&d.min>9&&(i%10)<7&&B.name!=='Lewis Hall'){   /* a2o_lewis.js plants its own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
