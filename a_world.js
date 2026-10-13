@@ -205,6 +205,51 @@ var PARDEE=null;
   PARDEE={P:P,loc:loc,foot:[R(186.6,225,88,126),R(198.8,212.2,18,92),R(223.5,242,84,97)]};
 })();
 
+/* The Tutor Campus Center courtyard (a2r_tcc.js): the paved court between TCC (west),
+   the Student Union (east) and Sample Hall (south end), plus the passage beside Sample
+   Hall. Frame: the Hahn Plaza grid (u grid east, v grid south, origin at Tommy). Cut the
+   OSM walks out of it and give the crowd hidden walks between the tables. */
+var TCC=null;
+(function(){
+  var du=[0.8829,0.4695], dv=[-0.4695,0.8829];
+  function P(u,v){ return [-3+du[0]*u+dv[0]*v, 4+du[1]*u+dv[1]*v]; }
+  function loc(p){ var x=p[0]+3, z=p[1]-4; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  var G=[[-53.7,30.4],[-28.0,30.4],[-27.0,66.4],[-22.0,66.5],[-21.9,71.7],[-41.1,71.7],[-41.7,85.6],
+         [-42.2,99.5],[-42.2,105.2],[-55.1,105.2],[-58.6,34.6],[-53.7,35.3]];
+  var ring=G.map(function(q){ return P(q[0],q[1]); });
+  if(ringArea(ring)<0) ring.reverse();
+  function inR(p){ return inRing(ring,p[0],p[1]); }
+  var out=[], ends=[], i;
+  for(i=0;i<PATHS.length;i++){
+    var pts=PATHS[i].pts, dense=[], k;
+    for(k=0;k<pts.length-1;k++){
+      var a=pts[k], b=pts[k+1], n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/1.5));
+      for(var j=0;j<n;j++) dense.push([a[0]+(b[0]-a[0])*j/n, a[1]+(b[1]-a[1])*j/n]);
+    }
+    dense.push(pts[pts.length-1]);
+    if(!dense.some(inR)){ out.push(PATHS[i]); continue; }
+    var cur=[];
+    for(k=0;k<dense.length;k++){
+      if(inR(dense[k])){ if(cur.length){ ends.push(cur[cur.length-1]); if(cur.length>1) out.push({w:PATHS[i].w,pts:cur}); } cur=[]; }
+      else { if(!cur.length&&k>0) ends.push(dense[k]); cur.push(dense[k]); }
+    }
+    if(cur.length>1) out.push({w:PATHS[i].w,pts:cur});
+  }
+  PATHS=out;
+  var net=[[[-42.2,29.4],[-42.2,50],[-42.2,70.2],[-48.5,73.5],[-48.5,105.8]],
+           [[-52.2,31.6],[-42.2,31.6],[-29.6,31.6]],
+           [[-49.6,50],[-42.2,50],[-31.5,50],[-31.5,71.3]]];
+  var nodes=[];
+  net.forEach(function(l){ var q=l.map(function(p){ return P(p[0],p[1]); });
+    PATHS.push({w:2.6,hide:1,pts:q}); nodes=nodes.concat(q); });
+  ends.forEach(function(e){ var best=null, bd=1e9;
+    nodes.forEach(function(q){ var d=Math.hypot(q[0]-e[0],q[1]-e[1]); if(d<bd){ bd=d; best=q; } });
+    if(best&&bd<14&&bd>0.3) PATHS.push({w:2.6,hide:1,pts:[e,best]}); });
+  var apron=[[-53.7,26.3],[-6.2,26.3],[-6.2,30.25],[-27.9,30.7],[-53.7,30.5]].map(function(q){ return P(q[0],q[1]); });
+  if(ringArea(apron)<0) apron.reverse();
+  TCC={P:P,loc:loc,ring:ring,apron:apron,noHedge:{'Tutor Campus Center':1,'Steven and Kathryn Sample Hall':1,'Student Union':1}};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -1459,7 +1504,7 @@ CUSTOM['Tutor Campus Center']=function(M,B,ring,c,d){
   flat(M,offsetRing(s,-0.6),h+0.19,0x55564F,1);
   roofLoggia(M,s,h+0.20,stone,stoneD);
   /* the courtyard elevation, facing Sample Hall */
-  var F=faceToward(s,-67,72);
+  var F=TCC?null:faceToward(s,-67,72);   /* the courtyard front is drawn in a2r_tcc.js */
   if(F){
     /* tall arched entry under a bronze balcony */
     archFace(M,F.x,F.z,F.dx,F.dz,F.nx*0.22,F.nz*0.22,1.95,6.6,4.4,3.0,stone,1);
@@ -1487,7 +1532,7 @@ CUSTOM['Steven and Kathryn Sample Hall']=function(M,B,ring,c,d){
   band(M,s,0,1.25,0.18,stoneD,1,0.66);
   band(M,s,1.25,1.48,0.10,stripe,0.95,0.70,true);
   /* the three great round arches on the courtyard front */
-  var F=faceToward(s,-100,24);
+  var F=TCC?null:faceToward(s,-100,24);  /* the courtyard front is drawn in a2r_tcc.js */
   if(F){
     for(var k=-1;k<=1;k++){
       var px=F.x+F.dx*k*6.1, pz=F.z+F.dz*k*6.1;
@@ -1522,7 +1567,7 @@ CUSTOM['Steven and Kathryn Sample Hall']=function(M,B,ring,c,d){
   sqWindows(M,s,h-2.4,14.4,3.4,2.1,1.4,3.3,glass);
   band(M,s,h-1.9,h-1.5,0.13,stripe,0.95,0.70,true);
   band(M,s,h-0.6,h+0.10,0.42,stone,1,0.82,true);
-  balustrade(M,offsetRing(s,0.22),h+0.10,stone,stoneD);
+  if(!TCC) balustrade(M,offsetRing(s,0.22),h+0.10,stone,stoneD);   /* a2r_tcc.js puts the pergola on the cornice */
   flat(M,offsetRing(s,-0.6),h+0.14,0x55564F,1);
   roofLoggia(M,s,h+0.15,stone,stoneD);
   addCollider(ring,h);
@@ -2372,7 +2417,7 @@ var PLAZAS=[
   /* Hahn Plaza: Tommy Trojan, the fountain and Traveler */
   HAHN.ring.slice(),
   /* the Campus Center terrace */
-  (function(){ var r=[]; for(var i=0;i<18;i++){ var a=i/18*6.2832; r.push([-77+Math.cos(a)*21,50+Math.sin(a)*21]); } return r; })(),
+  TCC?TCC.ring.slice():(function(){ var r=[]; for(var i=0;i<18;i++){ var a=i/18*6.2832; r.push([-77+Math.cos(a)*21,50+Math.sin(a)*21]); } return r; })(),
   /* USC Village plaza */
   [[-40,-530],[24,-552],[60,-532],[92,-528],[84,-505],[62,-468],[45,-472],[0,-498]]
 ];
@@ -2634,7 +2679,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
@@ -2889,7 +2934,8 @@ if(SCI.main){
 CAMPUS.forEach(function(B){ if(HAND_HALLS[B.name]) NO_PLANT.push(offsetRing(B.ring,B.name==='Michelson Hall'?3:5)); });
 /* nothing grows in the E Line median */
 NO_PLANT.push([[EXPO.xw,255],[300,255],[300,269],[EXPO.xw,269]]);
-if(PARDEE) PARDEE.foot.forEach(function(r){ NO_PLANT.push(r); });   /* no benches or lamps on the Pardee paving (a2p) */
+if(PARDEE) PARDEE.foot.forEach(function(r){ NO_PLANT.push(r); });
+if(TCC) NO_PLANT.push(TCC.ring.slice(),TCC.apron.slice());   /* the Tutor Campus Center courtyard is furnished by a2r_tcc.js */   /* no benches or lamps on the Pardee paving (a2p) */
 /* McCarthy Quad is open lawn, and the Fertitta Hall courtyard is paved seating (a2f_courts.js) */
 var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,221],[231,224],[236.5,208],[237.5,199]];
 (function(){
@@ -3552,6 +3598,7 @@ var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,22
    courtyard between Sample Hall and the Tutor Campus Center.
    ================================================================== */
 (function(){
+  if(TCC){ window.__terrace=0; return; }                /* replaced by the courtyard in a2r_tcc.js */
   var M=new Mesher();
   var CX=-77, CZ=50, R=19, want=13, made=0;
   function freeAt(x,z,pad){
