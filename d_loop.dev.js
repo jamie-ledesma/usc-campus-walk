@@ -169,8 +169,9 @@ function update(dt){
     resolve(P, RAD, P.y+(P.onGround?STEP:0.06));
     if(Math.abs(P.x-bx)>0.0001||Math.abs(P.z-bz)>0.0001){ P.vx*=0.72; P.vz*=0.72; }
     P.y+=P.vy*dt;
-    var g=groundAt(P.x,P.z,P.y+(P.onGround?STEP:0.08));
-    if(P.y<=g+0.02&&P.vy<=0.01){ P.y=g; P.vy=0; P.onGround=true; }
+    var g=groundAt(P.x,P.z,P.y+(P.onGround?STEP:0.08)), hh=hillAt(P.x,P.z);
+    if(hh>g) g=hh;                        /* Hammock Hill (a2t): stay on the slope going down too */
+    if((P.y<=g+0.02||(P.onGround&&hh>0&&P.y<=g+0.4))&&P.vy<=0.01){ P.y=g; P.vy=0; P.onGround=true; }
     else P.onGround=false;
     if(P.y<-60){ P.x=-3;P.z=17;P.y=0;P.vy=0; }
   }

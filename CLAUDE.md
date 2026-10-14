@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -150,6 +150,13 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   flags, piers and round arches on all four courtyard sides, the 51 m tower with its lattice globe in
   the courtyard's north west corner, fins on N/W/E, the flagged arcade on the south front. Walk in
   through the south arcade, the west front or the east front. Its CUSTOM entry in `a_world.js` is a stub.
+- `a2t_hammock.js`: Hammock Hill, the lawn (OSM way 221557193, `HHILL` in `a_world.js`) between the walk on McCarthy
+  Quad's east side and the walk in front of the McCarthy Way Parking Structure. Frame s along the walks (grid south),
+  t across (grid east). A smooth mound (2.1 m crest, fades to zero about 1 m short of both walks) drawn as its own
+  heightfield mesh in the lawn colour (`HHILL.sh`); `hillAt(x,z)` gives its height and the loop uses it for the player
+  (snaps down the slope too). Two rows of 12 multi-stemmed trees on the crest with bare earth rings, four hammocks
+  across the rows with students, backpacks, students sitting on the slope, a paved pad with a metal table and stool.
+  The old random trees are cleared from the patch; `HHILL_PAD` keeps the benches off it. The crowd does not walk on it.
 - Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
@@ -217,7 +224,8 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   Tommy Trojan gets its real brick pattern (`a2m_hahn.js`). Leave walkways elsewhere as they are.
 - Traveler statue stays at (20,61).
 - Keep the perimeter fence with gaps only at the marked entrances.
-- No trees in McCarthy Quad or the Fertitta Hall courtyard.
+- No trees in McCarthy Quad or the Fertitta Hall courtyard. Exception (Jamie asked for it): Hammock Hill's two rows
+  of trees (`a2t_hammock.js`). The rest of the quad stays open lawn.
 - Use current building names (DMC, not VKC).
 - Writing style for anything he reads: no em dashes, concise and plain, honest evaluation
   rather than praise.

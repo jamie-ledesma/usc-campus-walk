@@ -2508,6 +2508,7 @@ var NAMED_PLACES=[];
   for(var i=0;i<AREAS.length;i++){
     var a=AREAS[i];
     var acol=a.k==='p'?C_PITCH:(a.k==='w'?0x3F7A32:C_GRASS), ash=a.k==='g'?rr(0.92,1.06):1;
+    a.sh=ash;                                   /* a2t_hammock.js matches Hammock Hill's lawn to it */
     if(ringHasHole(a.ring)) flatHoled(M,a.ring,[COL_HOLE],0.02,acol,ash);
     else flat(M,a.ring,0.02,acol,ash);
   }
@@ -2944,6 +2945,15 @@ var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,22
   if(ringArea(FERT_COURT)<0) FERT_COURT.reverse();
   NO_PLANT.push(offsetRing(FERT_COURT,1.5));
   NO_PLANT.push(HAHN.ring.slice());   /* Hahn Plaza: open brick, lamps placed in a2m_hahn.js */
+})();
+/* Hammock Hill, the raised lawn east of McCarthy Quad (OSM way 221557193), built in a2t_hammock.js.
+   Only the benches stay off it here (they draw no random numbers, so nothing else moves). */
+var HHILL=null, HHILL_PAD=null;
+(function(){
+  for(var i=0;i<AREAS.length;i++) if(AREAS[i].k==='g'&&inRing(AREAS[i].ring,248,-20)){ HHILL=AREAS[i]; break; }
+  if(!HHILL) return;
+  var r=HHILL.ring.slice(); if(ringArea(r)<0) r.reverse();
+  HHILL_PAD=offsetRing(r,3);
 })();
 (function(){
   var FELIX=decode('-284,-146 -9,-6 -6,-8 -4,-10 0,-10 4,-10 6,-8 9,-6 10,-3 10,1 10,4 86,46 8,7 5,9 2,10 -1,11 -5,9 -8,7 -10,4 -10,1 -11,-3');
@@ -4000,7 +4010,7 @@ var BENCHES=[];                     /* [x,z,yaw] of every bench; the crowd sits 
         }
         if(run%benchGap<1){
           var bx=px-nx*side*(w*0.5+1.5), bz=pz-nz*side*(w*0.5+1.5);
-          if(!blocked(bx,bz,2)&&!nearMonument(bx,bz)&&sBench.ok(bx,bz))
+          if(!blocked(bx,bz,2)&&!nearMonument(bx,bz)&&sBench.ok(bx,bz)&&!(HHILL_PAD&&inRing(HHILL_PAD,bx,bz)))
             benchPts.push([bx,bz,Math.atan2(-dx,-dz)]);
         }
         /* clipped hedge panels edging the lawn beside the main walks */
