@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -157,6 +157,14 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   (snaps down the slope too). Two rows of 12 multi-stemmed trees on the crest with bare earth rings, four hammocks
   across the rows with students, backpacks, students sitting on the slope, a paved pad with a metal table and stool.
   The old random trees are cleared from the patch; `HHILL_PAD` keeps the benches off it. The crowd does not walk on it.
+- `a2u_galen.js`: Galen Center, the arena on the south east corner of Figueroa and Jefferson (OSM way 406923895, 29.8 m).
+  In `HAND_HALLS`; its old raked bowl line in `world.txt` `##S` is gone. Campus grid frame (u east, v south). A buff
+  concrete box (27 m) striped with brick courses over a brick base storey, stepped roof boxes to about 32 m, the lower
+  practice pavilion at the south end. West front on Figueroa: brick piers and tall windows, the glazed 3400 entrance bay,
+  banded cast stone base, GALEN CENTER entablature, sidewalk trees and banner lamps. North front on Jefferson: brick
+  pavilion of six tall glazed bays under its own GALEN CENTER band, brick piers with red gates and hedges, fan palms.
+  South west: the student entrance stair (walkable, steel rails) to a raised brick-walled plaza with palms and trees.
+  TREE_POS kind 4 is always a Mexican fan palm; `TREE_POS[i][5]` lifts a tree onto a raised plaza (a3_landscape.js).
 - Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)

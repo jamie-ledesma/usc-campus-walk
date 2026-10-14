@@ -293,32 +293,32 @@ var LAND_STATS={};
   }
   var mulch=[];
   for(i=0;i<TREE_POS.length;i++){
-    var tp=TREE_POS[i], x3=tp[0], z3=tp[1], kind=tp[2];
+    var tp=TREE_POS[i], x3=tp[0], z3=tp[1], kind=tp[2], by=tp[5]||0;   /* [5]: base height (raised plazas) */
     if(inColHole(x3,z3)) continue;
     var hsh=hashf(x3,7,z3), onLawn=lawnAt(x3,z3)>0.5&&!inPlaza(x3,z3);
     if(kind===2){
       G('strel',strel,0xFFFFFF).list.push([x3,z3,0,rr(0.9,1.2),0]);
       continue;
     }
-    if(kind===1||kind===3){                    /* 3 is always a Canary date palm */
-      if(kind===1&&hsh<0.6){
-        var ph=rr(13,21);
-        G('fanT',fanT,0x8C7A5E).list.push([x3,z3,ph,0.9+hsh*0.3,1]);
-        G('fanC',fanC,0xFFFFFF).list.push([x3,z3,ph,1.25,0]);
+    if(kind===1||kind===3||kind===4){          /* 3 is always a Canary date palm, 4 always a Mexican fan palm */
+      if(kind===4||(kind===1&&hsh<0.6)){
+        var ph=rr(13,21)*(kind===4&&tp[4]?tp[4]:1);
+        G('fanT',fanT,0x8C7A5E).list.push([x3,z3,ph,0.9+hsh*0.3,1,0,by]);
+        G('fanC',fanC,0xFFFFFF).list.push([x3,z3,ph+by,1.25,0]);
       } else {
         var dh=rr(6,9.5);
-        G('dateT',dateT,0x7E6A4E).list.push([x3,z3,dh,1,1]);
-        G('dateC',dateC,0xFFFFFF).list.push([x3,z3,dh,rr(0.9,1.15),0]);
+        G('dateT',dateT,0x7E6A4E).list.push([x3,z3,dh,1,1,0,by]);
+        G('dateC',dateC,0xFFFFFF).list.push([x3,z3,dh+by,rr(0.9,1.15),0]);
       }
-      if(onLawn) mulch.push([x3,z3,1.3]);
+      if(onLawn&&!by) mulch.push([x3,z3,1.3]);
       continue;
     }
     var sp=tp[3]||pickSpecies(x3,z3), S=SPECIES[sp];
     var sc=rr(0.85,1.3)*(tp[4]||1);
     var th=rr(S.h[0],S.h[1])*sc, cw=rr(S.cw[0],S.cw[1])*sc;
-    G('trunk_'+sp,S.trunk,S.bark).list.push([x3,z3,th,Math.max(0.8,sc)*(sp==='ficus'?1.3:1),2]);
-    G('can_'+sp,S.canopy,S.leaf).list.push([x3,z3,th+cw*0.72,cw,3,sp]);
-    if(onLawn) mulch.push([x3,z3,Math.min(2.8,cw*0.55)]);
+    G('trunk_'+sp,S.trunk,S.bark).list.push([x3,z3,th,Math.max(0.8,sc)*(sp==='ficus'?1.3:1),2,0,by]);
+    G('can_'+sp,S.canopy,S.leaf).list.push([x3,z3,th+cw*0.72+by,cw,3,sp]);
+    if(onLawn&&!by) mulch.push([x3,z3,Math.min(2.8,cw*0.55)]);
   }
   var D=new T.Object3D(), cc=new T.Color();
   var total=0;
@@ -330,7 +330,7 @@ var LAND_STATS={};
     var im=new T.InstancedMesh(gr.geom,mat,n);
     for(var i=0;i<n;i++){
       var e=gr.list[i];
-      D.position.set(e[0],0,e[1]); D.rotation.set(0,hashf(e[0],9,e[1])*TAU,0);
+      D.position.set(e[0],e[6]||0,e[1]); D.rotation.set(0,hashf(e[0],9,e[1])*TAU,0);
       if(e[4]===1){ D.scale.set(e[3],e[2],e[3]); }            /* palm trunk: y is height */
       else if(e[4]===0){ D.position.y=e[2]; D.scale.set(e[3],e[3],e[3]); }
       else if(e[4]===2){ D.scale.set(e[3],e[2],e[3]); }       /* tree trunk */
@@ -347,7 +347,7 @@ var LAND_STATS={};
   for(i=0;i<TREE_POS.length;i++){
     var tq=TREE_POS[i];
     if(inColHole(tq[0],tq[1])) continue;
-    addCollider([[tq[0]-0.35,tq[1]-0.35],[tq[0]+0.35,tq[1]-0.35],[tq[0]+0.35,tq[1]+0.35],[tq[0]-0.35,tq[1]+0.35]],2.5);
+    addCollider([[tq[0]-0.35,tq[1]-0.35],[tq[0]+0.35,tq[1]-0.35],[tq[0]+0.35,tq[1]+0.35],[tq[0]-0.35,tq[1]+0.35]],2.5+(tq[5]||0));
   }
   /* mulch rings */
   if(mulch.length){
