@@ -316,13 +316,15 @@
 
   /* ================= the Student Union side: seating terraces ================= */
   (function(){
-    var F=SU, a=5.0, b=25.5;
+    /* two runs either side of the doorway stair, which a2s_union.js builds (s 12.65..17.85) */
+    var F=SU;
+    [[5.0,12.65],[17.85,25.5]].forEach(function(ab){ var a=ab[0], b=ab[1];
     [[0,2.2,1.26],[2.2,3.4,0.84],[3.4,4.6,0.42]].forEach(function(r){
       fbox(MW,F,a,b,r[0],r[1],0,r[2]-0.04,CAST,0.58);
       fbox(MW,F,a,b,r[0],r[1]+0.04,r[2]-0.04,r[2],CASTL,0.78);
       fsolid(F,a,b,r[0],r[1],r[2]);
-    });
-    [7,14.5,22].forEach(function(s){ var p=F.W(s,5.6); campusLamp(MW,p[0],p[1],4.2,false); });
+    }); });
+    [7,22].forEach(function(s){ var p=F.W(s,5.6); campusLamp(MW,p[0],p[1],4.2,false); });
     /* the cast stone name wall at the corner, facing the walk */
     var W0=-26.8, W1=-22.2, WV=28.6;
     fbox(MW,GF,W0,W1,WV-0.25,WV+0.25,0,0.95,CAST,0.62);

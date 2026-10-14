@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -96,6 +96,15 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   bronze lattice rails and the fountain (gold niche, arcing jets) on the TCC side, seating terraces on the Student Union
   side, and facade skins on TCC's courtyard front, its block at the mouth and Sample Hall's end (arches, marble columns,
   names, balconettes, pergola, cupola).
+- `a2s_union.js`: the Gwynn Wilson Student Union (1928), in `HAND_HALLS`. Footprint redrawn from OSM relation 6095474
+  (outer way 406923992, about 37 x 37 m; the old ring had a notch on the south side). Main front east on Trousdale
+  and Hahn Plaza, north front on the walk, west side on the TCC courtyard. East and north: banded cream and brick ground
+  storey of round arched windows over basement lights, corbel tables, paired windows in cast stone surrounds, diaper
+  panels (canvas texture), paired round headed windows, cornice, attic of small lights, corner pavilions with pilasters,
+  centre bay (east: arched entrance with steps, traceried balcony, carved panel). Courtyard side: plain brick with cast
+  stone trimmed windows, tall chimney stack, the arched doorway (pierced tympanum, carved jambs, alternating voussoirs,
+  lanterns, bronze letters) up a stair between cheek walls with fluted lamp posts; a2r's terraces stop either side of
+  it (s 12.65..17.85 on a2r's `SU` frame). Low tile hip roof with finials round a flat crown with the light court.
 - `a2k_alumni.js`: Alumni Park in front of Doheny, laid out on the library's axis (local u along
   the front, v out into the park): limestone steps, rose brick walk, round brick plaza with a two-tier
   fountain in a ring of red roses, boxwood hedges framing the lawns, the raised SC bed (red and yellow
