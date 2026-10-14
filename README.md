@@ -16,7 +16,22 @@ skyline on the horizon. It lowers its own detail if the frame rate drops.
   concatenated in order by `build.sh`.
 - `CLAUDE.md` explains the code, the build and the testing tools in detail.
 
-## Updating  site
+## Preview locally
+
+To preview the committed site without rebuilding it, run this from the repository root:
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
+Keep the server running while exploring; press Ctrl+C in the terminal to stop it.
+Internet access is needed for the deployed page's external Three.js script.
+
+To preview source changes, first rebuild the page using the commands below.
+The build requires Bash and Node.js; generating and serving `index.html` requires Python 3.
+
+## Updating the site
 
 ```
 ./build.sh               # builds game.html from the sources
