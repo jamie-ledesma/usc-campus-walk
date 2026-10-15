@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -165,7 +165,17 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   pavilion of six tall glazed bays under its own GALEN CENTER band, brick piers with red gates and hedges, fan palms.
   South west: the student entrance stair (walkable, steel rails) to a raised brick-walled plaza with palms and trees.
   TREE_POS kind 4 is always a Mexican fan palm; `TREE_POS[i][5]` lifts a tree onto a raised plaza (a3_landscape.js).
-- Leavey Library, Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
+- `a2v_leavey.js`: Thomas and Dorothy Leavey Library (1994), in `HAND_HALLS`; `LEAVEY` in `a_world.js` holds the frame
+  (origin on the south wall, u grid east, v grid south toward McCarthy Quad), the plaza ring (NO_PLANT) and the pool, whose
+  OSM water the fountain pass skips. Footprint from OSM way 406923908. Four storey block under a low gabled tile roof
+  (eave 18.6 m, red box on the ridge to 25.2), lower two storey west wing with a pediment, round stair tower on the north.
+  Banding on every wall: stone ground storey with brick courses, brick fields with thin stone stripes, stone string courses,
+  grouped windows with stone mullions, frieze of brick lozenges. South front: pale stone tower bay with stacked canted bay
+  windows, LEAVEY LIBRARY and a pediment with a lunette, gabled porch on banded piers over steps; raised terrace (y 0.9,
+  red umbrellas, steps at both ends) behind long planters under a white steel pergola on banded piers with vines, a shorter
+  pergola west of the steps; reflecting pool (blue tile and Greek key border in one canvas texture, raised white coping,
+  no jets); red brick basketweave plaza (canvas texture) under the walks; twin globe lamps.
+- Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
 

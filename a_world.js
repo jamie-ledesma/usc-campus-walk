@@ -1139,7 +1139,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31};
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -2173,101 +2173,7 @@ function wallKit(M,F){
   return K;
 }
 
-/* ---------- Thomas and Dorothy Leavey Library (1994) ----------
-   Postmodern Romanesque in the campus brick: three storeys of regular
-   pilastered bays in cast stone trim under a red tile roof, and a tall
-   gabled gateway pavilion with a great arched window facing McCarthy Quad
-   and the long reflecting pool. */
-CUSTOM['Leavey Library']=function(M,B,ring,c,d){
-  var h=15.6, brick=0xA64A32, brickD=0x8E3F2B, cast=0xE2D7BF, castD=0xC4B79B,
-      tile=0xB0502F, tileD=0x8A3C24, glass=0x2E3B45;
-  var s=simplifyRing(ring,1.0);
-  prism(M,s,0,h,brick,brick,0.55);
-  band(M,s,0,1.15,0.22,cast,1,0.70);
-  band(M,s,5.05,5.45,0.30,cast,1,0.78,true);
-  band(M,s,10.15,10.45,0.30,cast,1,0.78,true);
-  bayFacade(M,s,{bay:4.4,pil:0.95,pilD:0.24,pilY0:1.15,pilY1:h-1.1,pilCol:brickD,trim:cast,glass:glass,mull:castD,
-    floors:[{y:1.75,h:2.35,w:2.1,arch:1},{y:6.2,h:2.7,w:2.0},{y:11.05,h:2.5,w:2.0}]});
-  band(M,s,h-1.1,h-0.55,0.30,castD,0.9,0.62,true);
-  band(M,s,h-0.55,h+0.05,0.44,cast,1,0.80,true);
-  var e2=offsetRing(simplifyRing(s,3.0),0.9);
-  band(M,e2,h,h+0.35,0,tileD,0.85,0.55);
-  var rise=Math.max(3.0,Math.min(5.2,d.min*0.20));
-  hipRoof(M,e2,h+0.35,rise,Math.min(rise*1.15,d.min*0.30),tile);
-
-  /* the gateway pavilion, on the axis of the reflecting pool */
-  var pc=[237,-94];
-  for(var wi=0;wi<WATER.length;wi++){ var wc=centroid(WATER[wi]);
-    if(Math.hypot(wc[0]-c[0],wc[1]-c[1])<70){ pc=wc; break; } }
-  var F=wallFacing(s,pc[0],pc[1],14);
-  if(F){
-    var K=wallKit(M,F);
-    var uc=(pc[0]-F.x)*F.dx+(pc[1]-F.z)*F.dz;
-    uc=Math.max(-F.L*0.5+9.5,Math.min(F.L*0.5-9.5,uc));
-    var Pw=8.2, back=-8, fr=2.6, HT=21.6, AP=27.4;
-    var pav=K.box(uc-Pw,uc+Pw,back,fr,0,HT,brick,0.56);
-    K.box(uc-Pw-0.2,uc+Pw+0.2,back,fr+0.2,0,1.15,cast,0.70);
-    K.box(uc-Pw-0.08,uc+Pw+0.08,back,fr+0.1,5.05,5.45,cast,0.78);
-    K.box(uc-Pw-0.08,uc+Pw+0.08,back,fr+0.1,10.15,10.45,cast,0.78);
-    /* cast stone piers at the corners, capped above the cornice */
-    for(var sd=-1;sd<=1;sd+=2){
-      var pu=uc+sd*(Pw-0.7);
-      K.box(pu-0.95,pu+0.95,fr-1.2,fr+0.55,0,HT+1.3,cast,0.70);
-      K.box(pu-1.15,pu+1.15,fr-1.4,fr+0.75,HT+1.3,HT+1.75,castD,0.8);
-      for(var qy=1.6;qy<HT;qy+=1.9) K.box(pu-1.05,pu+1.05,fr-1.3,fr+0.62,qy,qy+0.45,castD,0.72);
-      var tq=K.P(pu,fr-0.3);
-      coneRoof(M,tq[0],tq[1],1.0,HT+1.75,1.8,tile,4);
-    }
-    /* the great arched window: stone archivolt, glazing in a stone grid */
-    var gw=8.4, gs=10.6, ga=gw*0.5;
-    K.face(uc,fr+0.02,0.0,gw+1.7,gs+0.3,ga+0.85,castD,1);
-    K.face(uc,fr+0.05,0.0,gw+0.8,gs+0.15,ga+0.40,cast,1);
-    K.face(uc,fr+0.08,0.0,gw,gs,ga,glass,1);
-    for(var mu=-1;mu<=1;mu++) K.face(uc+mu*gw/4,fr+0.11,3.4,0.18,gs-3.4+ga*(mu?0.72:1),0,cast,0.95);
-    for(var ty=3.4;ty<gs+0.1;ty+=3.6) K.face(uc,fr+0.11,ty,gw,0.18,0,cast,0.95);
-    K.face(uc,fr+0.11,gs+ga*0.55,gw*0.84,0.16,0,cast,0.95);
-    /* glass doors under a bronze canopy */
-    K.face(uc,fr+0.12,0.0,5.4,3.3,0,0x1B2329,1);
-    for(var du=-1;du<=1;du++) K.face(uc+du*1.8,fr+0.14,0,0.14,3.3,0,0x6B5A3E,1);
-    K.box(uc-3.6,uc+3.6,fr,fr+2.4,3.35,3.7,0x6B5A3E,0.8);
-    /* keystone, name panel, cornice */
-    K.box(uc-0.55,uc+0.55,fr,fr+0.22,gs+ga+0.2,gs+ga+1.3,castD,0.8);
-    K.box(uc-6.2,uc+6.2,fr,fr+0.12,HT-4.1,HT-2.9,cast,0.82);
-    var tp=K.P(uc,fr+0.14);
-    facadeText('LEAVEY LIBRARY',tp[0],tp[1],F.nx,F.nz,HT-3.5,10.5,0.95,'#5A4A38');
-    K.box(uc-Pw-0.3,uc+Pw+0.3,back,fr+0.35,HT-1.3,HT-0.7,castD,0.62);
-    K.box(uc-Pw-0.45,uc+Pw+0.45,back,fr+0.5,HT-0.7,HT,cast,0.80);
-    /* the gable: brick field, stone coping on the rakes, an oculus */
-    K.gable(uc-Pw-0.2,uc+Pw+0.2,fr+0.02,HT,AP,brick);
-    for(var sd2=-1;sd2<=1;sd2+=2){
-      var re=K.P(uc+sd2*(Pw+0.45),fr+0.4), ap=K.P(uc,fr+0.4);
-      segBox(M,re,ap,HT,HT+0.1,0.2,cast,0.8);
-    }
-    var ri=K.P(uc+(Pw+0.45),fr+0.35), le=K.P(uc-(Pw+0.45),fr+0.35), apx=K.P(uc,fr+0.35);
-    var cc=rgb(cast,1);
-    for(var t2=0;t2<2;t2++){
-      var E=t2?ri:le;
-      var A1=[E[0],HT+0.1,E[1]], A2=[apx[0],AP+0.35,apx[1]];
-      M.quad(A1,[A1[0],A1[1]+0.55,A1[2]],[A2[0],A2[1]+0.55,A2[2]],A2,cc,cc,cc,cc);
-      M.quad(A2,[A2[0],A2[1]+0.55,A2[2]],[A1[0],A1[1]+0.55,A1[2]],A1,cc,cc,cc,cc);
-    }
-    K.disc(uc,fr+0.04,HT+2.55,1.35,cast,20);
-    K.disc(uc,fr+0.07,HT+2.55,0.95,glass,20);
-    K.roof(uc-Pw-0.6,uc+Pw+0.6,fr+0.6,back,HT+0.05,AP+0.3,tile,tileD);
-    addCollider(pav,HT);
-    /* keep the forecourt open between the doors and the pool */
-    var fc=K.P(uc,fr+9);
-    B.noPlant=[oriRect(fc[0],fc[1],F.dx,F.dz,Pw+14,10)];
-    /* lanterns on the piers */
-    for(var ls=-1;ls<=1;ls+=2){
-      var lp=K.P(uc+ls*(Pw-0.7),fr+0.8);
-      var lan=new T.Mesh(new T.CylinderGeometry(0.24,0.17,0.7,6),new T.MeshLambertMaterial({color:0xE9C27A,emissive:0x5a3a10}));
-      lan.position.set(lp[0],3.6,lp[1]); scene.add(lan);
-    }
-  }
-  addCollider(ring,h);
-  return h;
-};
+/* Thomas and Dorothy Leavey Library (1994) is built by hand in a2v_leavey.js (HAND_HALLS, LEAVEY). */
 
 /* ---------- Edward L. Doheny Jr. Memorial Library (1932) ----------
    Italian Romanesque in pale rose brick and limestone. The west front faces
@@ -2680,7 +2586,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
@@ -2902,6 +2808,16 @@ function fountainRing(M,MG,ring,tiers,lift){
    These come straight from the OSM ways because the campus footprint
    list drops sports facilities.
    ================================================================== */
+/* Leavey Library and its plaza (a2v_leavey.js). Frame on the campus grid: origin at the
+   south front, u grid east, v grid south (out toward McCarthy Quad). */
+var LEAVEY=(function(){
+  var O=[230,-117], du=[0.8862,0.4633], dv=[-0.4633,0.8862];
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  var plaza=[P(-43.5,-1),P(42,-1),P(42,36),P(-43.5,36)];
+  if(ringArea(plaza)<0) plaza.reverse();
+  return {O:O,du:du,dv:dv,P:P,loc:loc,plaza:plaza,pool:[P(1.6,13.6),P(35.2,13.6),P(35.2,21.5),P(1.6,21.5)]};
+})();
 var SPORT_PLACES=[], NO_PLANT=[
   [[COL.xp,COL.cz-52],[COL.xp+58,COL.cz-52],[COL.xp+58,COL.cz+52],[COL.xp,COL.cz+52]]
 ];
@@ -2913,6 +2829,7 @@ var SPORT_PLACES=[], NO_PLANT=[
     if(o) NO_PLANT.push(o);
     if(B.noPlant) for(var k=0;k<B.noPlant.length;k++) NO_PLANT.push(B.noPlant[k]);
   }
+  NO_PLANT.push(LEAVEY.plaza.slice());   /* the Leavey plaza is furnished by a2v_leavey.js */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();
@@ -4313,6 +4230,7 @@ var BENCHES=[];                     /* [x,z,yaw] of every bench; the crowd sits 
     if(A<6) continue;
     var cwq=centroid(ring);
     if(Math.hypot(cwq[0]-18,cwq[1]-43)<14) continue;   /* Hahn Plaza, built with Traveler */
+    if(inRing(LEAVEY.plaza,cwq[0],cwq[1])) continue;   /* Leavey's reflecting pool, a2v_leavey.js */
     var laW=longAxisOf(ring);
     if(laW[2]>12&&A/laW[2]<laW[2]/3){             /* long and thin: a reflecting pool */
       fountainRing(M,MGf,ring,0,0); nFount++; continue;
