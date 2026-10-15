@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2z_shrinesite.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -197,6 +197,15 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   brick diagonal lattice (canvas texture), low cast stone bench wall arc with urn planters, twin globe lamp on a brick pier,
   interpretive sign, hedges, planted bed, magnolias, and the sign: buff cast stone frame on brick piers, red ALLYSON FELIX FIELD
   letters, LED screen (canvas texture). The old Felix block in the athletics section only registers the SPORT_PLACES label.
+- `a2z_shrinesite.js`: the grounds round the Shrine Auditorium across Jefferson (the building is `a2y_shrine.js`). `SHRS` in
+  `a_world.js` (grid frame: origin at the building's south west corner (302,-268), u grid east, v grid south) holds the promenade and
+  car park rings, hides the walks there (crowd keeps them), drops the OSM car park aisles, keeps props off (NO_PLANT) and moves
+  Jefferson's north carriageway 3 m south in front of the building (taper u -120..130). Royal Street promenade (u -24.2 to 3 m off
+  the west wall, Jefferson to v -180): rose and tan diamond paving (canvas texture), double row of tall date palms (u -19.5, -11.5;
+  `TREE_POS[i][4]` on kind 3 now stretches the trunk), slim lamp posts, planters, green barricades. Green picket fence with two open
+  gates to the surface car park (u -65..-24.6): asphalt, white stalls, two aisles, instanced cars, lot lights; brick piers and
+  pickets on Jefferson, open at the driveways. Corner: white statue on a cast stone pedestal, twin lantern lamps, signals, yellow
+  crosswalks, palms along the Jefferson sidewalk.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)

@@ -306,7 +306,7 @@ var LAND_STATS={};
         G('fanT',fanT,0x8C7A5E).list.push([x3,z3,ph,0.9+hsh*0.3,1,0,by]);
         G('fanC',fanC,0xFFFFFF).list.push([x3,z3,ph+by,1.25,0]);
       } else {
-        var dh=rr(6,9.5);
+        var dh=rr(6,9.5)*(kind===3&&tp[4]?tp[4]:1);   /* [4] stretches a date palm's trunk */
         G('dateT',dateT,0x7E6A4E).list.push([x3,z3,dh,1,1,0,by]);
         G('dateC',dateC,0xFFFFFF).list.push([x3,z3,dh+by,rr(0.9,1.15),0]);
       }
