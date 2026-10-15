@@ -250,6 +250,62 @@ var TCC=null;
   TCC={P:P,loc:loc,ring:ring,apron:apron,noHedge:{'Tutor Campus Center':1,'Steven and Kathryn Sample Hall':1,'Student Union':1}};
 })();
 
+/* Allyson Felix Field and its entry plaza at Watt Way and Childs Way (a2w_felix.js).
+   Frame: the campus grid about the world origin (u grid east, v grid south), so P(u,v) is
+   just a rotation. The track, stand and fence lines come from aerial imagery and OSM way
+   140790303 (the stadium); the plaza replaces the 9 m OSM walk loop round the junction.
+   Take the loop out, cut the walks that cross the plaza (hidden there, a2w draws the paving),
+   and drop the OSM grandstand block (an unnamed building) so a2w can build the real stand. */
+var FELIXP=(function(){
+  var du=[0.8862,0.4633], dv=[-0.4633,0.8862];
+  function P(u,v){ return [u*du[0]+v*dv[0], u*du[1]+v*dv[1]]; }
+  function loc(p){ return [p[0]*du[0]+p[1]*du[1], p[0]*dv[0]+p[1]*dv[1]]; }
+  function ccw(r){ if(ringArea(r)<0) r.reverse(); return r; }
+  function poly(l){ return ccw(l.map(function(q){ return P(q[0],q[1]); })); }
+  /* the sign and its bench wall stand on their own line (aerial imagery): S is the middle of the sign,
+     a runs along its face, n out of its face toward the plaza; Q(s,t) = S + a*s + n*t */
+  var S=P(-187.3,-8.6), na=[0.2250,0.9744], aa=[0.9744,-0.2250];
+  function Q(s2,t2){ return [S[0]+aa[0]*s2+na[0]*t2, S[1]+aa[1]*s2+na[1]*t2]; }
+  var plaza=ccw([Q(-20,11),Q(1.5,11)].concat([[-174.5,3.5],[-170,6.5],[-163,6.5],[-160.6,12.6],[-154.7,12.4],
+                  [-153.7,33.3],[-161.8,33.0],[-161.7,37.5],[-186.2,37.5],[-192.7,31.7],[-199,24],[-199,15]].map(function(q){ return P(q[0],q[1]); })));
+  var bed=ccw([Q(-20,-3),Q(5.2,-3),Q(5.2,5),Q(1.5,11),Q(-20,11)]);
+  /* the track: two half circles on centres cu+-half, outer radius R */
+  var TR={cu:-272, cv:-37, half:51, R:36};
+  function trackRing(off,n){
+    var r=[], R=TR.R+off, i, a; n=n||24;
+    for(i=0;i<=n;i++){ a=-Math.PI/2+Math.PI*i/n; r.push(P(TR.cu+TR.half+Math.cos(a)*R, TR.cv+Math.sin(a)*R)); }
+    for(i=0;i<=n;i++){ a=Math.PI/2+Math.PI*i/n; r.push(P(TR.cu-TR.half+Math.cos(a)*R, TR.cv+Math.sin(a)*R)); }
+    return ccw(r);
+  }
+  var i, k;
+  PATHS=PATHS.filter(function(p){ return !p.pts.every(function(q){ return inRing(plaza,q[0],q[1]); }); });
+  var out=[];
+  for(i=0;i<PATHS.length;i++){
+    var pts=PATHS[i].pts, dense=[];
+    for(k=0;k<pts.length-1;k++){
+      var a=pts[k], b=pts[k+1], n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/1.5));
+      for(var j=0;j<n;j++) dense.push([a[0]+(b[0]-a[0])*j/n, a[1]+(b[1]-a[1])*j/n]);
+    }
+    dense.push(pts[pts.length-1]);
+    var ins=dense.map(function(q){ return inRing(plaza,q[0],q[1]); });
+    if(ins.indexOf(true)<0){ out.push(PATHS[i]); continue; }
+    /* runs in and out of the plaza, sharing the point where they meet */
+    var cur=[dense[0]], st=ins[0];
+    for(k=1;k<dense.length;k++){
+      cur.push(dense[k]);
+      if(ins[k]!==st||k===dense.length-1){
+        if(cur.length>1) out.push(st?{w:PATHS[i].w,hide:1,pts:cur}:{w:PATHS[i].w,pts:cur});
+        cur=[dense[k]]; st=ins[k];
+      }
+    }
+  }
+  PATHS=out;
+  PATHS.push({w:2.4,hide:1,pts:[Q(-16,14.5),Q(1,14.5)]});   /* along the bench wall */
+  for(i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i], c=centroid(B.ring);
+    if(!B.name&&Math.hypot(c[0]+244,c[1]+209)<14) B.hand=1; }
+  return {P:P,loc:loc,du:du,dv:dv,S:S,a:aa,n:na,Q:Q,plaza:plaza,bed:bed,TR:TR,trackRing:trackRing};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -2840,6 +2896,7 @@ var SPORT_PLACES=[], NO_PLANT=[
   }
   NO_PLANT.push(LEAVEY.plaza.slice());   /* the Leavey plaza is furnished by a2v_leavey.js */
   NO_PLANT.push(BOVARD.lawn.slice());    /* Bovard's forecourt and front lawns: a2x_bovard.js */
+  NO_PLANT.push(FELIXP.plaza.slice(),FELIXP.bed.slice());   /* the Felix Field entry plaza (a2w_felix.js) */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();
@@ -2883,7 +2940,6 @@ var HHILL=null, HHILL_PAD=null;
   HHILL_PAD=offsetRing(r,3);
 })();
 (function(){
-  var FELIX=decode('-284,-146 -9,-6 -6,-8 -4,-10 0,-10 4,-10 6,-8 9,-6 10,-3 10,1 10,4 86,46 8,7 5,9 2,10 -1,11 -5,9 -8,7 -10,4 -10,1 -11,-3');
   var BRIT =decode('-272,-243 17,-33 78,41 -17,33');
   var JONES=decode('-370,-255 31,-59 -4,-10 -5,-2 3,-14 -3,-4 10,-29 84,42 -56,107');
   var KENN =decode('-405,-204 24,-45 11,-6 60,31 -30,55');
@@ -3102,40 +3158,9 @@ var HHILL=null, HHILL_PAD=null;
   }
 
   /* =================================================== Allyson Felix Field */
+  /* the track, stand, fence and entry plaza are built in a2w_felix.js (FELIXP) */
   (function(){
-    var c=ctr(FELIX), a=axisOf(FELIX), ux=a[0], uz=a[1];
-    var apron=offsetRing(FELIX,3.4);
-    flat(MG,apron,0.09,0x8E8C82,1);
-    flat(MG,FELIX,0.115,C_RUBBER,1);
-    /* eight lanes, 1.22 m each, marked on both edges */
-    var LW=1.22, LN=8;
-    for(var k=0;k<=LN;k++) lineR(MG,offsetRing(FELIX,-0.40-k*LW),0.13,0.145,C_LINE);
-    var kerbR=offsetRing(FELIX,-0.40-LN*LW-0.35);
-    lineR(MG,kerbR,0.42,0.15,0xFFFFFF);
-    wallRing(MW,kerbR,0.11,0.24,0.16,0xE8E6DE,0.85);
-    var infield=offsetRing(FELIX,-0.40-LN*LW-0.9);
-    flat(MG,infield,0.125,C_TURF,1);
-    /* start / finish, across the lanes on the long straight */
-    var sA=FELIX[10], sB=FELIX[11];
-    var sdx=sB[0]-sA[0], sdz=sB[1]-sA[1], sL=Math.hypot(sdx,sdz); sdx/=sL; sdz/=sL;
-    var snx=sdz, snz=-sdx;
-    var fx=sA[0]+sdx*sL*0.80, fz=sA[1]+sdz*sL*0.80;
-    seg(MG,[fx,fz],[fx-snx*(LN*LW+0.8),fz-snz*(LN*LW+0.8)],0.55,0.155,0xFFFFFF);
-    /* infield pitch markings and the SC at the middle */
-    pitchLines(MG,infield,0.135,7,false);
-    var ld=logoDir(c,ux,uz); scLogo(c[0],c[1],22,ld[0],ld[1]);
-    /* stands on the straight nearer campus, light masts at the four quarters */
-    var bA=FELIX[20], bB=FELIX[0];
-    var bmx=(bA[0]+bB[0])*0.5, bmz=(bA[1]+bB[1])*0.5;
-    var nx=bmx-c[0], nz=bmz-c[1], nL=Math.hypot(nx,nz); nx/=nL; nz/=nL;
-    stand(MW,[bA[0]+nx*4.2,bA[1]+nz*4.2],[bB[0]+nx*4.2,bB[1]+nz*4.2],nx,nz,9.5,14,0xC6BCA6,C_CARD);
-    var fenceR=offsetRing(FELIX,6.0);
-    railFence(MW,fenceR,0,2.6,C_FENCE,true);
-    for(k=0;k<4;k++){
-      var ang=k/4*6.283+0.785;
-      var px=c[0]+Math.cos(ang)*72, pz=c[1]+Math.sin(ang)*48;
-      lightMast(MW,px,pz,26);
-    }
+    var c=FELIXP.P(FELIXP.TR.cu,FELIXP.TR.cv);
     SPORT_PLACES.push({name:'Allyson Felix Field',x:c[0],z:c[1],h:6,rad:70});
   })();
 
@@ -3387,7 +3412,7 @@ var HHILL=null, HHILL_PAD=null;
     SPORT_PLACES.push({name:'Uytengsu Aquatics Center',x:c[0],z:c[1],h:6,rad:34});
   })();
 
-  NO_PLANT.push(offsetRing(FELIX,7),offsetRing(BRIT,5),offsetRing(JONES,4),
+  NO_PLANT.push(FELIXP.trackRing(8),offsetRing(BRIT,5),offsetRing(JONES,4),
                 offsetRing(KENN,4),offsetRing(MCAL,4),offsetRing(DEDX,3),offsetRing(POOL,16));
   var mg=new T.Mesh(MG.geom(),matGround); mg.frustumCulled=false; scene.add(mg);
   var mw=new T.Mesh(MW.geom(),matWorld);  mw.frustumCulled=false; scene.add(mw);

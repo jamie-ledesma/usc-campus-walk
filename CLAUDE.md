@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -186,6 +186,17 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   seal (canvas texture) on all four faces, belfry of five arches on twisted colonnettes, eight white statues on the shaft
   capitals, corbel table, modillion cornice. Forecourt of pale panels in red brick bands between clipped hedges, topiary cones
   and lamps on the step cheeks, magnolias and sycamores on the lawns.
+- `a2w_felix.js`: Allyson Felix Field in Katherine B. Loker Track Stadium (Cromwell Field until 2023) and its entry plaza at
+  Watt Way and Childs Way, north of Grace Ford Salvatori Hall. `FELIXP` in `a_world.js` (grid frame P(u,v); sign frame Q(s,t)
+  with S the sign centre and n out of its face toward the plaza) holds the plaza and bed rings and the track (`TR`, `trackRing`),
+  cuts the walks that cross the plaza (hidden there) and drops the OSM grandstand block. Track centre and outline match OSM ways
+  140790303 / 442277339 (slightly compressed); eight lanes and a 100 x 53 yd infield per USC Recreational Sports. Striped turf
+  with SC at midfield, red west end for the jumps, javelin runway and sand sector east. Grandstand on the north straight wrapping
+  the north west bend (bench rows, cream front wall, brick back wall, press box); four light masts; black iron picket fence
+  (canvas texture) on brick piers with cast stone caps, a brick wall stretch south east of the sign. Plaza: pale squares in a red
+  brick diagonal lattice (canvas texture), low cast stone bench wall arc with urn planters, twin globe lamp on a brick pier,
+  interpretive sign, hedges, planted bed, magnolias, and the sign: buff cast stone frame on brick piers, red ALLYSON FELIX FIELD
+  letters, LED screen (canvas texture). The old Felix block in the athletics section only registers the SPORT_PLACES label.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
