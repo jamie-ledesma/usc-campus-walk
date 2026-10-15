@@ -855,7 +855,7 @@ function sqWindows(M,ring,h,y0,floorH,winH,winW,pitch,glassCol){
   }
 }
 
-/* a ground level run of round arches - Mudd's cloister, Bovard's entrance loggia */
+/* a ground level run of round arches - Mudd's cloister */
 function arcade(M,ring,y0,hgt,col){
   var n=ring.length;
   for(var i=0;i<n;i++){
@@ -1139,7 +1139,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19};
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -2512,7 +2512,7 @@ function innerPoint(ring){
     return d;
   }
   var ARCADED_NEW={'Tutor Campus Center':1,'Steven and Kathryn Sample Hall':1,'Popovich Hall':1};
-  var ARCADED={'Mudd Hall':1,'Bovard Administration Building':1,
+  var ARCADED={'Mudd Hall':1,
                'Physical Education Building':1};
   for(i=0;i<CAMPUS.length;i++){
     var B=CAMPUS[i], ring=B.ring, h=B.h, st=B.st, d=ringDims(ring);
@@ -2586,7 +2586,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&B.name!=='Bovard Administration Building'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
@@ -2818,6 +2818,15 @@ var LEAVEY=(function(){
   if(ringArea(plaza)<0) plaza.reverse();
   return {O:O,du:du,dv:dv,P:P,loc:loc,plaza:plaza,pool:[P(1.6,13.6),P(35.2,13.6),P(35.2,21.5),P(1.6,21.5)]};
 })();
+/* Bovard Administration Building (a2x_bovard.js), on the Hahn grid (HAHN.P: u east, v south).
+   The tower axis runs grid east at v=VC; the forecourt runs from the steps to the Trousdale walk.
+   The front lawns either side are planted by a2x, so nothing random goes on them. */
+var BOVARD=(function(){
+  var P=HAHN.P, VC=-35.25;
+  function R(u0,u1,v0,v1){ var r=[P(u0,v0),P(u1,v0),P(u1,v1),P(u0,v1)]; if(ringArea(r)<0) r.reverse(); return r; }
+  PATHS.push({w:3,hide:1,pts:[P(19.2,VC),P(-7.4,VC)]});
+  return {P:P,VC:VC,lawn:R(-13.6,10.4,-76.5,-9.1)};
+})();
 var SPORT_PLACES=[], NO_PLANT=[
   [[COL.xp,COL.cz-52],[COL.xp+58,COL.cz-52],[COL.xp+58,COL.cz+52],[COL.xp,COL.cz+52]]
 ];
@@ -2830,6 +2839,7 @@ var SPORT_PLACES=[], NO_PLANT=[
     if(B.noPlant) for(var k=0;k<B.noPlant.length;k++) NO_PLANT.push(B.noPlant[k]);
   }
   NO_PLANT.push(LEAVEY.plaza.slice());   /* the Leavey plaza is furnished by a2v_leavey.js */
+  NO_PLANT.push(BOVARD.lawn.slice());    /* Bovard's forecourt and front lawns: a2x_bovard.js */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();

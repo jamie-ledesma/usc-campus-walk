@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -175,6 +175,17 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   red umbrellas, steps at both ends) behind long planters under a white steel pergola on banded piers with vines, a shorter
   pergola west of the steps; reflecting pool (blue tile and Greek key border in one canvas texture, raised white coping,
   no jets); red brick basketweave plaza (canvas texture) under the walks; twin globe lamps.
+- `a2x_bovard.js`: George Finley Bovard Administration Building and Auditorium (1921), in `HAND_HALLS`. Footprint in `world.txt`
+  redrawn from OSM way 406923885, shifted like Tommy Trojan. `BOVARD` in `a_world.js` (Hahn frame, tower axis at v=-35.25) keeps
+  props off the forecourt and front lawns (NO_PLANT) and adds a hidden crowd walk to the steps. Three storey front range (eave 12.5)
+  facing grid east: brick ground arches (wood doors or windows), cast stone belt, paired round headed windows in cream surrounds,
+  pairs of small arched lights, corbel table, tile hip roof. End ranges (eave 14.8) with projecting pavilions, square windows below
+  and an arcade on colonnettes on top. Auditorium behind under a gabled tile roof with rose windows in both gables; lower blocks
+  between. Tower (cornice 31.8, pyramid roof to 35.7): engaged shafts near every corner, the four order cast stone portal with
+  colonnettes and dark wood doors up steps, bronze plaque, paired lights under a relieving arch, the two light window with the
+  seal (canvas texture) on all four faces, belfry of five arches on twisted colonnettes, eight white statues on the shaft
+  capitals, corbel table, modillion cornice. Forecourt of pale panels in red brick bands between clipped hedges, topiary cones
+  and lamps on the step cheeks, magnolias and sycamores on the lawns.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
