@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -197,6 +197,15 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   brick diagonal lattice (canvas texture), low cast stone bench wall arc with urn planters, twin globe lamp on a brick pier,
   interpretive sign, hedges, planted bed, magnolias, and the sign: buff cast stone frame on brick piers, red ALLYSON FELIX FIELD
   letters, LED screen (canvas texture). The old Felix block in the athletics section only registers the SPORT_PLACES label.
+- `a2y_shrine.js`: Shrine Auditorium (1926, Moorish Revival), across Jefferson from campus, in `HAND_HALLS`. Footprint in `world.txt`
+  redrawn from OSM ways 407613039 and 407613027 (the exhibition wing's north west block), shifted like the rest (about -3.5, +4.0).
+  Frame: grid u east, v south, origin (301,-269); Jefferson wall v -1, Royal St wall u -3.2 between the dome pavilions (v -26.7..-80.5).
+  Pale pink stucco: two storey Jefferson wing (12.6 m) with paired arched windows and three arched doorways; Royal St front block
+  (cornice 22.7) with five horseshoe arches (carved surrounds, colonnettes, stained glass lattice as a canvas texture, green doors,
+  ENTRANCE), carved frieze, a row of pointed windows on colonnettes, heavy cornice; dome pavilions at both ends of the Royal front
+  (slit windows, stepped bases, drums with arched windows, gold onion domes, crescent finials); crenellated auditorium box (28.6 m)
+  under a shallow ribbed patchy dome (35.6) with vents and the SHRINE sign at its north end; small domed tower on the south east
+  corner; flag pole; lower exhibition wing (16.5) to the north. Paves a 3 m band along the Jefferson and Royal St walls only.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)

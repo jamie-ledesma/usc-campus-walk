@@ -1195,7 +1195,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15};
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -2642,7 +2642,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&B.name!=='Bovard Administration Building'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&B.name!=='Bovard Administration Building'&&B.name!=='Shrine Auditorium'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
