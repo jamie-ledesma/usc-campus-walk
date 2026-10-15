@@ -306,6 +306,70 @@ var FELIXP=(function(){
   return {P:P,loc:loc,du:du,dv:dv,S:S,a:aa,n:na,Q:Q,plaza:plaza,bed:bed,TR:TR,trackRing:trackRing};
 })();
 
+/* The grounds round the Shrine Auditorium, across Jefferson (a2z_shrinesite.js): the Royal Street
+   promenade on the west side, the surface car park beyond its fence and the Jefferson corner.
+   Frame on the campus grid: origin at the building's south west corner, u grid east, v grid south
+   (Jefferson is at v about 9, Royal's centre line at u about -15, the car park u -65..-24).
+   Lines from OSM (way 511716220 Royal Street, 1041867890 the car park) shifted onto world.txt.
+   The promenade stops 3 m short of the building's walls (the building's own paving).
+   Hide the walks there (the crowd keeps them), drop the car park aisles (a2z draws them), and move
+   Jefferson's north carriageway 3 m south in front of the building so there is a sidewalk. */
+var SHRS=(function(){
+  var O=[302,-268], du=[0.8862,0.4633], dv=[-0.4633,0.8862];
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
+  var promL=[[-24.2,3.6],[-24.2,-180],[-7,-180],[-7,-170],[-9.3,-170],[-9.3,-157],[-8,-157],[-8,-126.5],
+             [-9.6,-126.5],[-9.6,-110],[-3.8,-110],[-3.8,-81.5],[-7.2,-81.5],[-7.2,-70],[-5.8,-70],[-5.8,-27],
+             [-8,-27],[-8,-13.5],[-4.3,-13.5],[-3.3,0],[-3.3,3.6]];
+  var lotL=[[-59.5,-3],[-24.6,-3],[-24.6,-172],[-47,-172],[-47.3,-134.5],[-61.5,-134.5],[-61.8,-129.3],
+            [-65.2,-129.3],[-64.8,-87],[-59.3,-86.6]];
+  var prom=poly(promL), lot=poly(lotL), i, k;
+  function inZ(q){ return inRing(prom,q[0],q[1])||inRing(lot,q[0],q[1]); }
+  /* the walk along the building's west wall is the building's own paving: hide all of it */
+  PATHS.forEach(function(p){ if(p.pts.every(function(q){ var l=loc(q); return l[0]>-11&&l[0]<-2&&l[1]>-182&&l[1]<4; })) p.hide=1; });
+  var out=[];
+  for(i=0;i<PATHS.length;i++){
+    var pts=PATHS[i].pts, dense=[];
+    for(k=0;k<pts.length-1;k++){
+      var a=pts[k], b=pts[k+1], n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/1.5));
+      for(var j=0;j<n;j++) dense.push([a[0]+(b[0]-a[0])*j/n, a[1]+(b[1]-a[1])*j/n]);
+    }
+    dense.push(pts[pts.length-1]);
+    var ins=dense.map(inZ);
+    if(PATHS[i].hide||ins.indexOf(true)<0){ out.push(PATHS[i]); continue; }
+    var cur=[dense[0]], st=ins[0];
+    for(k=1;k<dense.length;k++){
+      cur.push(dense[k]);
+      if(ins[k]!==st||k===dense.length-1){
+        if(cur.length>1) out.push(st?{w:PATHS[i].w,hide:1,pts:cur}:{w:PATHS[i].w,pts:cur});
+        cur=[dense[k]]; st=ins[k];
+      }
+    }
+  }
+  PATHS=out;
+  /* the car park's OSM aisles */
+  ROADS=ROADS.filter(function(r){ return !(r.w<8&&r.pts.every(function(q){ var l=loc(q); return l[0]>-70&&l[0]<-20&&l[1]>-190&&l[1]<12; })); });
+  /* Jefferson's north carriageway, 3 m further from the building between u -80 and 90 */
+  function taper(u){ return u<-120||u>130?0:(u<-80?(u+120)/40:(u>90?(130-u)/40:1)); }
+  ROADS.forEach(function(r){
+    if(r.w<10) return;
+    var hit=r.pts.some(function(q){ var l=loc(q); return l[1]>-2&&l[1]<15&&taper(l[0])>0; });
+    if(!hit) return;
+    var d=[];
+    for(k=0;k<r.pts.length-1;k++){
+      var a=r.pts[k], b=r.pts[k+1], n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/8));
+      for(var j=0;j<n;j++) d.push([a[0]+(b[0]-a[0])*j/n, a[1]+(b[1]-a[1])*j/n]);
+    }
+    d.push(r.pts[r.pts.length-1]);
+    r.pts=d.map(function(q){ var l=loc(q); if(l[1]>-2&&l[1]<15){ var s=3*taper(l[0]); return P(l[0],l[1]+s); } return q; });
+  });
+  /* Royal's stub across Jefferson into campus starts on the moved carriageway */
+  ROADS.forEach(function(r){ if(r.w>=6&&r.w<10) r.pts=r.pts.map(function(q){ var l=loc(q);
+    return (l[1]>5&&l[1]<12&&l[0]>-20&&l[0]<-10)?P(l[0],l[1]+3):q; }); });
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,prom:prom,lot:lot,promL:promL,lotL:lotL};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -2920,6 +2984,7 @@ CAMPUS.forEach(function(B){ if(HAND_HALLS[B.name]) NO_PLANT.push(offsetRing(B.ri
 /* nothing grows in the E Line median */
 NO_PLANT.push([[EXPO.xw,255],[300,255],[300,269],[EXPO.xw,269]]);
 if(PARDEE) PARDEE.foot.forEach(function(r){ NO_PLANT.push(r); });
+if(SHRS) NO_PLANT.push(SHRS.poly([[-67,-182],[-3.3,-182],[-3.3,6.5],[-67,6.5]]));   /* the Shrine grounds (a2z_shrinesite.js) */
 if(TCC) NO_PLANT.push(TCC.ring.slice(),TCC.apron.slice());   /* the Tutor Campus Center courtyard is furnished by a2r_tcc.js */   /* no benches or lamps on the Pardee paving (a2p) */
 /* McCarthy Quad is open lawn, and the Fertitta Hall courtyard is paved seating (a2f_courts.js) */
 var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,221],[231,224],[236.5,208],[237.5,199]];
