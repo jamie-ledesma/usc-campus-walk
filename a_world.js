@@ -370,6 +370,24 @@ var SHRS=(function(){
   return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,prom:prom,lot:lot,promL:promL,lotL:lotL};
 })();
 
+/* Rawlinson Stadium (formerly McAlister Field), built in a2za_rawlinson.js. Frame on the campus grid:
+   origin at the centre of the pitch (OSM area), u grid east along the touchlines, v grid south toward
+   the grandstand. Turf u -60..60, v -37.5..35.6; the stand v 36..48 (press box out to 49.6); the street
+   on the north side is at v about -52. Move the parking lane behind the stand back to v 53 and drop the
+   shed at the north west corner. */
+var RAWL=(function(){
+  var O=[245.8,-660.0], du=[0.8862,0.4633], dv=[-0.4633,0.8862];
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
+  ROADS.forEach(function(r){ if(r.w<8) r.pts=r.pts.map(function(q){ var l=loc(q);
+    return (l[0]>-26&&l[0]<40&&l[1]>44&&l[1]<53)?P(l[0],53):q; }); });
+  for(var i=0;i<BUILDINGS.length;i++){ var c=centroid(BUILDINGS[i].ring);
+    if(!BUILDINGS[i].name&&Math.hypot(c[0]-206,c[1]+715)<5) BUILDINGS[i].hand=1; }
+  var zone=poly([[-62,-39.5],[62,-39.5],[62,50.5],[-62,50.5]]);
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,zone:zone};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -3009,7 +3027,6 @@ var HHILL=null, HHILL_PAD=null;
   var JONES=decode('-370,-255 31,-59 -4,-10 -5,-2 3,-14 -3,-4 10,-29 84,42 -56,107');
   var KENN =decode('-405,-204 24,-45 11,-6 60,31 -30,55');
   var DEDX =decode('-422,-308 -3,2 -60,-39 -2,-12 2,-6 3,-9 19,-30 8,-7 12,-5 30,-11 2,0 27,10 32,14 -1,21 -18,55 -2,4 -5,15 -1,3 -4,4 -3,3 -5,2 -5,1 -5,0 -5,-2');
-  var MCAL =decode('177,-656 29,-54 2,0 3,-7 68,36 1,-1 35,17 -35,63');
   var POOL =decode('-323,-407 45,24 -11,20 -45,-24');
 
   var C_TURF=0x4FA33E, C_LINE=0xF3F2EC, C_RUBBER=0xB0523F, C_DIRT=0xA9784A,
@@ -3260,12 +3277,9 @@ var HHILL=null, HHILL_PAD=null;
     var ck=ctr(KENN);
     SPORT_PLACES.push({name:'Brian Kennedy Field',x:ck[0],z:ck[1],h:5,rad:45});
 
-    turf(MG,MCAL,0.10,C_TURF,12);
-    pitchLines(MG,MCAL,0.125,4,true);
-    var cm=ctr(MCAL), am=axisOf(MCAL);
-    var ldm=logoDir(cm,am[0],am[1]); scLogo(cm[0],cm[1],15,ldm[0],ldm[1]);
-    railFence(MW,offsetRing(MCAL,2.6),0,3.0,C_FENCE,true);
-    SPORT_PLACES.push({name:'McAlister Field',x:cm[0],z:cm[1],h:5,rad:50});
+    /* Rawlinson Stadium (formerly McAlister Field) is built in a2za_rawlinson.js (RAWL) */
+    var cm=RAWL.P(0,0);
+    SPORT_PLACES.push({name:'Rawlinson Stadium',x:cm[0],z:cm[1],h:6,rad:62});
   })();
 
   /* =============================================== Dedeaux Field (baseball) */
@@ -3478,7 +3492,7 @@ var HHILL=null, HHILL_PAD=null;
   })();
 
   NO_PLANT.push(FELIXP.trackRing(8),offsetRing(BRIT,5),offsetRing(JONES,4),
-                offsetRing(KENN,4),offsetRing(MCAL,4),offsetRing(DEDX,3),offsetRing(POOL,16));
+                offsetRing(KENN,4),RAWL.zone,offsetRing(DEDX,3),offsetRing(POOL,16));
   var mg=new T.Mesh(MG.geom(),matGround); mg.frustumCulled=false; scene.add(mg);
   var mw=new T.Mesh(MW.geom(),matWorld);  mw.frustumCulled=false; scene.add(mw);
   for(var q3=0;q3<SPORT_PLACES.length;q3++) NAMED_PLACES.push(SPORT_PLACES[q3]);

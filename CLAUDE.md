@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -215,6 +215,20 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   gates to the surface car park (u -65..-24.6): asphalt, white stalls, two aisles, instanced cars, lot lights; brick piers and
   pickets on Jefferson, open at the driveways. Corner: white statue on a cast stone pedestal, twin lantern lamps, signals, yellow
   crosswalks, palms along the Jefferson sidewalk.
+- `a2za_rawlinson.js`: Rawlinson Stadium (formerly McAlister Field), USC soccer and lacrosse. `RAWL` in `a_world.js` (grid frame,
+  origin at the pitch centre, u grid east along the touchlines, v grid south to the stand) moves the parking lane behind the stand to
+  v 53, drops the shed at the north west corner and gives the `NO_PLANT` zone; the athletics block only registers the label. Striped
+  turf (u -60..60, v -37.5..35.6), lines for a 104 x 62 m pitch, SC at midfield, goals with nets (one textured mesh), corner flags.
+  Grandstand on the south touchline (u -33..33): red front wall, 14 rows with maroon seats in seven sections, red tower at the west end,
+  red block at the east end, press box of dark glass with red end caps under a white roof slab, RAWLINSON STADIUM fascia (unlit canvas plane so it reads in shade), roof terrace
+  with rail and red umbrellas; brick back with cast stone arches, band, windows and cap. Cast stone gateway with open iron gates at the
+  south east corner (u 37..45), picket fence (canvas texture) on a brick kerb with piers, four light masts, team benches, scoreboard.
+  The match: 22 players, a referee and about 170 seated fans built like the students (six instanced meshes, kit tinted per instance;
+  slots 0..10 USC in cardinal and gold, 11..21 blue, 22 referee, then fans). Simple AI: formation shape that shifts with the ball, the
+  nearest player chases, dribble, pass with a lane check, shoot inside 30 m, keeper saves, tackles, throw ins, goal kicks, goal
+  celebration (USC goals make the fans stand and cheer), kickoff. The scoreboard canvas is redrawn only on a goal. `updateSoccer(dt)` runs
+  from `update()` in both loops, only while the camera is within 320 m (otherwise the meshes are hidden); too cheap to separate from the rest of the loop (a whole `__step` is about 0.18 ms beside the stadium, 0.23 ms at Tommy). Only the
+  23 player matrices are uploaded each frame (`instanceMatrix.updateRange`), the fans only while they cheer. Dev: `window.__rawl.state()`.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)

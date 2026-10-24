@@ -197,6 +197,7 @@ function update(dt){
   if(Math.abs(camera.fov-fovCur)>0.01){ camera.fov=fovCur; camera.updateProjectionMatrix(); }
 
   updateCrowd(dt);
+  updateSoccer(dt);
   updateSigns(dt);
   placeSun(P.x-SUN_DIR.x*0+(-Math.sin(P.yaw))*45, P.z+(-Math.cos(P.yaw))*45);
   if(COL_FLAMES.length){ var ft=clock.elapsedTime;
