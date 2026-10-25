@@ -30,7 +30,7 @@
   if(!B||typeof HANC==='undefined'||!HANC) return;
   var P=HANC.P, DU=HANC.du, DV=HANC.dv, VC=HANC.VC;
   var M=new Mesher(), MG=new Mesher(), cols=[];
-  var BRICK=0xBE6C55, BRICKD=0x8E4A38, STONE=0xD5D0C3, STONEL=0xE2DED3, STONED=0xB9B3A4,
+  var BRICK=0xE0937A, BRICKD=0xB06A52, STONE=0xD5D0C3, STONEL=0xE2DED3, STONED=0xB9B3A4,
       ROOF=0x8E8B84, HEDGE=0x32602B, HEDGEL=0x41733A, MULCH=0x56402F, PAVE=0xC4BDAE, URN=0xEFEDE6,
       METAL=0xB9BCBC, LEAF=0x3E6B32;
   function ccw(r){ if(ringArea(r)<0) r.reverse(); return r; }

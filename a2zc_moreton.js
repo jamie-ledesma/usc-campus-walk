@@ -159,7 +159,7 @@
   })();
   /* the name on the string course, over the middle pier of the east front and the middle door of the south */
   (function(){
-    var p=FE.W(FE.L/2,T0+0.14); facadeText('MORETON FIG',p[0],p[1],FE.n[0],FE.n[1],5.8,5.6,0.46,'#2E2620');
+    var p=FE.W(FE.L/2,T0+0.14); facadeText('MORETON FIG',p[0],p[1],FE.n[0],FE.n[1],5.8,6.4,0.48,'#F4EAD2');
     var q=FS.W(csS[2],T0+0.14); facadeText('MORETON FIG',q[0],q[1],FS.n[0],FS.n[1],5.8,5.0,0.42,'#2E2620');
   })();
 

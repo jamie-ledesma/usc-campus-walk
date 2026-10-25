@@ -431,11 +431,15 @@ var MORETON=(function(){
     if(PATHS[i].hide||!dense.some(inC)){ out.push(PATHS[i]); continue; }
     var cur=[];
     for(k=0;k<dense.length;k++){
-      if(inC(dense[k])){ if(cur.length){ ends.push(cur[cur.length-1]); if(cur.length>1) out.push({w:PATHS[i].w,pts:cur}); } cur=[]; }
+      if(inC(dense[k])){ if(cur.length){ ends.push(cur[cur.length-1]); if(cur.length>1) out.push({w:PATHS[i].w,pts:cur,cutp:1}); } cur=[]; }
       else { if(!cur.length&&k>0) ends.push(dense[k]); cur.push(dense[k]); }
     }
-    if(cur.length>1) out.push({w:PATHS[i].w,pts:cur});
+    if(cur.length>1) out.push({w:PATHS[i].w,pts:cur,cutp:1});
   }
+  /* short stubs left where a walk was cut stop dead at the patio edge: keep them for the crowd only */
+  out.forEach(function(q){ if(!q.cutp) return; var L=0;
+    for(var m=0;m<q.pts.length-1;m++) L+=Math.hypot(q.pts[m+1][0]-q.pts[m][0],q.pts[m+1][1]-q.pts[m][1]);
+    if(L<14) q.hide=1; delete q.cutp; });
   PATHS=out;
   /* the lanes the crowd keeps to: up the passage, down the shopfront, either side of the tables in the
      south court; out through the gates onto Trousdale and the walk to the west */
