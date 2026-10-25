@@ -297,7 +297,7 @@ function frame(){
 var startEl=document.getElementById('start'), pauseEl=document.getElementById('pausewrap');
 function begin(){
   audioInit(); if(AC&&AC.state==='suspended') AC.resume();
-  if(bandOn) bandStart();
+  if(bandOn&&window.__music) bandStart();   /* dev build: silent unless window.__music=1 (test runs kept playing it) */
   started=true; paused=false;
   attEl.style.opacity=0; camera.fov=fovCur=BASE_FOV; camera.updateProjectionMatrix(); cullTick=9; qAcc=0; qFrames=0; qWarm=0;
   startEl.classList.add('off'); pauseEl.classList.add('off'); hudEl.classList.remove('hide');

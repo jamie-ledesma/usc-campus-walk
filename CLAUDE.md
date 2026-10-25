@@ -143,7 +143,7 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
 - `b2_band.js`: plays `usc_fight_song.mp3` (Jamie's recording, next to the page) twice in a row
   when the walk starts, then stops. Decoded into Web Audio so volume works on phones; ducks on pause,
   suspends with the tab hidden. B or the note button turns it off, or plays it twice more. `MUSIC_VOL`
-  sets the level (0.11 since v29, half the earlier 0.22). The mp3 must ship beside index.html (and as a supporting file of the artifact).
+  sets the level (0.11 since v29, half the earlier 0.22). The mp3 must ship beside index.html (and as a supporting file of the artifact). The dev loop (`testdev.html`) never starts it on its own (set `window.__music=1` to hear it): test runs kept playing it.
 - `a2n_dmc.js`: Dr. Joseph Medicine Crow Center (DMC; formerly Von KleinSmid), a square doughnut from
   OSM's multipolygon (open courtyard about 31.6 x 17 m in the hole of the white roof): podium and low
   steps all round, sunken round amphitheatre, glass ground storey under a white balcony with rail and

@@ -20,8 +20,8 @@
      alternating dark and cream voussoirs with pierced lattice tympana,
      sconces, MORETON FIG on the string course; brick upper floors with
      green framed windows on cast stone sills. A wooden bar counter.
-   - Wood tables with dark wicker armchairs on green cushions, two long
-     tables, leather sofas round a low table, black market umbrellas,
+   - Tables in white tablecloths with dark wicker armchairs on green cushions,
+     two long wood tables, leather sofas round a low table, black market umbrellas,
      lamp posts.
    One Mesher for everything solid, one textured mesh each for the
    paving, the arch heads and the fence, instanced tables, umbrellas
@@ -34,8 +34,8 @@
   var YAW=Math.atan2(-du[1],du[0]);            /* rotation.y that turns local x,z into u,v */
   var BRICK=0x9C4A37, CAST=0xD9CDB2, CASTL=0xE6DCC6, CASTD=0xBDAF94, FRAME=0x2D4A3B,
       GLASS=0x34444A, GLASSL=0x4E6168, BRONZE=0x3A3128, IRON=0x1A1B1D, WOOD=0x7A5638,
-      WOODD=0x5A3E29, TOPW=0x9C8468, WICK=0x2C2724, WICKL=0x3A332E, CUSH=0x86B24A, LEATH=0xA0612F,
-      BARK=0xA8A091, RIM=0xCBBEA2;
+      WOODD=0x5A3E29, TOPW=0x9C8468, WICK=0x45372B, WICKL=0x5A4837, CUSH=0x86B24A, LEATH=0xA0612F,
+      BARK=0xC9C2B4, CLOTH=0xF2F1EC, CLOTHD=0xFAF9F5, RIM=0xCBBEA2;
   function ccw(r){ if(ringArea(r)<0) r.reverse(); return r; }
   function hsh(i){ var h=Math.sin(i*12.9898+78.233)*43758.5453; return h-Math.floor(h); }
   function lp(u,y,v){ var p=P(u,v); return [p[0],y,p[1]]; }
@@ -212,11 +212,11 @@
     function barkCol(p){ var l=loc([p[0],p[2]]), k=0.8+Math.min(1,p[1]/9)*0.28+(hsh(Math.round(l[0]*3)+Math.round(p[1]*4)*17+Math.round(l[1]*3)*31)-0.5)*0.1;
       return rgb(BARK,k); }
     /* the trunk: a lumpy column, wide at the foot */
-    var tg=new T.CylinderGeometry(1.35,1.85,3.9,14,3,false), pa=tg.attributes.position;
+    var tg=new T.CylinderGeometry(1.2,1.85,5.0,14,4,false), pa=tg.attributes.position;
     for(var k=0;k<pa.count;k++){ var x=pa.getX(k), z=pa.getZ(k), y=pa.getY(k), a=Math.atan2(z,x);
       var f=1+0.15*Math.sin(a*5+0.7)+0.08*Math.sin(a*3+y*1.3); pa.setX(k,x*f); pa.setZ(k,z*f); }
-    part(MT,tg,barkCol,lmat(TC[0],0.3+1.95,TC[1]));
-    var crown=new T.IcosahedronGeometry(1.6,1); part(MT,crown,barkCol,lmat(TC[0],4.1,TC[1],0,0,0,1.35,0.7,1.3));
+    part(MT,tg,barkCol,lmat(TC[0],0.3+2.5,TC[1]));
+    var crown=new T.IcosahedronGeometry(1.6,1); part(MT,crown,barkCol,lmat(TC[0],5.2,TC[1],0,0,0,1.2,0.7,1.15));
     /* buttress roots: thin fins from high on the trunk down across the rocks to the rim */
     var NF=12;
     for(k=0;k<NF;k++){
@@ -248,56 +248,79 @@
       part(MT,g,barkCol,m);
       part(MT,new T.IcosahedronGeometry(r1*1.08,0),barkCol,lmat(B[0],B[1],B[2]));
     }
-    function limb(pts,r0,r1){ var n=pts.length-1;
-      for(var j=0;j<n;j++) seg(pts[j],pts[j+1],r0+(r1-r0)*j/n,r0+(r1-r0)*(j+1)/n); }
-    var H=[TC[0],3.9,TC[1]];
-    /* the great limbs, low and long, as in the photos; each ends in twigs into the leaf masses */
+    /* a limb that curves: one tube along a smooth curve through its control points, its rings scaled
+       down from r0 to r1, so it bends without kinks; returns points along it (9, evenly spaced) */
+    function curve(pts,r0,r1,n,rad){
+      var c=new T.CatmullRomCurve3(pts.map(function(q){ return new T.Vector3(q[0],q[1],q[2]); }),false,'centripetal');
+      rad=rad||8;
+      var g=new T.TubeGeometry(c,n,1,rad,false), pa=g.attributes.position, C=new T.Vector3();
+      for(var i=0;i<=n;i++){ c.getPointAt(i/n,C); var r=r0+(r1-r0)*Math.pow(i/n,0.8);
+        for(var j=0;j<=rad;j++){ var k=i*(rad+1)+j;
+          pa.setXYZ(k,C.x+(pa.getX(k)-C.x)*r,C.y+(pa.getY(k)-C.y)*r,C.z+(pa.getZ(k)-C.z)*r); } }
+      part(MT,g,barkCol,FM);
+      var e=c.getPointAt(1); part(MT,new T.IcosahedronGeometry(r1,0),barkCol,lmat(e.x,e.y,e.z));
+      return c.getSpacedPoints(8).map(function(v){ return [v.x,v.y,v.z]; });
+    }
+    function at(sp,t){ var f=t*8, j=Math.min(7,Math.floor(f)), w=f-j, a=sp[j], b=sp[j+1];
+      return [a[0]+(b[0]-a[0])*w,a[1]+(b[1]-a[1])*w,a[2]+(b[2]-a[2])*w]; }
+    /* keep a branch tip out of Sample Hall (u<0.6 with v<33.2) and Zumberge (u<5.9 with v>49.6) */
+    function clear(e){ if(e[0]<0.8&&e[2]<33.4) e[0]=0.8; if(e[0]<6.1&&e[2]>49.4) e[2]=49.4; return e; }
+    /* the great limbs: out low over the patio, then sweeping up, as in the photos. Five leave the trunk
+       at different heights; the other four split off them, so they do not all fan from one point.
+       [points, r0, r1, parent limb or -1, where on the parent, height on the trunk] */
     var LIMBS=[
-      [[[-2.5,4.6,41.0],[-8.5,5.4,41.8],[-15,6.6,42.6],[-19.5,7.6,42.4]],1.05,0.24],
-      [[[-1.0,4.9,43.4],[-4.0,6.0,46.0],[-8.5,8.2,46.8]],0.88,0.24],
-      [[[2.8,5.0,44.0],[4.2,6.4,46.4],[8.6,8.6,47.6]],0.85,0.24],
-      [[[5.0,4.8,41.4],[8.5,5.8,42.0],[13.0,7.6,43.6]],0.92,0.22],
-      [[[4.6,5.2,37.6],[6.6,6.6,33.4],[8.4,8.4,27.6]],0.88,0.22],
-      [[[2.6,5.6,37.0],[3.0,7.2,33.6],[3.8,9.2,25.8]],0.72,0.2],
-      [[[-1.2,5.6,38.0],[-6.0,7.4,36.6],[-13.5,9.0,37.0]],0.8,0.22],
-      [[[1.4,6.8,40.0],[0.2,9.6,40.6],[-4.0,11.4,41.4]],0.75,0.2],
-      [[[2.6,6.6,41.6],[5.2,9.4,40.0],[9.5,10.6,40.6]],0.66,0.18]];
-    var LP=[];
-    LIMBS.forEach(function(L){ limb([H].concat(L[0]),L[1],L[2]); L[0].forEach(function(q,j){ if(j>0) LP.push(q); }); });
-    /* aerial roots hanging from the limbs */
-    [[-6,5.2,41.6],[-11.5,5.9,42.2],[-3.1,5.6,45.2],[7.2,5.5,41.8],[10.5,6.6,42.8],[5.6,5.9,35.5],[-4.5,6.8,37.0],[3.6,5.9,45.4]].forEach(function(r,k){
-      var len=r[1]-1.4-hsh(k*3)*1.6;
-      part(MT,new T.BoxGeometry(0.05,len,0.05),0x5B4C3E,lmat(r[0],r[1]-len/2,r[2],0,0,(hsh(k)-0.5)*0.08),1);
-    });
-    /* the canopy: one broad, low dome (four big lumpy masses) with smaller crowns bulging out of the
-       top and hanging at the edge, kept clear of Sample Hall (u<0.6 with v<33.2) and Zumberge
-       (u<5.9 with v>49.6). [u, v, y, radius u, radius y, radius v, lumpy] */
-    var LEAF=[0x2E5A26,0x335F28,0x2A5323,0x376428];
-    var CAN=[[-2,41.4,11.4,13,3.4,7.4,1],[8.8,42.2,10.6,7,3,6.2,1],[7.4,27.6,10.6,6.6,3.0,8.6,1],[-16.6,42,9.4,6.8,2.6,5.4,1],
-             [-8,40,13.4,4.2,2.3,4.0],[-1,43.6,14.0,4.4,2.4,4.2],[4,39,13.6,4.0,2.3,4.0],[9.6,44,12.6,3.8,2.1,3.8],
-             [-13,43,11.9,3.8,2.0,3.6],[7.2,30,12.4,3.8,2.1,3.8],[-4,37.6,13.2,3.8,2.1,3.6],[2,46.2,12.8,3.6,2.0,3.2],
-             [12.4,40,11.6,3.4,1.9,3.6],[-18.6,41,10.6,3.6,1.9,3.6],[-22.4,41.6,8.2,2.6,1.6,3.0],[15,44.2,8.8,2.6,1.6,3.0],
-             [12.2,33,9.2,3.0,1.7,3.2],[5.6,24.6,9.2,2.8,1.7,3.0],[-10,46.6,9.6,3.2,1.8,2.6],[-11.6,36.4,9.8,3.4,1.8,2.8],
-             [3.4,47.2,9.6,2.8,1.7,2.2],[11.2,48.4,9.6,3.0,1.7,3.2],
-             [6.8,22.4,12.2,3.8,2.1,3.8],[10.6,20.2,9.4,3.0,1.7,3.0],[3.8,19.8,9.8,2.8,1.7,2.8]];
-    var cg=new T.IcosahedronGeometry(1,1), cgL=new T.IcosahedronGeometry(1,2), q2=cgL.attributes.position;
+      [[[-2.2,5.6,41.2],[-7,6.4,42.6],[-11.6,8.2,41.4],[-15.4,10.6,42.6],[-18.2,12.4,41.8]],1.0,0.2,-1,0,3.7],
+      [[[-1.0,5.8,43.4],[-3.8,7.0,45.8],[-6.6,9.4,45.4],[-9.0,12.2,46.4]],0.6,0.16,0,0.3,0],
+      [[[2.8,5.9,43.8],[3.4,7.6,46.4],[6.0,10.0,46.6],[8.6,12.8,47.2]],0.82,0.18,-1,0,4.6],
+      [[[4.8,5.7,41.4],[7.8,7.0,42.6],[10.4,9.6,41.4],[13.0,12.2,43.0]],0.88,0.18,-1,0,4.1],
+      [[[4.2,6.0,38.0],[5.8,7.8,35.0],[6.0,10.4,31.4],[7.8,12.6,27.2]],0.82,0.18,-1,0,5.0],
+      [[[2.4,6.2,37.6],[3.0,8.6,34.4],[2.4,11.2,30.8],[3.6,13.6,26.4]],0.5,0.14,4,0.3,0],
+      [[[-1.0,6.0,38.4],[-4.6,7.4,37.4],[-8.6,10.0,36.4],[-12.4,12.0,37.6]],0.75,0.18,-1,0,4.4],
+      [[[1.4,7.0,40.4],[0.4,10.2,39.8],[-1.4,13.2,41.0],[-2.8,15.4,41.6]],0.7,0.16,-1,0,5.4],
+      [[[2.8,6.8,41.6],[4.8,9.8,40.4],[6.8,12.8,40.2],[8.2,14.8,40.8]],0.5,0.14,3,0.32,0]];
+    var LP=[], LS=[];
+    LIMBS.forEach(function(L){ var c0=L[0][0], start, path;
+      if(L[3]<0){ var dx=c0[0]-TC[0], dz=c0[2]-TC[1], dl=Math.hypot(dx,dz)||1;
+        start=[TC[0]+dx/dl*0.5,L[5],TC[1]+dz/dl*0.5]; path=[start].concat(L[0]); }
+      else { start=at(LS[L[3]],L[4]); path=[start].concat(L[0].slice(1)); }
+      var sp=curve(path,L[1],L[2],18,9); LS.push(sp); sp.forEach(function(q,j){ if(j>2) LP.push(q); }); });
+    /* side branches off the outer half of each limb, curving up */
+    LS.forEach(function(sp,k){ [4,6].forEach(function(j,i){
+      var a=sp[j], b=sp[j+1], dx=b[0]-a[0], dz=b[2]-a[2], L=Math.hypot(dx,dz)||1, s=(k+i)%2?1:-1;
+      var e=clear([a[0]+(-dz/L*s*2.6)+dx/L*1.2,a[1]+2.6,a[2]+(dx/L*s*2.6)+dz/L*1.2]);
+      var sp2=curve([a,[(a[0]+e[0])/2,a[1]+0.9,(a[2]+e[2])/2],e],0.24,0.09,6,6); LP.push(sp2[8]); }); });
+    /* aerial roots hanging from the low parts of the limbs */
+    LS.forEach(function(sp,k){ if(k>6) return; var r=sp[3+(k%2)], len=r[1]-1.5-hsh(k*3)*1.8;
+      part(MT,new T.BoxGeometry(0.05,len,0.05),0x6F6455,lmat(r[0],r[1]-len/2,r[2],0,0,(hsh(k)-0.5)*0.08),1); });
+    /* the canopy: separate clumps high over the limbs, with sky between them, kept clear of Sample Hall
+       (u<0.6 with v<33.2) and Zumberge (u<5.9 with v>49.6). [u, v, y, radius u, radius y, radius v] */
+    var LEAF=[0x3B6A30,0x447436,0x386329,0x4A7B3C];
+    var CAN=[];
+    LS.forEach(function(sp,k){ [6,7,8].forEach(function(j,i){ var q=sp[j], r=2.2+hsh(k*7+i)*1.1;
+      CAN.push([q[0]+(hsh(k*3+i)-0.5)*2.4,q[2]+(hsh(k*5+i)-0.5)*2.4,Math.max(q[1]+1.6,12.6+i*0.7),r,1.4+hsh(k+i*9)*0.4,r*(0.85+hsh(k*11+i)*0.3)]); }); });
+    [[1,41,17.4,3.4,1.8,3.2],[-4,44,16.2,3.0,1.6,2.8],[6,37,16.4,3.0,1.6,2.8],[-6,39,15.6,2.6,1.5,2.6],[5,45,15.8,2.6,1.5,2.4],
+     [10,40,15.0,2.4,1.4,2.4],[-12,41,14.4,2.6,1.4,2.4],[4,30,15.2,2.4,1.4,2.6]].forEach(function(c){ CAN.push(c); });
+    var cgL=new T.IcosahedronGeometry(1,1), q2=cgL.attributes.position;
     for(var k2=0;k2<q2.count;k2++){ var x2=q2.getX(k2), y2=q2.getY(k2), z2=q2.getZ(k2);
-      var f2=1+(hsh(Math.round(x2*40)*7+Math.round(y2*40)*131+Math.round(z2*40)*977)-0.5)*0.24; q2.setXYZ(k2,x2*f2,y2*f2,z2*f2); }
+      var f2=1+(hsh(Math.round(x2*40)*7+Math.round(y2*40)*131+Math.round(z2*40)*977)-0.5)*0.3; q2.setXYZ(k2,x2*f2,y2*f2,z2*f2); }
     CAN.forEach(function(c,k){
       if(c[0]-c[3]<0.6&&c[1]-c[5]<33.2){ c[5]=Math.max(1.6,c[1]-33.2); if(c[1]-c[5]<33.2) c[3]=Math.max(1.6,c[0]-0.6); }
       if(c[0]-c[3]<5.9&&c[1]+c[5]>49.6){ c[5]=Math.max(1.6,49.6-c[1]); if(c[1]+c[5]>49.6) c[3]=Math.max(1.6,c[0]-5.9); }
       var base=LEAF[k%4], y0=c[2]-c[4], y1=c[2]+c[4];
-      var fn=function(p){ var t=(p[1]-y0)/(y1-y0), v=0.7+0.42*t+(hsh(Math.round(p[0]*5)+Math.round(p[2]*7)*13+k)-0.5)*0.16; return rgb(base,v); };
-      part(c[6]?MCN:MT,c[6]?cgL:cg,fn,lmat(c[0],c[2],c[1],0,0,0,c[3],c[4],c[5]));
-      /* a branch from the nearest limb up into the mass */
-      var tgt=[c[0],c[2]-c[4]*0.3,c[1]], best=null, bd=1e9;
+      var fn=function(p){ var t=(p[1]-y0)/(y1-y0), v=0.74+0.4*t+(hsh(Math.round(p[0]*5)+Math.round(p[2]*7)*13+k)-0.5)*0.18; return rgb(base,v); };
+      /* every third clump casts no shadow, so the patio gets dappled light rather than full shade */
+      part(k%3===0?MCN:MT,cgL,fn,lmat(c[0],c[2],c[1],0,k*0.7,0,c[3],c[4],c[5]));
+      /* a twig from the nearest branch up into the clump */
+      var tgt=[c[0],c[2]-c[4]*0.4,c[1]], best=null, bd=1e9;
       LP.forEach(function(q){ var d=Math.hypot(q[0]-tgt[0],q[1]-tgt[1],q[2]-tgt[2]); if(q[1]<tgt[1]&&d<bd){ bd=d; best=q; } });
-      if(best&&bd>1.2&&!c[6]) seg(best,tgt,0.3,0.1);
+      if(best&&bd>1.0&&bd<9) seg(best,tgt,0.14,0.06);
     });
     TREE_TRIS=MW.count()-n0+MCN.count();
     var cm=new T.Mesh(MCN.geom(),new T.MeshLambertMaterial({vertexColors:true,flatShading:true,emissive:0x0E180B})); cm.frustumCulled=false; cm.raycast=function(){}; scene.add(cm);
-    /* string light hubs on the limbs */
-    F.hubs=[[-8.5,5.4,41.8],[-4.0,6.0,46.0],[6.6,6.6,33.4],[8.5,5.8,42.0],[-6.0,7.4,36.6],[-15,6.6,42.6],[4.2,6.4,46.4],[3.0,7.2,33.6]];
+    /* string light hubs: the point on a limb nearest each of the old hub spots, low enough to sling from */
+    var low=[]; LS.forEach(function(sp){ sp.forEach(function(q){ if(q[1]<9.5) low.push(q); }); });
+    F.hubs=[[-8.5,5.4,41.8],[-4.0,6.0,46.0],[6.6,6.6,33.4],[8.5,5.8,42.0],[-6.0,7.4,36.6],[-15,6.6,42.6],[4.2,6.4,46.4],[3.0,7.2,33.6]].map(function(h){
+      var best=h, bd=1e9; low.forEach(function(q){ var d=Math.hypot(q[0]-h[0],q[1]-h[1],q[2]-h[2]); if(d<bd){ bd=d; best=q; } }); return best.slice(); });
   })();
 
   /* ================= the fence: iron pickets on a low cast stone kerb ================= */
@@ -354,22 +377,32 @@
 
   /* ================= furniture: instanced ================= */
   var box1=new T.BoxGeometry(1,1,1);
-  /* a wicker armchair with a green cushion; the sitter faces local +x */
+  /* a wicker armchair with a green cushion; the sitter faces local +x: woven seat, a back of slats
+     leaning back under a rolled top rail, open arms on front posts, four legs */
   function chair(M,x,z,ry){
-    var m=function(px,py,pz,sx,sy,sz){ return mat(x,0,z,0,ry,0).multiply(mat(px,py,pz,0,0,0,sx,sy,sz)); };
-    part(M,box1,WICK,m(0,0.4,0,0.5,0.1,0.5));
-    part(M,box1,CUSH,m(0.02,0.49,0,0.44,0.08,0.44));
-    part(M,box1,WICKL,m(-0.23,0.75,0,0.08,0.6,0.5));
-    [-0.25,0.25].forEach(function(s){ part(M,box1,WICK,m(0,0.32,s,0.5,0.64,0.05)); });
+    var m=function(px,py,pz,sx,sy,sz,rz){ return mat(x,0,z,0,ry,0).multiply(mat(px,py,pz,0,0,rz||0,sx,sy,sz)); };
+    part(M,box1,WICK,m(0,0.4,0,0.52,0.08,0.54));
+    part(M,box1,CUSH,m(0.03,0.47,0,0.44,0.07,0.46));
+    [-0.2,-0.12,-0.04,0.04,0.12,0.2].forEach(function(t,i){ part(M,box1,i%2?WICK:WICKL,m(-0.29,0.7,t,0.035,0.52,0.05,0.2)); });
+    part(M,box1,WICK,m(-0.34,0.95,0,0.08,0.08,0.56,0.2)); part(M,box1,WICK,m(-0.25,0.47,0,0.05,0.06,0.52,0.2));
+    [-0.26,0.26].forEach(function(t){
+      part(M,box1,WICK,m(-0.02,0.67,t,0.54,0.05,0.07));
+      part(M,box1,WICKL,m(0.22,0.54,t,0.05,0.26,0.05));
+      part(M,box1,WICKL,m(-0.04,0.55,t,0.4,0.16,0.025));
+      [-0.22,0.22].forEach(function(q){ part(M,box1,WICK,m(q,0.18,t*0.85,0.045,0.36,0.045)); });
+    });
   }
   function around(M,n,r,off){ for(var k=0;k<n;k++){ var a=off+k*6.2832/n; chair(M,Math.cos(a)*r,-Math.sin(a)*r,a+Math.PI); } }
   var SQ=new Mesher(), TWO=new Mesher(), LONG=new Mesher(), UM=new Mesher();
-  part(SQ,box1,TOPW,mat(0,0.74,0,0,0,0,0.82,0.04,0.82)); part(SQ,box1,IRON,mat(0,0.37,0,0,0,0,0.07,0.72,0.07));
+  part(SQ,box1,TOPW,mat(0,0.74,0,0,0,0,0.82,0.04,0.82));
+  /* white tablecloths falling most of the way to the paving */
+  part(SQ,box1,CLOTH,mat(0,0.5,0,0,0,0,0.96,0.52,0.96),1); part(SQ,box1,CLOTHD,mat(0,0.765,0,0,0,0,0.98,0.02,0.98),1); part(SQ,box1,IRON,mat(0,0.37,0,0,0,0,0.07,0.72,0.07));
   part(SQ,box1,IRON,mat(0,0.02,0,0,0,0,0.56,0.04,0.07)); part(SQ,box1,IRON,mat(0,0.02,0,0,0,0,0.07,0.04,0.56));
-  around(SQ,4,0.74,0);
-  part(TWO,box1,TOPW,mat(0,0.74,0,0,0,0,0.7,0.04,0.7)); part(TWO,box1,IRON,mat(0,0.37,0,0,0,0,0.06,0.72,0.06));
+  around(SQ,4,0.82,0);
+  part(TWO,box1,TOPW,mat(0,0.74,0,0,0,0,0.7,0.04,0.7));
+  part(TWO,box1,CLOTH,mat(0,0.5,0,0,0,0,0.84,0.52,0.84),1); part(TWO,box1,CLOTHD,mat(0,0.765,0,0,0,0,0.86,0.02,0.86),1); part(TWO,box1,IRON,mat(0,0.37,0,0,0,0,0.06,0.72,0.06));
   part(TWO,box1,IRON,mat(0,0.02,0,0,0,0,0.45,0.04,0.45));
-  chair(TWO,0.68,0,Math.PI); chair(TWO,-0.68,0,0);
+  chair(TWO,0.76,0,Math.PI); chair(TWO,-0.76,0,0);
   part(LONG,box1,TOPW,mat(0,0.75,0,0,0,0,3.4,0.05,0.92)); part(LONG,box1,WOODD,mat(0,0.72,0,0,0,0,3.2,0.04,0.8));
   [-1.3,1.3].forEach(function(x){ part(LONG,box1,IRON,mat(x,0.36,0,0,0,0,0.07,0.72,0.7)); });
   [-1.1,0,1.1].forEach(function(x){ chair(LONG,x,0.82,Math.PI/2); chair(LONG,x,-0.82,-Math.PI/2); });
