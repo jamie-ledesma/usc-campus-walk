@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -240,6 +240,22 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   flowers. Hedges along the base, magnolias and a sycamore on the lawn, penthouse and vent stack on the roof. The east end meets Newman
   Recital Hall and the museum and is plain. Four draw calls (world, ground, stone texture, one atlas for windows, plaques, grille,
   doors, hoods); about 10k triangles (`window.__hancock`).
+- `a2zc_moreton.js`: Moreton Fig, the restaurant on the ground floor of Sample Hall, and its patio round the Moreton Bay fig, on
+  Trousdale between the Student Union and Zumberge. `MORETON` in `a_world.js` (frame on Sample Hall's east wall: origin at its north
+  east corner, u out toward Trousdale, v along the wall toward Zumberge) holds the patio ring (NO_PLANT), cuts the walks there and adds
+  hidden crowd lanes: from the TCC courtyard lane up the passage between Sample Hall and the Student Union, down the shopfront, either
+  side of the tables in the south court, out through the gates to Trousdale and the walk west. The patio is an L round Sample Hall's
+  south east corner (strip u 0..6.55 along the east wall, south court v 32.6..47.5 up to Zumberge's hedge) plus the passage, all red
+  brick herringbone (canvas texture, uv on the frame) meeting the TCC paving at u -25.07. A 0.3 m brick skin on Sample Hall's east,
+  south and passage walls up to its cornice: cast stone base and bands, green framed glass doors under arch heads with alternating dark
+  and cream voussoirs and a pierced lattice tympanum (one alpha tested canvas texture), sconces, MORETON FIG on the string course,
+  green framed windows on cast stone sills above. The fig: lumpy trunk, twelve buttress fins over river rocks in a round cast stone
+  planter (r 4), nine great limbs, aerial roots, a canopy of four big lumpy masses (own mesh, no shadow, faint emissive) and smaller
+  crowns that do cast shadow, so the court gets dappled shade; all kept off Sample Hall and Zumberge. Black iron picket fence (canvas
+  texture) on a cast stone kerb, open to the passage, at a gate mid strip, at the south east corner and to the walk west. Instanced
+  four-tops, two-tops and long tables (wicker armchairs, green cushions), black umbrellas and string light bulbs on catenaries (the
+  wires are one LineSegments); leather sofas round a low table, the wood bar with stools, urns, campus lamps. `Moreton Fig` named
+  place and label at the tree. Dev: `window.__moreton`.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
