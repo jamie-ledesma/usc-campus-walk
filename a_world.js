@@ -388,6 +388,56 @@ var RAWL=(function(){
   return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,zone:zone};
 })();
 
+/* Moreton Fig, the restaurant in Sample Hall, and its patio round the Moreton Bay fig (a2zc_moreton.js).
+   Frame on Sample Hall's east wall: origin at its north east corner, u out of the wall (about grid east,
+   toward Trousdale), v along it (about grid south, toward Zumberge). The east wall runs v 0..32.65, the
+   south wall is at v 32.6, Zumberge's north wall at v 50, the Student Union's south wall at v -6.8..-8.1,
+   the brick edge of the Trousdale walk at u 6.2..6.5, and the TCC courtyard ends at u -25.07 in the passage
+   between Sample Hall and the Student Union. The patio wraps the south east corner and runs up the
+   passage to the courtyard. Cut the walks there, give the crowd hidden walks through the gates and the
+   passage, keep props off it (NO_PLANT, below). */
+var MORETON=(function(){
+  var O=[-35,71], du=[0.8882,0.4594], dv=[-0.4594,0.8882];
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
+  var EU=6.55, SV=47.5, WU=-26.2;
+  var zoneL=[[-25.07,-7.93],[EU,-6.75],[EU,SV],[WU,SV],[WU,32.56],[0,32.65],[0,0],[-25.05,-0.55],[-25.07,-2.8]];
+  var zone=poly(zoneL), cut=poly([[-25.07,-7.93],[EU,-6.75],[EU,SV],[WU,SV],[WU,33.6],[-1,33.6],[-1,1],[-25.07,1]]);
+  function inC(q){ return inRing(cut,q[0],q[1]); }
+  var out=[], ends=[], i, k;
+  for(i=0;i<PATHS.length;i++){
+    var pts=PATHS[i].pts, dense=[];
+    for(k=0;k<pts.length-1;k++){
+      var a=pts[k], b=pts[k+1], n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/1.0));
+      for(var j=0;j<n;j++) dense.push([a[0]+(b[0]-a[0])*j/n, a[1]+(b[1]-a[1])*j/n]);
+    }
+    dense.push(pts[pts.length-1]);
+    if(PATHS[i].hide||!dense.some(inC)){ out.push(PATHS[i]); continue; }
+    var cur=[];
+    for(k=0;k<dense.length;k++){
+      if(inC(dense[k])){ if(cur.length){ ends.push(cur[cur.length-1]); if(cur.length>1) out.push({w:PATHS[i].w,pts:cur}); } cur=[]; }
+      else { if(!cur.length&&k>0) ends.push(dense[k]); cur.push(dense[k]); }
+    }
+    if(cur.length>1) out.push({w:PATHS[i].w,pts:cur});
+  }
+  PATHS=out;
+  /* the lanes the crowd keeps to: up the passage, down the shopfront, either side of the tables in the
+     south court; out through the gates onto Trousdale and the walk to the west */
+  var net=[[[-34.65,-6.3],[-27.5,-6.3],[-24.5,-4.6],[2.0,-3.6],[7.0,-3.5],[15.55,-3.4]],   /* joins the TCC lane to Sample Hall's door */
+           [[2.0,-3.6],[2.0,15.7],[2.0,35.6]],
+           [[2.0,15.7],[7.0,15.7],[15.5,15.7]],
+           [[2.0,35.6],[-12,35.6],[-24.0,35.6],[-24.6,42.0]],
+           [[-24.6,42.0],[-22.0,45.7],[-8,45.7],[8.0,45.7],[15.33,45.0]]];
+  var nodes=[];
+  net.forEach(function(l){ var q=l.map(function(p){ return P(p[0],p[1]); });
+    PATHS.push({w:2.4,hide:1,pts:q}); nodes=nodes.concat(q); });
+  ends.forEach(function(e){ var best=null, bd=1e9;
+    nodes.forEach(function(q){ var d=Math.hypot(q[0]-e[0],q[1]-e[1]); if(d<bd){ bd=d; best=q; } });
+    if(best&&bd<14&&bd>0.3) PATHS.push({w:2.4,hide:1,pts:[e,best]}); });
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,zone:zone,EU:EU,SV:SV,WU:WU};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -3003,6 +3053,7 @@ CAMPUS.forEach(function(B){ if(HAND_HALLS[B.name]) NO_PLANT.push(offsetRing(B.ri
 NO_PLANT.push([[EXPO.xw,255],[300,255],[300,269],[EXPO.xw,269]]);
 if(PARDEE) PARDEE.foot.forEach(function(r){ NO_PLANT.push(r); });
 if(SHRS) NO_PLANT.push(SHRS.poly([[-67,-182],[-3.3,-182],[-3.3,6.5],[-67,6.5]]));   /* the Shrine grounds (a2z_shrinesite.js) */
+if(MORETON) NO_PLANT.push(MORETON.zone.slice());   /* the Moreton Fig patio is furnished by a2zc_moreton.js */
 if(TCC) NO_PLANT.push(TCC.ring.slice(),TCC.apron.slice());   /* the Tutor Campus Center courtyard is furnished by a2r_tcc.js */   /* no benches or lamps on the Pardee paving (a2p) */
 /* McCarthy Quad is open lawn, and the Fertitta Hall courtyard is paved seating (a2f_courts.js) */
 var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,221],[231,224],[236.5,208],[237.5,199]];
