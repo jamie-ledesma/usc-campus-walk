@@ -388,6 +388,21 @@ var RAWL=(function(){
   return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,zone:zone};
 })();
 
+/* Allan Hancock Foundation Building (1940), built in a2zb_hancock.js. Campus grid frame: origin at the
+   north west corner, u grid east, v grid south along the Trousdale front. West wing u 0..14.5, v 0..47.3;
+   east wing u 14.5..40.9, v 12.6..35 (it meets Newman Recital Hall and the museum on the east). The
+   entrance is on the west front at v=VC. Adds the walk from the steps to Trousdale and keeps props off
+   the front lawn (a2zb plants its own trees). */
+var HANC=(function(){
+  var O=[28.0,72.07], du=[0.8862,0.4633], dv=[-0.4633,0.8862], VC=23.65;
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
+  PATHS.push({w:3.2,pts:[P(-3.0,VC),P(-27.2,VC)]});
+  var lawn=poly([[-23.6,-1.5],[-0.3,-1.5],[-0.3,50.5],[-23.6,50.5]]);
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,VC:VC,lawn:lawn};
+})();
+
 /* the Natural History Museum is built by hand in a2d_nhm.js; the city pass skips it */
 var NHM=null, NHM_ANNEX=null;
 (function(){ for(var i=0;i<BUILDINGS.length;i++){ var B=BUILDINGS[i];
@@ -1277,7 +1292,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35};
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35,'Hancock Foundation Building':17};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -2724,7 +2739,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&B.name!=='Bovard Administration Building'&&B.name!=='Shrine Auditorium'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&B.name!=='Bovard Administration Building'&&B.name!=='Shrine Auditorium'&&B.name!=='Hancock Foundation Building'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
@@ -2979,6 +2994,7 @@ var SPORT_PLACES=[], NO_PLANT=[
   NO_PLANT.push(LEAVEY.plaza.slice());   /* the Leavey plaza is furnished by a2v_leavey.js */
   NO_PLANT.push(BOVARD.lawn.slice());    /* Bovard's forecourt and front lawns: a2x_bovard.js */
   NO_PLANT.push(FELIXP.plaza.slice(),FELIXP.bed.slice());   /* the Felix Field entry plaza (a2w_felix.js) */
+  NO_PLANT.push(HANC.lawn.slice());      /* the Hancock Foundation front lawn (a2zb_hancock.js) */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();

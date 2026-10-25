@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -229,6 +229,17 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   celebration (USC goals make the fans stand and cheer), kickoff. The scoreboard canvas is redrawn only on a goal. `updateSoccer(dt)` runs
   from `update()` in both loops, only while the camera is within 320 m (otherwise the meshes are hidden); too cheap to separate from the rest of the loop (a whole `__step` is about 0.18 ms beside the stadium, 0.23 ms at Tommy). Only the
   23 player matrices are uploaded each frame (`instanceMatrix.updateRange`), the fans only while they cheer. Dev: `window.__rawl.state()`.
+- `a2zb_hancock.js`: Allan Hancock Foundation Building (1940) on Trousdale behind Traveler, in `HAND_HALLS`. Footprint in `world.txt`
+  squared up from the old OSM ring (same extents, decimals). `HANC` in `a_world.js` (grid frame: origin at the north west corner, u grid
+  east, v grid south; west wing u 0..14.5, v 0..47.3, east wing u 14.5..40.9, v 12.6..35, entrance at v=VC on the west front) adds the
+  walk from the steps to Trousdale and keeps props off the front lawn (NO_PLANT). Three storeys and an attic: brick piers between bays,
+  wider corner piers, a ground storey of pale cast stone striped with brick courses (one repeating canvas texture), a stone band with a
+  row of brick squares, stone sills and heads across each bay, paired steel windows, carved plaques in the attic (sea creatures and the
+  Velero III), stone coping. Entrance: Moderne cast stone pavilion (piers with fluted stepped tops, grille, two wood doors under chevron
+  hoods, bronze plaque), three strips of windows above with stone spandrels in stone frames, steps between cheek walls with urns of
+  flowers. Hedges along the base, magnolias and a sycamore on the lawn, penthouse and vent stack on the roof. The east end meets Newman
+  Recital Hall and the museum and is plain. Four draw calls (world, ground, stone texture, one atlas for windows, plaques, grille,
+  doors, hoods); about 10k triangles (`window.__hancock`).
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
