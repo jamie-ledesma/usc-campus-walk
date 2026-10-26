@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -256,6 +256,16 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   four-tops, two-tops and long tables (wicker armchairs, green cushions), black umbrellas and string light bulbs on catenaries (the
   wires are one LineSegments); leather sofas round a low table, the wood bar with stools, urns, campus lamps. `Moreton Fig` named
   place and label at the tree. Dev: `window.__moreton`.
+- `a2zd_gould.js`: USC Gould School of Law (the Musick Law Building, 1966; renamed on the map from "Musick Law Building"), in
+  `HAND_HALLS`. `GOULD` in `a_world.js` (frame fitted to the footprint: origin at the north west corner, u along the north front, v
+  toward Exposition) holds the forecourt ring (NO_PLANT), the entrance bay centre `EC` and adds the walk from the diagonal walk at
+  the north west corner (hidden across the forecourt to the steps). Beige board formed concrete: main block four storeys (u 0..87,
+  v 0..24.7), wings stepping down to three and two storeys toward Exposition. `wing()` builds each block: square piers every bay to a
+  deep parapet band, a spandrel band per floor over recessed bronze framed windows (one canvas texture), ground storey glass 2.2 m
+  back behind the piers, soffits under every band, a roof slab. Faces that abut a taller or equal wing are left out. Roof: penthouse
+  ringed with vertical slots, round drum at the east end. Entrance in the bay at u 29..36.25: terrace and steps between planter walls
+  with hedges, handrails, three glass doors, USC GOULD SCHOOL OF LAW on the band above; brick forecourt with a grid of lighter lines,
+  raised planters, two five globe lamps (instanced globes), magnolias and a sycamore. A plain door on the west front.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)

@@ -64,7 +64,7 @@ Illium Residential College|74,-630,19
 Taper Hall|85,-189,21
 Town and Gown|92,158,12
 Bohnett Residential College|93,-478,19
-Musick Law Building|104,224,17
+USC Gould School of Law|104,224,17
 Hubbard Hall|112,123,13
 Nemirovsky Residential College|114,-437,19
 Dr. Joseph Medicine Crow Center (DMC)|130,-62,38
@@ -144,7 +144,7 @@ r17|Mudd Hall|22,k,7.0|-158,235 19,-34 -2,-1 8,-15 14,6 -1,1 19,10 0,8 -5,0 -1,3
 f14|Tuscany||258,464 1,-95 5,0 9,-15 55,31 -28,43 -8,-5 -3,5 7,5 -19,32
 f9.0|Tyler Building||343,263 2,-4 46,-2 10,6 2,6 -11,20
 f23.0|USC Credit Union-Flower Street||392,379 1,-4 -14,-9 23,-35 4,-2 4,1 2,6 4,2 -10,41 -4,3
-b17|Musick Law Building||49,214 20,-39 77,41 -12,22 -10,-6 -3,6 -11,-6 -3,5 -17,-8 -3,5
+b17|USC Gould School of Law||49,214 20,-39 77,41 -12,22 -10,-6 -3,6 -11,-6 -3,5 -17,-8 -3,5
 f22|Hoffman Hall||-3,219 20,-38 15,9 -20,37
 t16|Bridge Hall||-55,194 9,-18 2,1 4,-7 10,5 -3,5 6,4 -1,2 7,3 1,-2 8,4 -11,22 -8,-4 1,-3 -11,-5 -1,2 -3,-1 -2,5 -10,-5 4,-7
 t16.0|Leventhal School of Accounting||-23,134 32,17 -16,31 -33,-17

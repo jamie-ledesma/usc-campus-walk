@@ -403,6 +403,22 @@ var HANC=(function(){
   return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,VC:VC,lawn:lawn};
 })();
 
+/* USC Gould School of Law (the Musick Law Building, 1966), built in a2zd_gould.js. Frame fitted to the footprint:
+   origin at its north west corner, u along the north front (about grid east), v toward Exposition. Main block
+   u 0..87, v 0..24.7 (four storeys); the south side steps down in wings toward Exposition. The entrance is in the
+   middle of the bay at u 29..36.25 on the north front, up steps from a brick forecourt facing Town and Gown (whose south wall is at v -17).
+   Adds the walk from the diagonal walk at the north west corner to the forecourt; keeps props off the forecourt. */
+var GOULD=(function(){
+  var O=[69.0,175.0], du=[0.8826,0.4700], dv=[-0.4700,0.8826];
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
+  var EC=32.625, court=poly([[15,-13.5],[50,-13.5],[50,0],[15,0]]);
+  PATHS.push({w:3.2,pts:[P(-12.5,-6.5),P(15,-6.5)]});
+  PATHS.push({w:3.2,hide:1,pts:[P(15,-6.5),P(EC,-6.5),P(EC,-0.5)]});
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,court:court,EC:EC};
+})();
+
 /* Moreton Fig, the restaurant in Sample Hall, and its patio round the Moreton Bay fig (a2zc_moreton.js).
    Frame on Sample Hall's east wall: origin at its north east corner, u out of the wall (about grid east,
    toward Trousdale), v along it (about grid south, toward Zumberge). The east wall runs v 0..32.65, the
@@ -1346,7 +1362,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35,'Hancock Foundation Building':17};
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35,'Hancock Foundation Building':17,'USC Gould School of Law':17};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -2793,7 +2809,7 @@ function innerPoint(ring){
     }
 
     /* clipped hedge along the frontage, on most of the campus buildings */
-    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&B.name!=='Bovard Administration Building'&&B.name!=='Shrine Auditorium'&&B.name!=='Hancock Foundation Building'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
+    if(st!=='d'&&d.min>9&&(i%10)<7&&!B.dmc&&B.name!=='Lewis Hall'&&B.name!=='Widney Alumni House'&&B.name!=='Galen Center'&&B.name!=='Leavey Library'&&B.name!=='Bovard Administration Building'&&B.name!=='Shrine Auditorium'&&B.name!=='Hancock Foundation Building'&&B.name!=='USC Gould School of Law'&&!(TCC&&TCC.noHedge[B.name])){   /* a2n_dmc.js, a2o_lewis.js and a2q_widney.js plant their own */
       var hedge=offsetRing(simplifyRing(ring,2.6),1.9);
       band(M,hedge,0,0.66,0,0x3C6B33,1,0.62);
     }
@@ -3049,6 +3065,7 @@ var SPORT_PLACES=[], NO_PLANT=[
   NO_PLANT.push(BOVARD.lawn.slice());    /* Bovard's forecourt and front lawns: a2x_bovard.js */
   NO_PLANT.push(FELIXP.plaza.slice(),FELIXP.bed.slice());   /* the Felix Field entry plaza (a2w_felix.js) */
   NO_PLANT.push(HANC.lawn.slice());      /* the Hancock Foundation front lawn (a2zb_hancock.js) */
+  NO_PLANT.push(GOULD.court.slice());    /* the Gould School of Law forecourt (a2zd_gould.js) */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();
