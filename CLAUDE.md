@@ -258,14 +258,16 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   place and label at the tree. Dev: `window.__moreton`.
 - `a2zd_gould.js`: USC Gould School of Law (the Musick Law Building, 1966; renamed on the map from "Musick Law Building"), in
   `HAND_HALLS`. `GOULD` in `a_world.js` (frame fitted to the footprint: origin at the north west corner, u along the north front, v
-  toward Exposition) holds the forecourt ring (NO_PLANT), the entrance bay centre `EC` and adds the walk from the diagonal walk at
-  the north west corner (hidden across the forecourt to the steps). Beige board formed concrete: main block four storeys (u 0..87,
-  v 0..24.7), wings stepping down to three and two storeys toward Exposition. `wing()` builds each block: square piers every bay to a
+  toward Exposition) holds the forecourt ring (NO_PLANT, grown 1.5 m so walk lamps stay off its edge), the entrance bay centre `EC`
+  and a short walk from the walk toward Hoffman Hall (hidden across the forecourt to the steps). Beige board formed concrete: four
+  storeys over u 0..87, v 0..24.7 and the west wing u 0..43.7, v 24.7..43.7 (so the west front is one even front of five bays), wings
+  stepping down to three and two storeys toward Exposition. `wing()` builds each block: square piers every bay to a
   deep parapet band, a spandrel band per floor over recessed bronze framed windows (one canvas texture), ground storey glass 2.2 m
   back behind the piers, soffits under every band, a roof slab. Faces that abut a taller or equal wing are left out. Roof: penthouse
-  ringed with vertical slots, round drum at the east end. Entrance in the bay at u 29..36.25: terrace and steps between planter walls
-  with hedges, handrails, three glass doors, USC GOULD SCHOOL OF LAW on the band above; brick forecourt with a grid of lighter lines,
-  raised planters, two five globe lamps (instanced globes), magnolias and a sycamore. A plain door on the west front.
+  ringed with vertical slots, round drum at the east end. Entrance on the west front facing Hoffman Hall (Jamie asked for that side), in the middle bay
+  (v 17.5..26.2; the entrance block is written in (s along the front, d out from it)): terrace and steps between planter walls with
+  hedges, handrails, three glass doors, USC GOULD SCHOOL OF LAW on the band above; brick forecourt with a grid of lighter lines, raised
+  planters, two five globe lamps (instanced globes), magnolias and a sycamore. A plain door on the north front.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)

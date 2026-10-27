@@ -15,7 +15,7 @@
    The entrance in the middle of the north front: wide steps up to a
    terrace between planter walls with hedges, handrails, glass doors,
    USC GOULD SCHOOL OF LAW over them, a brick forecourt with five globe
-   lamps, planters and trees. A plain door on the west front.
+   lamps, planters and trees. A plain door on the north front.
    Draw calls: one Mesher (matWorld), one ground Mesher, the windows on
    one canvas texture.
    ================================================================== */
@@ -100,16 +100,17 @@
       }
       if(n===1) F.slab(a,b,-PO,I,3.7,par,CON,0.6,CONL);
       /* the piers, square, every bay, from the ground to the parapet band */
-      var L=b-a, nb=Math.max(1,Math.round(L/BAY));
+      var L=b-a, nb=f[3]||Math.max(1,Math.round(L/BAY));
       for(var j=0;j<=nb;j++){ var s=a+L*j/nb, w=(j===0||j===nb)?0.6:0.45;
         F.slab(s-w,s+w,-PO,IG,0,pb,CON,0.74,CONL); }
       /* a shadow line under the parapet band */
       F.vq(M,a,b,-PO-0.01,pb-0.06,pb,COND,0.7);
     });
   }
-  /* main block (four storeys) and the wings stepping down toward Exposition */
-  wing(0,87,0,24.7,4,[['N',0,87],['W',0,24.7],['E',0,24.7],['S',0,87]]);
-  wing(0,43.7,24.7,43.7,3,[['W',24.7,43.7],['S',0,43.7],['E',37.4,43.7]]);
+  /* the four storey block (the west front runs the whole depth, five bays, with the entrance in the middle one)
+     and the wings stepping down toward Exposition */
+  wing(0,87,0,24.7,4,[['N',0,87],['W',0,43.7,5],['E',0,24.7],['S',43.7,87]]);
+  wing(0,43.7,24.7,43.7,4,[['S',0,43.7],['E',24.7,43.7]]);
   wing(43.7,63,24.7,37.4,3,[['S',43.7,63],['E',24.7,37.4]]);
   wing(63,75.5,24.7,31,2,[['S',63,75.5],['E',24.7,31]]);
 
@@ -141,44 +142,48 @@
       [rp.getX(i+2)+c[0],rp.getY(i+2)+ry,rp.getZ(i+2)+c[1]],cr,cr,cr);
   })();
 
-  /* ---------------- the entrance on the north front ---------------- */
+  /* ---------------- the entrance on the west front, facing Hoffman Hall across the walk ---------------- */
+  /* written along the front: s runs along it (local v), d out from it (local u, negative outside) */
+  function bx(s0,s1,d0,d1,y0,y1,col,sh,top){ return box(d0,d1,s0,s1,y0,y1,col,sh,top); }
+  function PP(s,d){ return P(d,s); }
+  function RR(s0,s1,d0,d1){ return R(d0,d1,s0,s1); }
   (function(){
     var a=EC-10.9, b=EC+10.9, H=1.0, NS=6, SD=0.5, v0=-6;
     /* terrace from the steps back to the glass */
-    solid(box(a,b,v0,IG,0,H,CONL,0.66,0xC9BCA4),H);
-    for(var i=1;i<NS;i++){ var top=H*(1-i/NS); solid(box(a+1.4,b-1.4,v0-SD*i,v0-SD*(i-1),0,top,CONL,0.66,0xD3C6AE),top); }
+    solid(bx(a,b,v0,IG,0,H,CONL,0.66,0xC9BCA4),H);
+    for(var i=1;i<NS;i++){ var top=H*(1-i/NS); solid(bx(a+1.4,b-1.4,v0-SD*i,v0-SD*(i-1),0,top,CONL,0.66,0xD3C6AE),top); }
     /* planter walls either side, hedges on top */
-    [[a-1.6,a],[b,b+1.6]].forEach(function(q){ solid(box(q[0],q[1],v0-SD*NS,IG,0,1.25,CON,0.62,CONL),1.25);
-      box(q[0]+0.15,q[1]-0.15,v0-SD*NS+0.15,-0.2,1.25,1.85,HEDGE,0.7); });
-    box(a,a+1.4,v0-SD*NS,v0,0,H,CON,0.62,CONL); box(b-1.4,b,v0-SD*NS,v0,0,H,CON,0.62,CONL);
+    [[a-1.6,a],[b,b+1.6]].forEach(function(q){ solid(bx(q[0],q[1],v0-SD*NS,IG,0,1.25,CON,0.62,CONL),1.25);
+      bx(q[0]+0.15,q[1]-0.15,v0-SD*NS+0.15,-0.2,1.25,1.85,HEDGE,0.7); });
+    bx(a,a+1.4,v0-SD*NS,v0,0,H,CON,0.62,CONL); bx(b-1.4,b,v0-SD*NS,v0,0,H,CON,0.62,CONL);
     /* handrails down the steps */
     [EC-3,EC+3].forEach(function(u){
-      for(var k=0;k<=2;k++){ var vv=v0-SD*NS*k/2, yb=k===2?0:H*(1-k/2); var p=P(u,vv); postAt(M,p[0],p[1],yb,yb+0.95,0.03,METAL,0.8); }
-      segBox(M,P(u,v0),P(u,v0-SD*NS),H+0.9,H+0.96,0.05,METAL,0.85);
-      segBox(M,P(u,v0+0.6),P(u,v0),H+0.9,H+0.96,0.05,METAL,0.85);
+      for(var k=0;k<=2;k++){ var vv=v0-SD*NS*k/2, yb=k===2?0:H*(1-k/2); var p=PP(u,vv); postAt(M,p[0],p[1],yb,yb+0.95,0.03,METAL,0.8); }
+      segBox(M,PP(u,v0),PP(u,v0-SD*NS),H+0.9,H+0.96,0.05,METAL,0.85);
+      segBox(M,PP(u,v0+0.6),PP(u,v0),H+0.9,H+0.96,0.05,METAL,0.85);
     });
     /* glass doors in the middle bays: dark frames on the ground glass */
-    var F=Face('N',0,87,0,24.7,0,87);
+    var F=Face('W',0,87,0,43.7,0,43.7);
     for(var d=-1;d<=1;d++){ var s=EC+d*1.7; F.vq(M,s-0.8,s+0.8,IG-0.03,H,H+2.6,DOOR,0.9); F.vq(M,s-0.7,s+0.7,IG-0.05,H+0.1,H+2.45,0x46514F,1); }
     F.vq(M,EC-2.7,EC+2.7,IG-0.02,H+2.6,H+2.75,BRONZE,0.9);
-    var t=P(EC,-0.4); facadeText('USC GOULD SCHOOL OF LAW',t[0],t[1],-DV[0],-DV[1],4.65,6.5,0.6,'#2A231C');
-    /* the west door */
-    var FW=Face('W',0,87,0,24.7,0,24.7);
-    FW.vq(M,10.6,13.8,IG-0.03,0,2.7,DOOR,0.9); FW.vq(M,10.8,13.6,IG-0.05,0.1,2.55,0x46514F,1);
+    var t=PP(EC,-0.4); facadeText('USC GOULD SCHOOL OF LAW',t[0],t[1],-DU[0],-DU[1],4.65,7.7,0.8,'#1E1914');
+    /* a plain door on the north front */
+    var FN=Face('N',0,87,0,24.7,0,87);
+    FN.vq(M,31.0,34.2,IG-0.03,0,2.7,DOOR,0.9); FN.vq(M,31.2,34.0,IG-0.05,0.1,2.55,0x46514F,1);
   })();
 
   /* ---------------- the forecourt: brick, planters, five globe lamps, trees ---------------- */
   (function(){
-    var u0=15, u1=50, v0=-13.5, v1=0;
-    flat(MG,R(u0,u1,v0,v1),0.10,BRICKP,1);
-    for(var u=u0;u<=u1+0.01;u+=3) ribbon(MG,[P(u,v0),P(u,v1)],0.14,0.105,BRICKL,1);
-    for(var v=v0;v<=v1+0.01;v+=3) ribbon(MG,[P(u0,v),P(u1,v)],0.14,0.105,BRICKL,1);
+    var u0=EC-17.5, u1=EC+17.5, v0=-12.5, v1=0;
+    flat(MG,RR(u0,u1,v0,v1),0.10,BRICKP,1);
+    for(var u=u0;u<=u1+0.01;u+=3) ribbon(MG,[PP(u,v0),PP(u,v1)],0.14,0.105,BRICKL,1);
+    for(var v=v0;v<=v1+0.01;v+=3) ribbon(MG,[PP(u0,v),PP(u1,v)],0.14,0.105,BRICKL,1);
     /* raised planters with hedges */
-    [[15.5,19.5,-12,-8.5],[45.5,49.5,-12,-8.5]].forEach(function(q){
-      solid(box(q[0],q[1],q[2],q[3],0,0.55,CON,0.62,CONL),0.55); box(q[0]+0.2,q[1]-0.2,q[2]+0.2,q[3]-0.2,0.55,1.15,HEDGE,0.7); });
+    [[EC-17,EC-13,-11.5,-8.5],[EC+13,EC+17,-11.5,-8.5]].forEach(function(q){
+      solid(bx(q[0],q[1],q[2],q[3],0,0.55,CON,0.62,CONL),0.55); bx(q[0]+0.2,q[1]-0.2,q[2]+0.2,q[3]-0.2,0.55,1.15,HEDGE,0.7); });
     /* five globe lamps either side of the steps */
     [[EC-11.3,-10.6],[EC+11.3,-10.6]].forEach(function(q){
-      var p=P(q[0],q[1]), x=p[0], z=p[1];
+      var p=PP(q[0],q[1]), x=p[0], z=p[1];
       postAt(M,x,z,0.1,0.6,0.16,METAL,0.7); postAt(M,x,z,0.6,4.1,0.06,METAL,0.75);
       solid(sq(x,z,0.2),4.1);
       [[0.55,0],[-0.55,0],[0,0.55],[0,-0.55]].forEach(function(o){
@@ -190,8 +195,8 @@
     function sq(x,z,h){ return ccw([[x-h,z-h],[x+h,z-h],[x+h,z+h],[x-h,z+h]]); }
     /* trees: the forecourt corners and the lawn on the west */
     for(var i=TREE_POS.length-1;i>=0;i--){ var tp=TREE_POS[i]; if(inRing(G.court,tp[0],tp[1])) TREE_POS.splice(i,1); }
-    [[16.5,-6.0,'mag',1.3],[48.5,-6.0,'mag',1.3],[11.5,-11.0,'syc',1.2],[53.5,-11.5,'mag',1.25]]
-      .forEach(function(q){ var p=P(q[0],q[1]); TREE_POS.push([p[0],p[1],0,q[2],q[3]]); });
+    [[EC-16,-5.5,'mag',1.3],[EC+16,-5.5,'mag',1.3],[EC-20.5,-9.5,'syc',1.2]]
+      .forEach(function(q){ var p=PP(q[0],q[1]); TREE_POS.push([p[0],p[1],0,q[2],q[3]]); });
   })();
 
   /* ================= build ================= */

@@ -405,17 +405,18 @@ var HANC=(function(){
 
 /* USC Gould School of Law (the Musick Law Building, 1966), built in a2zd_gould.js. Frame fitted to the footprint:
    origin at its north west corner, u along the north front (about grid east), v toward Exposition. Main block
-   u 0..87, v 0..24.7 (four storeys); the south side steps down in wings toward Exposition. The entrance is in the
-   middle of the bay at u 29..36.25 on the north front, up steps from a brick forecourt facing Town and Gown (whose south wall is at v -17).
-   Adds the walk from the diagonal walk at the north west corner to the forecourt; keeps props off the forecourt. */
+   u 0..87, v 0..24.7 and the west wing u 0..43.7, v 24.7..43.7 (four storeys); the wings further east step down
+   toward Exposition. The entrance is in the middle bay (v 17.5..26.2) of the west front, facing Hoffman Hall (east wall
+   at u about -26) across the walk (u about -15), up steps from a brick forecourt. Adds a short walk from that walk to
+   the forecourt (hidden across it to the steps); keeps props off the forecourt. */
 var GOULD=(function(){
   var O=[69.0,175.0], du=[0.8826,0.4700], dv=[-0.4700,0.8826];
   function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
   function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
   function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
-  var EC=32.625, court=poly([[15,-13.5],[50,-13.5],[50,0],[15,0]]);
-  PATHS.push({w:3.2,pts:[P(-12.5,-6.5),P(15,-6.5)]});
-  PATHS.push({w:3.2,hide:1,pts:[P(15,-6.5),P(EC,-6.5),P(EC,-0.5)]});
+  var EC=21.85, court=poly([[-12.5,EC-17.5],[0,EC-17.5],[0,EC+17.5],[-12.5,EC+17.5]]);
+  PATHS.push({w:3.2,pts:[P(-16.5,EC),P(-12.5,EC)]});
+  PATHS.push({w:3.2,hide:1,pts:[P(-12.5,EC),P(-0.5,EC)]});
   return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,court:court,EC:EC};
 })();
 
@@ -3065,7 +3066,7 @@ var SPORT_PLACES=[], NO_PLANT=[
   NO_PLANT.push(BOVARD.lawn.slice());    /* Bovard's forecourt and front lawns: a2x_bovard.js */
   NO_PLANT.push(FELIXP.plaza.slice(),FELIXP.bed.slice());   /* the Felix Field entry plaza (a2w_felix.js) */
   NO_PLANT.push(HANC.lawn.slice());      /* the Hancock Foundation front lawn (a2zb_hancock.js) */
-  NO_PLANT.push(GOULD.court.slice());    /* the Gould School of Law forecourt (a2zd_gould.js) */
+  NO_PLANT.push(offsetRing(GOULD.court,1.5));   /* the Gould School of Law forecourt and its edge (a2zd_gould.js) */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();
