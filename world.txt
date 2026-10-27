@@ -80,7 +80,7 @@ Widney Alumni House|236,120,13
 Pardee Tower|247,58,33
 Fertitta Hall|256,222,22
 Tuscany|284,412,14
-Birnkrant Residential College|294,-93,18
+Birnkrant Residential College|294,-93,31
 Marks Tower|306,97,40
 Troy Hall|323,-582,24
 Shrine Auditorium|368,-297,35
