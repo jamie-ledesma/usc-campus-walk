@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -276,6 +276,17 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   thin white fins (0.03 proud of the slab fronts), wider end frames; window walls on one canvas texture (curtains), 0.04 off the wall.
   Balconies on the slab's west face, its east face either side of the wing, and the wing's north and south faces. Tan ends with white
   floor bands and corner frames (`bands()`), stair windows (`slits()`), white penthouse.
+- `a2zf_tailgate.js`: game day tailgates (Jamie asked for them) on the four lawn triangles of McCarthy Quad between the X walks
+  and on the lawn in front of Leavey west of the quad (LEAVEY frame), and nowhere else. Jamie said not to change anything else on the
+  map, so it is fully self-contained: its own random numbers (never `rnd()`), no colliders, nothing pushed into PATHS, TREE_POS,
+  NO_PLANT or NAMED_PLACES (checked: trees, colliders, walks, benches, names and the crowd after 200 steps are identical with and
+  without it). Canopies are laid out first on a jittered grid (walk margin 1.8 m from the X walk centre lines, keep-outs round the
+  two lawn trees, lamps and the bench), then per canopy: folding table with a USC print cloth and food, camp chairs turned to it
+  with fans in most, one or two USC coolers (one each side), sometimes a flag, and a knot of standing fans (some dancing, most with
+  red cups that they sip from) kept 0.75 m apart and clear of every canopy, leg, chair, cooler and flag. Canopy atlases (cardinal,
+  and gold) carry USC TROJANS and the SC. All instanced; fans are built like the students (head, hair or cap, body, arms, legs,
+  cup, tinted per instance), animate at half rate within 170 m and everything hides beyond 420 m. `updateTailgate(dt)` runs from
+  `update()` in both loops. Dev: `window.__tailgate` (counts).
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
