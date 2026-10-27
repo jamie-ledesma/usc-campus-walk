@@ -15,6 +15,7 @@
    only near the camera and the whole lot hides when it is far away.
    ================================================================== */
 var updateTailgate=function(){};
+var TGK=null;      /* the shared kit (canopies, props, fan parts) for a2zg_alumni_tailgate.js */
 (function(){
   if(typeof LEAVEY==='undefined'||!LEAVEY) return;
   var P=LEAVEY.P, DU=LEAVEY.du, DV=LEAVEY.dv;
@@ -262,5 +263,7 @@ var updateTailgate=function(){};
     for(var i=half;i<NF;i+=2) pose(FANS[i],i,clock);
     PARTS.forEach(function(m){ m.instanceMatrix.needsUpdate=true; });
   };
+  TGK={atlas:atlas,tentGeom:tentGeom,Bag:Bag,MT:MT,BX:BX,CY:CY,tab:tab,chr:chr,cR:cR,cW:cW,flg:flg,
+       head:head,hair:hair,cap:cap,body:body,arm:arm,leg:leg,cup:cup,SKIN:SKIN,HAIR:HAIR,SHIRT:SHIRT,PANT:PANT,CAPC:CAPC};
   window.__tailgate={tents:TENTS[0].length+TENTS[1].length,tables:TABLES.length,chairs:CHAIRS.length,coolers:COOLR.length+COOLW.length,flags:FLAGS.length,fans:NF};
 })();
