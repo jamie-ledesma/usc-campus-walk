@@ -56,11 +56,12 @@ var updateTailgate=function(){};
     var W=[1,1,1], cn=[[-S,-S],[S,-S],[S,S],[-S,S]];
     for(var i=0;i<4;i++){ var a=cn[i], b=cn[(i+1)%4];
       /* roof face: base along the bottom of the roof area, apex at its top middle */
-      tri([a[0],E,a[1]],[b[0],E,b[1]],[0,H,0],[0,1-320/512],[1,1-320/512],[0.5,1],W);
+      /* seen from outside, a is on the right: the texture runs from b (left) to a (right) */
+      tri([a[0],E,a[1]],[b[0],E,b[1]],[0,H,0],[1,1-320/512],[0,1-320/512],[0.5,1],W);
       /* valance */
       var v0=1-416/512, v1=1-320/512;
-      tri([a[0],E-VH,a[1]],[b[0],E-VH,b[1]],[b[0],E,b[1]],[0,v0],[1,v0],[1,v1],W);
-      tri([a[0],E-VH,a[1]],[b[0],E,b[1]],[a[0],E,a[1]],[0,v0],[1,v1],[0,v1],W);
+      tri([a[0],E-VH,a[1]],[b[0],E-VH,b[1]],[b[0],E,b[1]],[1,v0],[0,v0],[0,v1],W);
+      tri([a[0],E-VH,a[1]],[b[0],E,b[1]],[a[0],E,a[1]],[1,v0],[0,v1],[1,v1],W);
     }
     /* legs and a cross brace, on the white patch */
     var wu=[0.02,0.02], gr=[0.82,0.83,0.84];
