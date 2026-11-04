@@ -298,6 +298,12 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   the frisbee flies flat on a curve; a golden dog chases it (keeps 0.8 m from people), a black dog wanders between open lawn spots
   (DSPOT) on clear runs and re-targets when boxed in. Every mesh on the instance-colour material gets colours set (a null
   instanceColor there breaks the whole frame). Chains onto `updateTailgate`. Dev: `window.__alumniTailgate` (counts, `P`, `state()`).
+- Uytengsu Aquatics Center (in the athletics block of `a_world.js`): the competition pool, and east of it (Jamie asked for it
+  from photos, replacing a lawn of trees) the diving well: local frame `L(u,v)` on the pool (u east along it, v south), well
+  u 38.5..58.5, v -12..9, deck to the east wall (u 62.4), Lyon Center (v -19.6) and the south wall (v 15). Ropes and floor
+  T-lines run east-west to white blocks on the west edge. The Sammy Lee dive tower (banded brick and cream, glazed stepped cap)
+  stands on the south deck with 1, 3, 5, 7.5 and 10 m platforms cantilevered north over the water on blue steel frames, a steel
+  stair on its west side, springboards beside it, teal roll-up doors on the east wall, the ball net along the south wall.
 - `a2zh_ped.js`: Physical Education Building (1929) on Watt Way, in `HAND_HALLS` (label height 18; Jamie asked for it from photos
   of the entrance and steps). Footprint in `world.txt` squared up: `PEDB` in `a_world.js` (grid frame: origin at the north west
   corner, u grid east, v grid south; block u 0..60, v 0..75.6, west bay projecting 1.1 m at v 30..45.6 round the entrance at

@@ -3536,33 +3536,124 @@ var HHILL=null, HHILL_PAD=null;
     boxAt(MW,lgx,lgz,ux,uz,0.7,0.6,DECK+2.1,DECK+2.4,0xEFEAE0,0.8);
     boxAt(MW,lgx,lgz+0.55,ux,uz,0.7,0.1,DECK+2.4,DECK+3.3,0xEFEAE0,0.8);
 
-    /* --- the Sammy Lee dive tower, banded brick and cast stone --- */
-    var tx=c[0]-ux*(hu+7.5), tz=c[1]-uz*(hu+7.5);
-    var bands=[[0,3.1,C_BR],[3.1,3.7,C_CR],[3.7,6.6,C_BR],[6.6,7.2,C_CR],
-               [7.2,10.1,C_BR],[10.1,10.7,C_CR],[10.7,12.6,C_BR],[12.6,13.3,C_CR]];
-    for(i=0;i<bands.length;i++)
-      boxAt(MW,tx,tz,ux,uz,3.0,3.4,bands[i][0],bands[i][1],bands[i][2],0.6);
-    addCollider(rectR([tx,tz],ux,uz,3.0,3.4),13.3);
-    /* platforms, cantilevered over the water */
-    var plat=[[3.1,2.9,1.55],[5.6,2.6,1.45],[8.1,2.4,1.35],[10.7,2.2,1.30]];
-    for(i=0;i<plat.length;i++){
-      var py=plat[i][0], pd=plat[i][1], pw=plat[i][2];
-      var px=tx+ux*(3.0+pd), pz=tz+uz*(3.0+pd);
-      boxAt(MW,px,pz,ux,uz,pd,pw,py-0.30,py,0xE9E4D6,0.72);
-      for(var q=-1;q<=1;q+=2){
-        post(MW,px+vx*pw*q,pz+vz*pw*q,py,py+1.05,0.06,0x2A2C30,0.8);
-        post(MW,px-ux*pd*0.9+vx*pw*q,pz-uz*pd*0.9+vz*pw*q,py,py+1.05,0.06,0x2A2C30,0.8);
-        bar(MW,[px+vx*pw*q-ux*pd*0.9,pz+vz*pw*q-uz*pd*0.9],[px+vx*pw*q+ux*pd*0.9,pz+vz*pw*q+uz*pd*0.9],
-            py+0.95,py+1.05,0.07,0x2A2C30,0.8);
+    /* --- the diving well east of the main pool, between Lyon Center and the south wall ---
+       Local frame: u along the main pool (east), v across it (south); L(u,v) gives world x,z. The well
+       is u 38.5..58.5, v -12..9; the deck fills u 34.5..62.4 (the east wall), v -19.6 (Lyon Center)..15
+       (the south wall). The Sammy Lee dive tower stands on the south deck with its platforms out over
+       the water; springboards beside it; teal roll-up doors on the east wall face the well. */
+    function L(u,v){ return [c[0]+u*ux+v*vx, c[1]+u*uz+v*vz]; }
+    function RL(u0,u1,v0,v1){ var r=[L(u0,v0),L(u1,v0),L(u1,v1),L(u0,v1)]; if(ringArea(r)<0) r.reverse(); return r; }
+    var WU0=38.5, WU1=58.5, WV0=-12, WV1=9, WC=[(WU0+WU1)/2,(WV0+WV1)/2];
+    var WELL=RL(WU0,WU1,WV0,WV1), wdeck=RL(34.0,62.4,-19.6,15.0);
+    flatHoled(MG,wdeck,[offsetRing(WELL,0.5).slice().reverse()],DECK,0xD2CCBF,0.99);
+    addCollider(wdeck,DECK);
+    (function(){
+      var rimW=offsetRing(WELL,0.5);
+      for(var i=0;i<WELL.length;i++){
+        var j=(i+1)%WELL.length, ro=rimW[i], ro2=rimW[j], ri=WELL[i], ri2=WELL[j];
+        var cw=rgb(0xF2F0EA,1), cwd=rgb(0xF2F0EA,0.68);
+        MW.quad([ro[0],DECK,ro[1]],[ri[0],WATER_Y,ri[1]],[ri2[0],WATER_Y,ri2[1]],[ro2[0],DECK,ro2[1]],cw,cwd,cwd,cw);
+      }
+    })();
+    flat(MG,WELL,WATER_Y,0x2A8FD6,1);
+    addCollider(offsetRing(WELL,-0.2),1.35);
+    /* floor marks (dark T lines) and four lane ropes, yellow with red ends */
+    /* they run east-west, from the starting blocks on the west edge; the tower's water stays clear */
+    for(var wk=0;wk<5;wk++){
+      var wv=WV0+2.0+wk*3.6;
+      seg(MG,L(WU0+2.0,wv),L(WU1-2.0,wv),0.30,WATER_Y+0.012,0x0C4A78);
+      seg(MG,L(WU0+2.0,wv-0.9),L(WU0+2.0,wv+0.9),0.30,WATER_Y+0.012,0x0C4A78);
+      seg(MG,L(WU1-2.0,wv-0.9),L(WU1-2.0,wv+0.9),0.30,WATER_Y+0.012,0x0C4A78);
+      if(wk===4) continue;
+      var rp=wv+1.8, rs=12;
+      for(var ws=0;ws<rs;ws++){
+        var w0=WU0+0.3+(WU1-WU0-0.6)*ws/rs, w1=WU0+0.3+(WU1-WU0-0.6)*(ws+1)/rs;
+        bar(MW,L(w0,rp),L(w1,rp),WATER_Y+0.02,WATER_Y+0.20,0.26,(ws<2||ws>=rs-2)?0xC8102E:0xF3C53C,0.85);
       }
     }
-    /* stair flights up the back */
-    for(i=0;i<10;i++){
-      var sy=i*1.25;
-      boxAt(MW,tx-ux*3.9+vx*(i%2?1.6:-1.6), tz-uz*3.9+vz*(i%2?1.6:-1.6),
-            ux,uz,0.9,1.5,sy,sy+0.12,0x33363A,0.7);
+    /* starting blocks on the west edge, a lifeguard chair at the north west corner */
+    for(wk=0;wk<5;wk++){
+      var sb=L(WU0-1.0,WV0+2.0+wk*3.6);
+      boxAt(MW,sb[0],sb[1],ux,uz,0.40,0.42,DECK,DECK+0.70,0xF4F2EC,0.85);
+      boxAt(MW,sb[0]+ux*0.12,sb[1]+uz*0.12,ux,uz,0.44,0.46,DECK+0.70,DECK+0.80,0xFAF8F2,0.9);
     }
-    post(MW,tx-ux*4.6,tz-uz*4.6,0,13.0,0.09,0x33363A,0.7);
+    (function(){
+      var g=L(WU1+1.9,WV0-2.0);
+      post(MW,g[0]-vx*0.5,g[1]-vz*0.5,DECK,DECK+2.1,0.09,0xEFEAE0,0.85);
+      post(MW,g[0]+vx*0.5,g[1]+vz*0.5,DECK,DECK+2.1,0.09,0xEFEAE0,0.85);
+      boxAt(MW,g[0],g[1],ux,uz,0.6,0.7,DECK+2.1,DECK+2.4,0xEFEAE0,0.8);
+      boxAt(MW,g[0]-ux*0.55,g[1]-uz*0.55,ux,uz,0.08,0.7,DECK+2.4,DECK+3.3,0xEFEAE0,0.8);
+    })();
+
+    /* --- the Sammy Lee dive tower: banded brick and cast stone, glazed cap --- */
+    var TU=46.0, TV=12.6, THU=1.6, THV=1.7, TF=TV-THV, tw=L(TU,TV), tx=tw[0], tz=tw[1];
+    var C_TCR=0xFBF5E8, bands=[[0,2.3,C_BR],[2.3,3.3,C_TCR],[3.3,4.9,C_BR],[4.9,5.9,C_TCR],[5.9,7.4,C_BR],[7.4,8.4,C_TCR],
+               [8.4,9.9,C_BR],[9.9,10.9,C_TCR],[10.9,12.5,C_BR],[12.5,13.7,C_TCR]];
+    for(i=0;i<bands.length;i++)
+      boxAt(MW,tx,tz,ux,uz,THU+(bands[i][2]===C_TCR?0.06:0),THV+(bands[i][2]===C_TCR?0.06:0),DECK+bands[i][0],DECK+bands[i][1],bands[i][2],bands[i][2]===C_TCR?0.95:0.62);
+    /* cast stone base with the dedication plaque, and a stepped, glazed pyramid cap */
+    boxAt(MW,tx,tz,ux,uz,THU+0.08,THV+0.08,DECK,DECK+1.6,C_CR,0.7);
+    var pl=L(TU,TF-0.1); boxAt(MW,pl[0],pl[1],ux,uz,0.5,0.03,DECK+0.5,DECK+1.2,0xB8AE98,0.9);
+    boxAt(MW,tx,tz,ux,uz,THU+0.15,THV+0.15,DECK+13.7,DECK+13.9,0x3A3E42,0.7);
+    boxAt(MW,tx,tz,ux,uz,1.25,1.35,DECK+13.9,DECK+14.4,0x6F8A96,0.8);
+    boxAt(MW,tx,tz,ux,uz,0.8,0.9,DECK+14.4,DECK+14.8,0x6F8A96,0.85);
+    boxAt(MW,tx,tz,ux,uz,0.35,0.4,DECK+14.8,DECK+15.1,C_CR,0.85);
+    addCollider(rectR([tx,tz],ux,uz,THU+0.1,THV+0.1),DECK+13.9);
+    /* platforms, cantilevered north over the water from steel frames: [height, reach, u centre, half width] */
+    var C_STL=0x2F7FB5, C_PLAT=0xBCD3CD;
+    var plat=[[10.0,7.6,TU,1.4],[7.5,6.8,TU-2.7,1.2],[5.0,6.0,TU+2.6,1.2],[3.0,5.2,TU-3.0,1.1],[1.0,4.0,TU+3.2,1.1]];
+    for(i=0;i<plat.length;i++){
+      var py=DECK+plat[i][0], pr=plat[i][1], pu=plat[i][2], ph=plat[i][3];
+      var v0=TF+0.3, v1=TF-pr, pc=L(pu,(v0+v1)/2);
+      boxAt(MW,pc[0],pc[1],ux,uz,ph,(v0-v1)/2,py-0.32,py,C_PLAT,0.7);
+      boxAt(MW,pc[0],pc[1],ux,uz,ph-0.05,(v0-v1)/2-0.05,py,py+0.03,0x5E6E6C,0.9);
+      /* railings on both sides and down the back */
+      for(var sd=-1;sd<=1;sd+=2){
+        var ra=L(pu+sd*ph,v0), rb=L(pu+sd*ph,v1+0.5);
+        bar(MW,ra,rb,py+0.98,py+1.06,0.06,C_STL,0.8);
+        bar(MW,ra,rb,py+0.5,py+0.55,0.05,C_STL,0.8);
+        for(var rk=0;rk<=3;rk++){ var rt=L(pu+sd*ph,v0+(v1+0.5-v0)*rk/3); post(MW,rt[0],rt[1],py,py+1.06,0.035,C_STL,0.8); }
+      }
+      /* steel columns under platforms that stand clear of the tower */
+      if(Math.abs(pu-TU)+ph>THU+0.05){
+        for(sd=-1;sd<=1;sd+=2){
+          var cu=pu+sd*(ph-0.15); if(Math.abs(cu-TU)<THU+0.1) continue;
+          var cc=L(cu,TF+0.15); post(MW,cc[0],cc[1],DECK,py-0.3,0.09,C_STL,0.75);
+          var cf=L(cu,TF-0.9); post(MW,cf[0],cf[1],DECK+Math.max(0,plat[i][0]-2.6),py-0.3,0.07,C_STL,0.75);
+        }
+      }
+    }
+    /* the steel stair up the west side of the tower: landings and flights */
+    for(i=0;i<9;i++){
+      var sy=DECK+0.6+i*1.2, su=TU-THU-1.0, sv=TV+(i%2?0.9:-0.7), sl=L(su,sv);
+      boxAt(MW,sl[0],sl[1],ux,uz,0.85,0.75,sy,sy+0.1,0x3B4A52,0.7);
+      var s0=L(su-0.85,sv), s1=L(su-0.85,TV+(i%2?-0.7:0.9));
+      bar(MW,s0,s1,sy+0.55,sy+0.62,0.05,C_STL,0.8);
+    }
+    for(i=0;i<4;i++){ var sp=L(TU-THU-1.0+(i%2?0.8:-0.8),TV+(i<2?-1.4:1.6)); post(MW,sp[0],sp[1],DECK,DECK+11.4,0.06,C_STL,0.75); }
+    /* springboards on the south deck: white boards on blue stands */
+    [[TU+5.8,1.0],[TU+8.8,3.0],[TU-6.6,1.0]].forEach(function(q){
+      var bu=q[0], bh=DECK+q[1], st=L(bu,WV1+2.4);
+      boxAt(MW,st[0],st[1],ux,uz,0.45,0.9,DECK,bh-0.12,q[1]>2?C_STL:0x3D6E8C,0.7);
+      var bd=L(bu,WV1-1.4);
+      boxAt(MW,bd[0],bd[1],ux,uz,0.28,2.6,bh-0.12,bh,0xF4F2EC,0.85);
+      if(q[1]>2) for(var sd2=-1;sd2<=1;sd2+=2){
+        bar(MW,L(bu+sd2*0.55,WV1+3.3),L(bu+sd2*0.55,WV1+1.0),bh+0.8,bh+0.86,0.05,C_STL,0.8);
+        var rp2=L(bu+sd2*0.55,WV1+1.0); post(MW,rp2[0],rp2[1],bh-0.12,bh+0.86,0.035,C_STL,0.8); }
+      addCollider(rectR(st,ux,uz,0.5,0.95),bh);
+    });
+    /* teal roll-up doors on the east wall, facing the well */
+    for(var dk=0;dk<4;dk++){
+      var dv2=-13.0+dk*7.0, dp=L(62.4,dv2);
+      archFace(MW,dp[0],dp[1],-vx,-vz,-ux*0.12,-uz*0.12,0.05,5.2,3.6,0,C_TEALD,1);
+      for(var g3=0;g3<6;g3++)
+        archFace(MW,dp[0],dp[1],-vx,-vz,-ux*0.16,-uz*0.16,0.30+g3*0.55,4.9,0.36,0,C_TEAL,1);
+      archFace(MW,dp[0],dp[1],-vx,-vz,-ux*0.20,-uz*0.20,3.7,5.6,0.35,0,C_CR,1);
+    }
+    /* the deck rail along Lyon Center's wall, and a red umbrella in the corner */
+    var um=L(60.6,12.8); post(MW,um[0],um[1],DECK,DECK+2.4,0.04,0xD8D4CC,0.85);
+    boxAt(MW,um[0],um[1],ux,uz,0.35,0.35,DECK+1.6,DECK+2.45,0xB0202A,0.8);
+    NO_PLANT.push(wdeck.slice());
 
     /* --- Morgan Training Center along the far side --- */
     var mcx=c[0]+vx*(hv+13.5), mcz=c[1]+vz*(hv+13.5);
@@ -3586,11 +3677,10 @@ var HHILL=null, HHILL_PAD=null;
     var sA=[c[0]-ux*hu+vx*(hv+3.4), c[1]-uz*hu+vz*(hv+3.4)],
         sB=[c[0]+ux*hu+vx*(hv+3.4), c[1]+uz*hu+vz*(hv+3.4)];
     stand(MW,sA,sB,vx,vz,4.4,6,0xC6BCA6,C_CARD);
-    /* tall black net behind the far end */
-    var nx0=c[0]+ux*(hu+10.8), nz0=c[1]+uz*(hu+10.8);
-    for(k=-3;k<=3;k++) post(MW,nx0+vx*k*4.0,nz0+vz*k*4.0,0,11,0.10,0x2A2C30,0.7);
-    for(var yy=3;yy<=11;yy+=4)
-      bar(MW,[nx0-vx*12,nz0-vz*12],[nx0+vx*12,nz0+vz*12],yy,yy+0.09,0.08,0x2A2C30,0.7);
+    /* tall black ball net along the south wall behind the diving well, toward the practice field */
+    for(k=0;k<=7;k++){ var np2=L(34.5+k*3.95,15.4); post(MW,np2[0],np2[1],0,12,0.10,0x2A2C30,0.7); }
+    for(var yy=4;yy<=12;yy+=4)
+      bar(MW,L(34.5,15.4),L(62.1,15.4),yy,yy+0.09,0.08,0x2A2C30,0.7);
     /* floodlights at the corners */
     for(k=0;k<4;k++){
       var lx=c[0]+vx*(hv+10.8)*(k<2?-1:1)+ux*(k%2?16:-16),
