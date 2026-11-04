@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a2zj_football.js a2zk_britt.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a2zj_football.js a2zk_britt.js a2zl_practice.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -331,6 +331,15 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   path) between the podium and the grandstand. Lamps with SC FIGHT ON! banners and magnolias down both sides of Watt Way.
   On the deck: the Stevens portal on McKay's south face, the striped arcade under a pergola, a bronze statue, a lamp with
   gold banners. One atlas.
+- `a2zl_practice.js`: practice at the Uytengsu pools and Dedeaux Field (Jamie asked for swimmers and a baseball team).
+  `AQUA` (pool frame `P(u,v)`, the well, the tower, platform and springboard ends) and `DIAM` (home, centre field direction,
+  the foul line angles, the bases) are set in the athletics block of `a_world.js`. Swimmers in caps do freestyle laps between
+  the ropes with flip turns; a coach on the deck. Divers walk out on a platform or springboard, go off with a tuck and one or
+  two somersaults, splash (white cones), swim to the wall, climb out and walk back. Batting practice: pitcher behind an L
+  screen, batter and bat, crouching catcher, fielders run down hits and throw them in to a collector, three pairs play
+  catch, coaches. Students' bodies plus a cap and a swim cap, nine instanced meshes, the balls, the bat, the splashes.
+  `updatePractice(dt)` runs from both loops; each place only within 300 m. Dev: `window.__practice` (`ball()`, `divers()`,
+  `lookPool()`, `lookWell()`, `lookDiamond()`). The lane ropes in both pools are slim (0.11 m).
 - `a2zh_ped.js`: Physical Education Building (1929) on Watt Way, in `HAND_HALLS` (label height 18; Jamie asked for it from photos
   of the entrance and steps). Footprint in `world.txt` squared up: `PEDB` in `a_world.js` (grid frame: origin at the north west
   corner, u grid east, v grid south; block u 0..60, v 0..75.6, west bay projecting 1.1 m at v 30..45.6 round the entrance at

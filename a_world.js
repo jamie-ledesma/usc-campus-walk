@@ -1404,7 +1404,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
-var FBALL=null;   /* the Howard Jones field frame for the scrimmage (a2zj_football.js) */
+var FBALL=null, AQUA=null, DIAM=null;   /* frames for the people at practice (a2zl_practice.js) */   /* the Howard Jones field frame for the scrimmage (a2zj_football.js) */
 var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35,'Hancock Foundation Building':17,'USC Gould School of Law':17,'Birnkrant Residential College':31,'Physical Education Building':18};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
@@ -3554,6 +3554,7 @@ var HHILL=null, HHILL_PAD=null;
       var A2=a1+(a2-a1)*(0.08+i*0.28);
       lightMast(MW,home[0]+Math.cos(A2)*(R-9),home[1]+Math.sin(A2)*(R-9),27);
     }
+    DIAM={home:home, cf:[cfx,cfz], a1:a1, a2:a2, R:R, b1:b1, b2:b2, b3:b3, f1:f1, f2:f2};
     SPORT_PLACES.push({name:'Dedeaux Field',x:home[0]+cfx*34,z:home[1]+cfz*34,h:8,rad:70});
   })();
 
@@ -3620,7 +3621,7 @@ var HHILL=null, HHILL_PAD=null;
         var t0=s/segs, t1=(s+1)/segs;
         bar(MW,[A2[0]+(B2[0]-A2[0])*t0,A2[1]+(B2[1]-A2[1])*t0],
                [A2[0]+(B2[0]-A2[0])*t1,A2[1]+(B2[1]-A2[1])*t1],
-               WATER_Y+0.02,WATER_Y+0.20,0.28, s%2?0xC8102E:0xF3C53C, 0.85);
+               WATER_Y+0.02,WATER_Y+0.11,0.11, s%2?0xC8102E:0xF3C53C, 0.85);
       }
     }
     /* starting blocks along the near end */
@@ -3670,7 +3671,7 @@ var HHILL=null, HHILL_PAD=null;
       var rp=wv+1.8, rs=12;
       for(var ws=0;ws<rs;ws++){
         var w0=WU0+0.3+(WU1-WU0-0.6)*ws/rs, w1=WU0+0.3+(WU1-WU0-0.6)*(ws+1)/rs;
-        bar(MW,L(w0,rp),L(w1,rp),WATER_Y+0.02,WATER_Y+0.20,0.26,(ws<2||ws>=rs-2)?0xC8102E:0xF3C53C,0.85);
+        bar(MW,L(w0,rp),L(w1,rp),WATER_Y+0.02,WATER_Y+0.11,0.11,(ws<2||ws>=rs-2)?0xC8102E:0xF3C53C,0.85);
       }
     }
     /* starting blocks on the west edge, a lifeguard chair at the north west corner */
@@ -3744,6 +3745,9 @@ var HHILL=null, HHILL_PAD=null;
         var rp2=L(bu+sd2*0.55,WV1+1.0); post(MW,rp2[0],rp2[1],bh-0.12,bh+0.86,0.035,C_STL,0.8); }
       addCollider(rectR(st,ux,uz,0.5,0.95),bh);
     });
+    AQUA={P:L, c:c, ux:ux, uz:uz, hu:hu, hv:hv, WY:WATER_Y, DECK:DECK, well:[WU0,WU1,WV0,WV1], TU:TU, TV:TV, TF:TF, THU:THU,
+          plats:plat.map(function(q){ return {u:q[2], v:TF-q[1]+0.45, y:DECK+q[0]}; }),
+          boards:[[TU+5.8,1.0],[TU+8.8,3.0],[TU-6.6,1.0]].map(function(q){ return {u:q[0], v:WV1-3.7, y:DECK+q[1]}; })};
     /* teal roll-up doors on the east wall, facing the well */
     for(var dk=0;dk<4;dk++){
       var dv2=-13.0+dk*7.0, dp=L(62.4,dv2);
