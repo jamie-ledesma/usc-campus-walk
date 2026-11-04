@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a2zj_football.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -304,6 +304,18 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   T-lines run east-west to white blocks on the west edge. The Sammy Lee dive tower (banded brick and cream, glazed stepped cap)
   stands on the south deck with 1, 3, 5, 7.5 and 10 m platforms cantilevered north over the water on blue steel frames, a steel
   stair on its west side, springboards beside it, teal roll-up doors on the east wall, the ball net along the south wall.
+- Football practice fields by Bloom (athletics block of `a_world.js`): Howard Jones and Brian Kennedy fields are ringed by
+  `windFence()` (Jamie asked: no seeing in), a 3.6 m cardinal windscreen on black posts with a gold Greek key border and
+  FIGHT ON! every third panel (one canvas texture, lettering faces out by a point-in-polygon test, a collider per panel).
+  The JONES ring is ragged, so its gridiron is a regulation 120 x 53 1/3 yd field set in the clean part (`FBALL`: centre,
+  du/dv, hu/hv), not centred on the vertex average.
+- `a2zj_football.js`: a USC scrimmage on Howard Jones Field, built like the Rawlinson soccer match (students' bodies, eight
+  instanced meshes adding helmets and shoulder pads, and the ball). Offense in cardinal and gold attacks +u, defense in white
+  and gold; huddle, line up, set (linemen in stance), snap, then a run (handoff, blocks drive the line back, pursuit, broken
+  tackles) or a pass (drop, routes, corners shadow, throw to the most open man, catch or break up). Downs move the chains; a
+  failed fourth down just starts a new series; a touchdown sets off the field and the cardinal sideline, then back to the 25.
+  Sidelines: 24 players a side in three staggered rows (some helmets off), six coaches, benches, a water table, a news crew
+  with tripod cameras. `updateFootball(dt)` runs from both loops within 320 m. Dev: `window.__football.state()`, `.look()`.
 - `a2zh_ped.js`: Physical Education Building (1929) on Watt Way, in `HAND_HALLS` (label height 18; Jamie asked for it from photos
   of the entrance and steps). Footprint in `world.txt` squared up: `PEDB` in `a_world.js` (grid frame: origin at the north west
   corner, u grid east, v grid south; block u 0..60, v 0..75.6, west bay projecting 1.1 m at v 30..45.6 round the entrance at

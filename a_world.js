@@ -1382,6 +1382,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
+var FBALL=null;   /* the Howard Jones field frame for the scrimmage (a2zj_football.js) */
 var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35,'Hancock Foundation Building':17,'USC Gould School of Law':17,'Birnkrant Residential College':31,'Physical Education Building':18};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
@@ -3371,19 +3372,91 @@ var HHILL=null, HHILL_PAD=null;
     SPORT_PLACES.push({name:'Brittingham Field',x:c[0],z:c[1],h:5,rad:45});
   })();
 
+  /* ---- the windscreen round the football practice fields: cardinal mesh with a diagonal weave and a
+     gold Greek key border, FIGHT ON! every few panels, on black posts; taller than anyone walking by
+     (Jamie asked for it so you can't see in). One canvas texture, both faces, colliders on every panel. */
+  var _wsMat=null;
+  function wsMat(){
+    if(_wsMat) return _wsMat;
+    var cv=document.createElement('canvas'); cv.width=1024; cv.height=256;
+    var g=cv.getContext('2d');
+    for(var k=0;k<2;k++){
+      var x0=k*512;
+      g.fillStyle='#8A1C2B'; g.fillRect(x0,0,512,256);
+      g.strokeStyle='rgba(60,8,16,0.45)'; g.lineWidth=5;
+      for(var d=-260;d<520;d+=16){ g.beginPath(); g.moveTo(x0+d,256); g.lineTo(x0+d+256,0); g.stroke(); }
+      g.strokeStyle='rgba(190,70,80,0.18)'; g.lineWidth=2;
+      for(d=-260;d<520;d+=16){ g.beginPath(); g.moveTo(x0+d+6,256); g.lineTo(x0+d+262,0); g.stroke(); }
+      /* border with a gold key along the top, a plain band below */
+      g.fillStyle='#7A1724'; g.fillRect(x0,0,512,26); g.fillRect(x0,238,512,18);
+      g.strokeStyle='#D9B04A'; g.lineWidth=3;
+      for(var kx=0;kx<512;kx+=32){ g.beginPath(); g.moveTo(x0+kx+2,20); g.lineTo(x0+kx+2,6); g.lineTo(x0+kx+22,6); g.lineTo(x0+kx+22,14);
+        g.lineTo(x0+kx+12,14); g.lineTo(x0+kx+12,20); g.lineTo(x0+kx+32,20); g.stroke(); }
+      g.fillStyle='#D9B04A'; g.fillRect(x0,24,512,2); g.fillRect(x0,238,512,2);
+      if(k===1){
+        g.font='italic 900 92px Impact, "Arial Black", sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+        g.fillStyle='rgba(40,5,10,0.5)'; g.fillText('FIGHT ON!',x0+256+4,118+4);
+        g.fillStyle='#F2C230'; g.fillText('FIGHT ON!',x0+256,118);
+        /* the victory hand: two raised fingers */
+        g.fillStyle='#F2C230';
+        g.beginPath(); g.ellipse(x0+256,196,15,17,0,0,6.2832); g.fill();
+        g.save(); g.translate(x0+250,184); g.rotate(-0.28); g.fillRect(-5,-30,10,30); g.restore();
+        g.save(); g.translate(x0+262,184); g.rotate(0.28); g.fillRect(-5,-30,10,30); g.restore();
+      }
+    }
+    var tx=new T.CanvasTexture(cv); tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+    _wsMat=new T.MeshLambertMaterial({map:tx});
+    return _wsMat;
+  }
+  function windFence(ring,h,field){
+    var P3=[], N3=[], UV=[], n=ring.length, cnt=0;
+    function quad(a,b,y0,y1,nx,nz,u0,u1){
+      /* a to b must run to the right of someone looking at the face, so the lettering reads */
+      if(-(b[1]-a[1])*nx+(b[0]-a[0])*nz<0){ var t0=a; a=b; b=t0; }
+      var A=[a[0],y0,a[1]], B=[b[0],y0,b[1]], C=[b[0],y1,b[1]], D=[a[0],y1,a[1]];
+      var o=[A,B,C,A,C,D], t=[[u0,0],[u1,0],[u1,1],[u0,0],[u1,1],[u0,1]];
+      for(var q=0;q<6;q++){ P3.push(o[q][0],o[q][1],o[q][2]); N3.push(nx,0,nz); UV.push(t[q][0],t[q][1]); }
+    }
+    for(var i=0;i<n;i++){
+      var A=ring[i], B=ring[(i+1)%n], L=Math.hypot(B[0]-A[0],B[1]-A[1]); if(L<0.5) continue;
+      var dx=(B[0]-A[0])/L, dz=(B[1]-A[1])/L, nx=dz, nz=-dx;
+      var mx=(A[0]+B[0])/2, mz=(A[1]+B[1])/2; if(inRing(field,mx+nx*3,mz+nz*3)){ nx=-nx; nz=-nz; }   /* lettering faces out */
+      var NP=Math.max(1,Math.round(L/6));
+      for(var k=0;k<NP;k++){
+        var p0=[A[0]+dx*L*k/NP,A[1]+dz*L*k/NP], p1=[A[0]+dx*L*(k+1)/NP,A[1]+dz*L*(k+1)/NP], txt=(cnt++%3)===1;
+        quad([p0[0]+nx*0.02,p0[1]+nz*0.02],[p1[0]+nx*0.02,p1[1]+nz*0.02],0.12,h,nx,nz,txt?0.5:0,txt?1:0.5);
+        quad([p0[0]-nx*0.02,p0[1]-nz*0.02],[p1[0]-nx*0.02,p1[1]-nz*0.02],0.12,h,-nx,-nz,0,0.5);
+        post(MW,p0[0],p0[1],0,h+0.12,0.07,C_FENCE,0.7);
+        var cr=[[p0[0]-nx*0.15,p0[1]-nz*0.15],[p1[0]-nx*0.15,p1[1]-nz*0.15],[p1[0]+nx*0.15,p1[1]+nz*0.15],[p0[0]+nx*0.15,p0[1]+nz*0.15]];
+        if(ringArea(cr)<0) cr.reverse(); addCollider(cr,h);
+      }
+      bar(MW,A,B,h+0.05,h+0.14,0.08,C_FENCE,0.8);
+      bar(MW,A,B,0,0.14,0.16,0x3A3C40,0.7);
+    }
+    var g=new T.BufferGeometry();
+    g.setAttribute('position',new T.Float32BufferAttribute(P3,3));
+    g.setAttribute('normal',new T.Float32BufferAttribute(N3,3));
+    g.setAttribute('uv',new T.Float32BufferAttribute(UV,2));
+    var m=new T.Mesh(g,wsMat()); m.frustumCulled=false; m.castShadow=true; m.receiveShadow=true; m.raycast=function(){}; scene.add(m);
+  }
+
   /* ============================ Howard Jones / Brian Kennedy practice fields */
   (function(){
     turf(MG,JONES,0.10,C_TURF,14);
-    gridiron(MG,JONES,0.125,5);
-    var cj=ctr(JONES), aj=axisOf(JONES);
-    var ldj=logoDir(cj,aj[0],aj[1]); scLogo(cj[0],cj[1],17,ldj[0],ldj[1]);
-    railFence(MW,offsetRing(JONES,2.6),0,3.0,C_FENCE,true);
+    /* the ring is ragged on one side, so the field is a regulation 120 x 53 1/3 yd gridiron set in the clean
+       part of it (u -51..70, v -62..5 from the ring's vertex average), not centred on the average */
+    var cj=ctr(JONES), aj=axisOf(JONES), fdv=[-aj[1],aj[0]], fhu=54.86, fhv=24.38;
+    var fc=[cj[0]+aj[0]*9.5+fdv[0]*-28.45, cj[1]+aj[1]*9.5+fdv[1]*-28.45];
+    gridiron(MG,rectR(fc,aj[0],aj[1],fhu+5,fhv+5),0.125,5);
+    var ldj=logoDir(fc,aj[0],aj[1]); scLogo(fc[0],fc[1],15,ldj[0],ldj[1]);
+    windFence(offsetRing(JONES,2.6),3.6,JONES);
+    FBALL={c:fc,du:[aj[0],aj[1]],dv:fdv,hu:fhu,hv:fhv};
     SPORT_PLACES.push({name:'Howard Jones Field',x:cj[0],z:cj[1],h:5,rad:55});
 
     turf(MG,KENN,0.10,C_TURF,12);
     gridiron(MG,KENN,0.125,4);
-    railFence(MW,offsetRing(KENN,2.6),0,3.0,C_FENCE,true);
     var ck=ctr(KENN);
+    windFence(offsetRing(KENN,2.6),3.6,KENN);
     SPORT_PLACES.push({name:'Brian Kennedy Field',x:ck[0],z:ck[1],h:5,rad:45});
 
     /* Rawlinson Stadium (formerly McAlister Field) is built in a2za_rawlinson.js (RAWL) */
