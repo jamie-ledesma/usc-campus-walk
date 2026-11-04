@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a2zj_football.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a2zj_football.js a2zk_britt.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -316,6 +316,15 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   failed fourth down just starts a new series; a touchdown sets off the field and the cardinal sideline, then back to the 25.
   Sidelines: 24 players a side in three staggered rows (some helmets off), six coaches, benches, a water table, a news crew
   with tripod cameras. `updateFootball(dt)` runs from both loops within 320 m. Dev: `window.__football.state()`, `.look()`.
+- `a2zk_britt.js`: Brittingham Field raised 3.4 m on a cast stone podium (Jamie asked from Street View stills), and the John
+  McKay Center's portal onto it. `BRITF` in `a_world.js` (frame on the field, u grid east, v grid south; `RH`, the podium ring
+  `pod`, the street front `front`) drops the walk that ran round the field; the athletics block lifts the turf, lines, SC,
+  goals (`goalFrame` takes a base height) and the fence to RH. Watt Way front, north to south (s = v + 23.4): brick piers with
+  proud dark headers and the stairs between them, the Tilley All-American Walk wall (two tiers, inscription, hedge on top,
+  hibiscus planter), the banded brick and stone arch with the Greek motto (written as \u escapes: test pages have no charset)
+  over the ramp up east between handrails, the Trojan sword on its drum, the BRITTINGHAM FIELD pylon with BLOOM HALL OF FAME
+  WALK on its side. Lamps with SC FIGHT ON! banners and magnolias down both sides of Watt Way. On the deck: the Stevens portal
+  on McKay's south face, the striped arcade under a pergola, a bronze statue, a lamp with gold banners. One atlas.
 - `a2zh_ped.js`: Physical Education Building (1929) on Watt Way, in `HAND_HALLS` (label height 18; Jamie asked for it from photos
   of the entrance and steps). Footprint in `world.txt` squared up: `PEDB` in `a_world.js` (grid frame: origin at the north west
   corner, u grid east, v grid south; block u 0..60, v 0..75.6, west bay projecting 1.1 m at v 30..45.6 round the entrance at

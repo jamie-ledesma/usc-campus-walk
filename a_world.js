@@ -439,6 +439,24 @@ var PEDB=(function(){
   return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,U:U,V:V,VC:VC,WK:WK,front:front};
 })();
 
+/* Brittingham Field on its podium (a2zk_britt.js). Frame on the field (u grid east along it, v grid south):
+   field u -44..44, v -18.6..18.6; the podium top is at RH, u -49.6..51, v -26.6 (the John McKay Center's
+   south face) .. 22; Watt Way's east walk runs at u -54.8..-52.2. The street front (west, s = v + 23.4 from the
+   McKay corner): brick piers and the stairs at the north end, the Tilley All-American Walk wall with its
+   hibiscus planter, the arch over the ramp (v 10..14, up east to u -26.8), the BRITTINGHAM FIELD pylon.
+   The walk round the field is dropped (it would run inside the podium). */
+var BRITF=(function(){
+  var O=[-224.5,-239.0], du=[0.8852,0.4653], dv=[-0.4653,0.8852], RH=3.4;
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
+  function inPod(p){ var l=loc(p); return l[0]>-49.6&&l[0]<51&&l[1]>-26.6&&l[1]<22; }
+  PATHS=PATHS.filter(function(p){ return p.pts.filter(inPod).length<2; });
+  var podL=[[-49.6,-23.4],[-45.4,-23.4],[-45.4,-26.6],[51,-26.6],[51,22],[-49.6,22],[-49.6,14],[-26.8,14],[-26.8,10],[-49.6,10]];
+  var front=poly([[-55,-24],[-45,-24],[-45,23],[-55,23]]);
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,RH:RH,pod:poly(podL),podL:podL,front:front};
+})();
+
 /* Moreton Fig, the restaurant in Sample Hall, and its patio round the Moreton Bay fig (a2zc_moreton.js).
    Frame on Sample Hall's east wall: origin at its north east corner, u out of the wall (about grid east,
    toward Trousdale), v along it (about grid south, toward Zumberge). The east wall runs v 0..32.65, the
@@ -3087,7 +3105,8 @@ var SPORT_PLACES=[], NO_PLANT=[
   NO_PLANT.push(FELIXP.plaza.slice(),FELIXP.bed.slice());   /* the Felix Field entry plaza (a2w_felix.js) */
   NO_PLANT.push(HANC.lawn.slice());      /* the Hancock Foundation front lawn (a2zb_hancock.js) */
   NO_PLANT.push(offsetRing(GOULD.court,1.5));
-  NO_PLANT.push(PEDB.front.slice());     /* the Physical Education Building forecourt and front walk (a2zh_ped.js) */   /* the Gould School of Law forecourt and its edge (a2zd_gould.js) */
+  NO_PLANT.push(PEDB.front.slice());
+  NO_PLANT.push(BRITF.pod.slice(),BRITF.front.slice());   /* Brittingham's podium and its street front (a2zk_britt.js) */     /* the Physical Education Building forecourt and front walk (a2zh_ped.js) */   /* the Gould School of Law forecourt and its edge (a2zd_gould.js) */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();
@@ -3236,16 +3255,16 @@ var HHILL=null, HHILL_PAD=null;
     if(ringArea(foot)<0) foot.reverse();
     addCollider(foot,0.55+rows*0.44);
   }
-  function goalFrame(M,cx,cz,ux,uz,halfW,h){
-    var vx=-uz, vz=ux;
+  function goalFrame(M,cx,cz,ux,uz,halfW,h,y0){
+    var vx=-uz, vz=ux; y0=y0||0;
     for(var s=-1;s<=1;s+=2){
-      post(M,cx+vx*halfW*s,cz+vz*halfW*s,0,h,0.09,0xF2F2EE,0.9);
+      post(M,cx+vx*halfW*s,cz+vz*halfW*s,y0,y0+h,0.09,0xF2F2EE,0.9);
     }
-    bar(M,[cx-vx*halfW,cz-vz*halfW],[cx+vx*halfW,cz+vz*halfW],h-0.18,h,0.16,0xF2F2EE,0.9);
+    bar(M,[cx-vx*halfW,cz-vz*halfW],[cx+vx*halfW,cz+vz*halfW],y0+h-0.18,y0+h,0.16,0xF2F2EE,0.9);
     /* net: a shallow box of thin rails behind the frame */
     for(var k=0;k<=5;k++){
       var t=-halfW+2*halfW*k/5;
-      bar(M,[cx+vx*t,cz+vz*t],[cx+vx*t-ux*2.0,cz+vz*t-uz*2.0],0,h*0.72,0.05,0xC9CCC6,0.8);
+      bar(M,[cx+vx*t,cz+vz*t],[cx+vx*t-ux*2.0,cz+vz*t-uz*2.0],y0,y0+h*0.72,0.05,0xC9CCC6,0.8);
     }
   }
 
@@ -3271,12 +3290,12 @@ var HHILL=null, HHILL_PAD=null;
     for(var i=0;i<2;i++){ var d=cand[i][0]*ax+cand[i][1]*az; if(d>bd){bd=d;best=cand[i];} }
     return best;
   }
-  function scLogo(cx,cz,size,dx,dz){
+  function scLogo(cx,cz,size,dx,dz,y){
     var m=new T.Mesh(new T.PlaneGeometry(size,size),
         new T.MeshBasicMaterial({map:scTex(),transparent:true,depthWrite:false,
           polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6}));
     m.rotation.set(-Math.PI/2,0,Math.atan2(-dx,-dz));
-    m.position.set(cx,0.22,cz);
+    m.position.set(cx,y||0.22,cz);
     m.renderOrder=2; m.raycast=function(){}; m.frustumCulled=false;
     scene.add(m);
   }
@@ -3312,7 +3331,7 @@ var HHILL=null, HHILL_PAD=null;
       lineR(M,rectR([c[0]+ux*(hu-bu*0.5)*s,c[1]+uz*(hu-bu*0.5)*s],ux,uz,bu*0.5,bv*0.5),0.20,y,C_LINE);
       var su=Math.min(5.5,hu*0.09), sv=Math.min(9.16,hv*0.30);
       lineR(M,rectR([c[0]+ux*(hu-su*0.5)*s,c[1]+uz*(hu-su*0.5)*s],ux,uz,su*0.5,sv*0.5),0.20,y,C_LINE);
-      if(goals) goalFrame(MW,c[0]+ux*hu*s,c[1]+uz*hu*s,ux*s,uz*s,Math.min(3.66,hv*0.20),2.44);
+      if(goals) goalFrame(MW,c[0]+ux*hu*s,c[1]+uz*hu*s,ux*s,uz*s,Math.min(3.66,hv*0.20),2.44,Math.max(0,y-0.13));
     }
   }
   function gridiron(M,ring,y,inset){
@@ -3358,12 +3377,14 @@ var HHILL=null, HHILL_PAD=null;
 
   /* ====================================================== Brittingham Field */
   (function(){
-    turf(MG,BRIT,0.11,C_TURF,11);
-    pitchLines(MG,BRIT,0.13,3.2,true);
+    /* raised on its podium (a2zk_britt.js builds the podium and the street front) */
+    var RH=BRITF.RH;
+    turf(MG,BRIT,RH+0.11,C_TURF,11);
+    pitchLines(MG,BRIT,RH+0.13,3.2,true);
     var c=ctr(BRIT), a=axisOf(BRIT);
-    var ld2=logoDir(c,a[0],a[1]); scLogo(c[0],c[1],16,ld2[0],ld2[1]);
-    var fenceR=offsetRing(BRIT,3.2);
-    railFence(MW,fenceR,0,3.4,C_FENCE,true);
+    var ld2=logoDir(c,a[0],a[1]); scLogo(c[0],c[1],16,ld2[0],ld2[1],RH+0.22);
+    var fenceR=offsetRing(BRIT,2.4);
+    railFence(MW,fenceR,RH,2.1,C_FENCE,true);
     for(var i=0;i<fenceR.length;i++){
       var p=offsetRing(BRIT,5.0)[i];
       lightMast(MW,p[0],p[1],21);
