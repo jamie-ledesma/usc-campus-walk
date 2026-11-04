@@ -318,13 +318,19 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   with tripod cameras. `updateFootball(dt)` runs from both loops within 320 m. Dev: `window.__football.state()`, `.look()`.
 - `a2zk_britt.js`: Brittingham Field raised 3.4 m on a cast stone podium (Jamie asked from Street View stills), and the John
   McKay Center's portal onto it. `BRITF` in `a_world.js` (frame on the field, u grid east, v grid south; `RH`, the podium ring
-  `pod`, the street front `front`) drops the walk that ran round the field; the athletics block lifts the turf, lines, SC,
-  goals (`goalFrame` takes a base height) and the fence to RH. Watt Way front, north to south (s = v + 23.4): brick piers with
-  proud dark headers and the stairs between them, the Tilley All-American Walk wall (two tiers, inscription, hedge on top,
-  hibiscus planter), the banded brick and stone arch with the Greek motto (written as \u escapes: test pages have no charset)
-  over the ramp up east between handrails, the Trojan sword on its drum, the BRITTINGHAM FIELD pylon with BLOOM HALL OF FAME
-  WALK on its side. Lamps with SC FIGHT ON! banners and magnolias down both sides of Watt Way. On the deck: the Stevens portal
-  on McKay's south face, the striped arcade under a pergola, a bronze statue, a lamp with gold banners. One atlas.
+  `pod`, the street front `front`, the pitch `field`: narrowed to v -19.5..11.8 so a walk fits south of the podium before the
+  Felix Field grandstand, whose back is at v ~20.3) drops the walk that ran round the field; the athletics block lifts the
+  turf, lines, SC, goals (`goalFrame` takes a base height) and fence to RH and keeps the light masts off the ramp and walk.
+  Watt Way front, north to south: brick piers with proud dark headers and the stairs between them, the Tilley All-American
+  Walk wall (v -14..2: two tiers, inscription, hedge on top, hibiscus planter); then (Jamie: it runs parallel to the street)
+  a walk at ground level (u -51.4..-48.8, v 2..22) behind a hibiscus planter, the banded brick and stone arch across it
+  facing south with the Greek motto (\u escapes: test pages have no charset), the Trojan sword on its drum, a cross wall
+  with an iron gate at its north end; a parapet (one sloped wall, stepped colliders) and the ramp beside it (u -48.2..-46)
+  climbing north to the deck at v -2 (the way onto the field: collider tests walk street, ramp, pitch); the BRITTINGHAM FIELD
+  pylon at the south west corner (BLOOM HALL OF FAME WALK on its south face); the flat walk east (v 16..20, hidden crowd
+  path) between the podium and the grandstand. Lamps with SC FIGHT ON! banners and magnolias down both sides of Watt Way.
+  On the deck: the Stevens portal on McKay's south face, the striped arcade under a pergola, a bronze statue, a lamp with
+  gold banners. One atlas.
 - `a2zh_ped.js`: Physical Education Building (1929) on Watt Way, in `HAND_HALLS` (label height 18; Jamie asked for it from photos
   of the entrance and steps). Footprint in `world.txt` squared up: `PEDB` in `a_world.js` (grid frame: origin at the north west
   corner, u grid east, v grid south; block u 0..60, v 0..75.6, west bay projecting 1.1 m at v 30..45.6 round the entrance at

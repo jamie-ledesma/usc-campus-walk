@@ -443,7 +443,9 @@ var PEDB=(function(){
    field u -44..44, v -18.6..18.6; the podium top is at RH, u -49.6..51, v -26.6 (the John McKay Center's
    south face) .. 22; Watt Way's east walk runs at u -54.8..-52.2. The street front (west, s = v + 23.4 from the
    McKay corner): brick piers and the stairs at the north end, the Tilley All-American Walk wall with its
-   hibiscus planter, the arch over the ramp (v 10..14, up east to u -26.8), the BRITTINGHAM FIELD pylon.
+   hibiscus planter (v -14..2), then a walk along the street (u -51.4..-48.8, v 2..22) under the arch with the
+   sword, a ramp beside it (u -48.2..-46) up north to the deck at v -2, the BRITTINGHAM FIELD pylon at the
+   south west corner, and the flat walk east between the podium and the track (v 22..26).
    The walk round the field is dropped (it would run inside the podium). */
 var BRITF=(function(){
   var O=[-224.5,-239.0], du=[0.8852,0.4653], dv=[-0.4653,0.8852], RH=3.4;
@@ -452,9 +454,11 @@ var BRITF=(function(){
   function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
   function inPod(p){ var l=loc(p); return l[0]>-49.6&&l[0]<51&&l[1]>-26.6&&l[1]<22; }
   PATHS=PATHS.filter(function(p){ return p.pts.filter(inPod).length<2; });
-  var podL=[[-49.6,-23.4],[-45.4,-23.4],[-45.4,-26.6],[51,-26.6],[51,22],[-49.6,22],[-49.6,14],[-26.8,14],[-26.8,10],[-49.6,10]];
+  var podL=[[-49.6,-23.4],[-45.4,-23.4],[-45.4,-26.6],[51,-26.6],[51,16],[-46,16],[-46,-2],[-48.2,-2],[-48.2,2],[-49.6,2]];
   var front=poly([[-55,-24],[-45,-24],[-45,23],[-55,23]]);
-  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,RH:RH,pod:poly(podL),podL:podL,front:front};
+  /* the pitch: narrowed and moved north so a walk fits between the podium and the Felix Field grandstand */
+  var field=poly([[-44,-19.5],[44,-19.5],[44,11.8],[-44,11.8]]);
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,RH:RH,pod:poly(podL),podL:podL,front:front,field:field};
 })();
 
 /* Moreton Fig, the restaurant in Sample Hall, and its patio round the Moreton Bay fig (a2zc_moreton.js).
@@ -3379,14 +3383,18 @@ var HHILL=null, HHILL_PAD=null;
   (function(){
     /* raised on its podium (a2zk_britt.js builds the podium and the street front) */
     var RH=BRITF.RH;
-    turf(MG,BRIT,RH+0.11,C_TURF,11);
-    pitchLines(MG,BRIT,RH+0.13,3.2,true);
-    var c=ctr(BRIT), a=axisOf(BRIT);
+    var BF=BRITF.field;
+    turf(MG,BF,RH+0.11,C_TURF,11);
+    pitchLines(MG,BF,RH+0.13,3.2,true);
+    var c=ctr(BF), a=axisOf(BF);
     var ld2=logoDir(c,a[0],a[1]); scLogo(c[0],c[1],16,ld2[0],ld2[1],RH+0.22);
-    var fenceR=offsetRing(BRIT,2.4);
+    var fenceR=offsetRing(BF,2.0);
     railFence(MW,fenceR,RH,2.1,C_FENCE,true);
     for(var i=0;i<fenceR.length;i++){
-      var p=offsetRing(BRIT,5.0)[i];
+      var p=offsetRing(BF,5.0)[i], lp=BRITF.loc(p);
+      /* masts on the podium: the south ones on its edge clear of the walk, the west ones clear of the ramp */
+      if(lp[1]>0) p=BRITF.P(Math.max(-38,Math.min(47,lp[0])),14.9);
+      else if(lp[0]<-45) p=BRITF.P(-38,lp[1]);
       lightMast(MW,p[0],p[1],21);
     }
     var mid=[[ (BRIT[0][0]+BRIT[1][0])*0.5, (BRIT[0][1]+BRIT[1][1])*0.5 ]];

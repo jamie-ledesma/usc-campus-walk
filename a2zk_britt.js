@@ -267,8 +267,7 @@
     fbox(F,s0,s1,-2.45,-1.55,RH,RH+0.95,HEDGE,{noTop:1});
     fbox(F,s0+0.05,s1-0.05,-2.4,-1.6,RH+0.95,RH+1.08,HEDGEL,{});
   }
-  tilley(9.4,32.6,[14.4,27.6]); topEdge(9.4,33.4);
-  tilley(43.0,45.4,null); topEdge(37.4,45.4);
+  tilley(9.4,25.4,[11.4,23.4]); topEdge(9.4,25.4);
   /* brick piers with dark headers standing proud, the stairs between them */
   function pier(s0,s1,d0,d1,h){
     fbox(F,s0,s1,d0,d1,0,h,BRICK,{});
@@ -294,70 +293,121 @@
       fbox(F,s-0.03,s+0.03,dd-0.03,dd+0.03,yy,yy+0.95,s===4.4?RAIL:IRON,{}); });
   });
 
-  /* ---------------- the arch over the ramp ---------------- */
-  var A0=32.6, A1=38.2, OA=33.4, OB=37.4, AC=35.4, AR=2.0, ASP=2.5, ATOP=5.0, AD0=-0.2, AD1=1.1;
+  /* ---------------- the walk along the street, the arch, the ramp, the pylon ----------------
+     In the field frame (u, v). The walk runs north from the corner (v 22) to a wall with an iron gate (v 2),
+     between a hibiscus planter on the street side and a parapet; the arch spans it facing south; the sword
+     stands on it. The ramp beside it climbs north along the podium to the deck at v -2. */
+  function U(u0,u1,v0,v1){ return ccw([P(u0,v0),P(u1,v0),P(u1,v1),P(u0,v1)]); }
+  function ubox(u0,u1,v0,v1,y0,y1,hex,sh){ prism(M,U(u0,u1,v0,v1),y0,y1,hex,hex,sh===undefined?0.85:sh); }
+  var WK0=-51.4, WK1=-48.8, RP0=-48.2, RP1=-46.0, RV0=-2.0, RV1=14.4;
+  flat(MG,U(WK0,WK1,2,22.2),0.08,DECK,1);
+  /* the street-side planter along the walk */
+  (function(){
+    ubox(-52.4,WK0,2.4,16.6,0,0.42,CASTD);
+    for(var v=2.6;v<16.3;v+=1.1){ var h=0.42+((v*7.3)%1)*0.3;
+      ubox(-52.3,-51.5,v,v+1.1,0.42,0.42+h,HEDGE,0.9); ubox(-52.25,-51.55,v+0.08,v+1.02,0.42+h,0.52+h,HEDGEL,1);
+      for(var f=0;f<3;f++){ var fv=v+0.2+((f*0.41+v)%0.8), fy=0.55+((f*0.3+v)%1)*h;
+        ubox(-52.36,-52.3,fv,fv+0.12,fy,fy+0.11,(f+Math.round(v))%3===0?0xF2D04A:0xD8262E,1); } }
+    col(U(-52.4,WK0,2.4,16.6),0.5);
+  })();
+  /* the cross wall at the north end, with a black iron gate */
+  ubox(WK0,RP0,1.7,2.0,0,2.45,CAST);
+  for(var gu=-50.9;gu<-49.1;gu+=0.13) ubox(gu,gu+0.03,1.66,1.7,0.1,2.1,IRON,0.9);
+  ubox(-50.95,-49.05,1.66,1.7,2.05,2.12,IRON,0.9); ubox(-50.95,-49.05,1.66,1.7,0.9,0.96,IRON,0.9);
+  col(U(WK0,RP0,1.6,2.0),2.45);
+  /* the parapet between the walk and the ramp, stepping up with it */
+  var RL=RV1-RV0, rampY=function(v){ return 0.08+(RH-0.08)*Math.max(0,Math.min(1,(RV1-v)/RL)); };
+  /* drawn as one wall with a sloped cap; the colliders step with it */
+  (function(){
+    var vS=RV1+1.0, yS=rampY(RV1)+0.95, yN=rampY(RV0)+0.95, vN=RV0;
+    function W3(u,v,y){ var p=P(u,v); return [p[0],y,p[1]]; }
+    var ow=[-DU[0],0,-DU[1]], oe=[DU[0],0,DU[1]], os=[DV[0],0,DV[1]], on=[-DV[0],0,-DV[1]];
+    emit(M,[W3(WK1,vS,0),W3(WK1,vN,0),W3(WK1,vN,yN),W3(WK1,vS,yS)],ow,CAST,0.92);
+    emit(M,[W3(RP0,vS,0),W3(RP0,vN,0),W3(RP0,vN,yN),W3(RP0,vS,yS)],oe,CAST,0.92);
+    emit(M,[W3(WK1,vS,0),W3(RP0,vS,0),W3(RP0,vS,yS),W3(WK1,vS,yS)],os,CAST,0.92);
+    emit(M,[W3(WK1-0.05,vS+0.05,yS),W3(RP0+0.05,vS+0.05,yS),W3(RP0+0.05,vN,yN),W3(WK1-0.05,vN,yN)],[0,1,0],CASTL,1.05);
+    emit(M,[W3(WK1-0.05,vS+0.05,yS-0.08),W3(WK1-0.05,vN,yN-0.08),W3(WK1-0.05,vN,yN),W3(WK1-0.05,vS+0.05,yS)],ow,CASTL,1);
+    for(var pv=vS;pv>RV0+0.001;pv-=1.0){ var v0=Math.max(RV0,pv-1.0); col(U(WK1,RP0,v0,pv),rampY(v0)+1.03); }
+  })();
+  /* the ramp: a sloped deck, colliders in one metre slices, handrails both sides */
+  (function(){
+    var A=P(RP0,RV1), B=P(RP1,RV1), C=P(RP1,RV0), D=P(RP0,RV0);
+    emit(M,[[A[0],0.08,A[1]],[B[0],0.08,B[1]],[C[0],RH,C[1]],[D[0],RH,D[1]]],[0,1,0],DECK,1);
+    var A2=P(RP0,22.0), B2=P(RP1,22.0);
+    emit(M,[[A2[0],0.08,A2[1]],[B2[0],0.08,B2[1]],[B[0],0.08,B[1]],[A[0],0.08,A[1]]],[0,1,0],DECK,1);
+    for(var v=RV1;v>RV0+0.001;v-=1.0) col(U(RP0,RP1,Math.max(RV0,v-1.0),v+(v===RV1?3.6:0)),rampY(Math.max(RV0,v-1.0)));
+    var FR=Face([0,RV1],[0,-1],[1,0],RL);     /* only for rail(): s north along the ramp, d = u */
+    [RP0+0.2,RP1-0.15].forEach(function(u){
+      var a=FR.W(0,u,0), b=FR.W(RL,u,0);
+      var seg=function(k){ var t0=k/10, t1=(k+1)/10, vA=RV1-RL*t0, vB=RV1-RL*t1, pa=P(u,vA), pb=P(u,vB), ya=rampY(vA)+1.0, yb=rampY(vB)+1.0;
+        var dx=pb[0]-pa[0], dz=pb[1]-pa[1], L=Math.hypot(dx,dz), nx=-dz/L*0.03, nz=dx/L*0.03;
+        emit(M,[[pa[0]-nx,ya+0.03,pa[1]-nz],[pa[0]+nx,ya+0.03,pa[1]+nz],[pb[0]+nx,yb+0.03,pb[1]+nz],[pb[0]-nx,yb+0.03,pb[1]-nz]],[0,1,0],RAIL,1.05);
+        emit(M,[[pa[0]-nx,ya-0.03,pa[1]-nz],[pb[0]-nx,yb-0.03,pb[1]-nz],[pb[0]-nx,yb+0.03,pb[1]-nz],[pa[0]-nx,ya+0.03,pa[1]-nz]],[-nx,0,-nz],RAIL,0.95);
+        emit(M,[[pa[0]+nx,ya-0.03,pa[1]+nz],[pb[0]+nx,yb-0.03,pb[1]+nz],[pb[0]+nx,yb+0.03,pb[1]+nz],[pa[0]+nx,ya+0.03,pa[1]+nz]],[nx,0,nz],RAIL,0.95); };
+      for(var k=0;k<10;k++) seg(k);
+      for(var q=0;q<=6;q++){ var vq=RV1-RL*q/6, pq=P(u,vq), yq=rampY(vq); postAt(M,pq[0],pq[1],yq,yq+1.0,0.03,RAIL,0.9); }
+    });
+  })();
+  /* the hedge along the podium edge above the ramp */
+  ubox(-46.0+0.15,-46.0+1.05,RV0,12.6,RH,RH+0.95,HEDGE,0.9); ubox(-46.0+0.2,-46.0+1.0,RV0,12.6,RH+0.95,RH+1.08,HEDGEL,1);
+  ubox(-46.25,-45.85,RV0,12.6,RH,RH+0.12,CASTL,1);
+
+  /* the arch across the walk, facing south: piers on the planter line and on the parapet */
+  var FA=Face([RP0,4.6],[-1,0],[0,1],4.0), A0=0, A1=4.0, OA=0.6, OB=3.2, AC=1.9, AR=1.3, ASP=2.7, ATOP=4.6, AD0=-0.6, AD1=0.6;
   [[A0,OA],[OB,A1]].forEach(function(p){
     var y=0, i=0;
-    while(y<ASP-0.01){ var hh=Math.min(i%2?0.28:0.46,ASP-y); fbox(F,p[0],p[1],-1.3,AD1+(i%2?0.03:0),y,y+hh,i%2?CAST:BRICK,{bot:i%2===1}); y+=hh; i++; }
-    fbox(F,p[0],p[1],-1.3,AD1,ASP,ATOP,BRICK,{noTop:1});
-    fcol(F,p[0],p[1],AD0,AD1+0.03,ATOP);
-    /* sconces */
-    var sc=(p[0]+p[1])/2; fbox(F,sc-0.05,sc+0.05,AD1,AD1+0.32,3.6,3.7,IRON,{bot:1}); fbox(F,sc-0.09,sc+0.09,AD1+0.25,AD1+0.42,3.35,3.75,IRON,{});
+    while(y<ASP-0.01){ var hh=Math.min(i%2?0.28:0.46,ASP-y); fbox(FA,p[0],p[1],AD0-(i%2?0.03:0),AD1+(i%2?0.03:0),y,y+hh,i%2?CAST:BRICK,{bot:i%2===1}); y+=hh; i++; }
+    fbox(FA,p[0],p[1],AD0,AD1,ASP,ATOP,BRICK,{noTop:1});
+    fcol(FA,p[0],p[1],AD0,AD1,ATOP);
+    var sc=(p[0]+p[1])/2; fbox(FA,sc-0.05,sc+0.05,AD1,AD1+0.3,3.5,3.6,IRON,{bot:1}); fbox(FA,sc-0.09,sc+0.09,AD1+0.22,AD1+0.4,3.25,3.65,IRON,{});
   });
   (function(){
-    var N=9, W=F.W;
+    var N=9, W=FA.W;
     function X(i,r){ var th=Math.PI*(1-i/N); return [AC+r*Math.cos(th), ASP+r*Math.sin(th)]; }
     for(var i=0;i<N;i++){
       var a=X(i,AR), b=X(i+1,AR), m=X(i+0.5,AR);
       [AD1,AD0].forEach(function(dd,side){
-        var want=side?[-F.nw[0],0,-F.nw[2]]:F.nw;
+        var want=side?[-FA.nw[0],0,-FA.nw[2]]:FA.nw;
         emit(M,[W(a[0],dd,a[1]),W(b[0],dd,b[1]),W(b[0],dd,ATOP),W(a[0],dd,ATOP)],want,BRICK,1);
-        var a2=X(i,AR+0.55), b2=X(i+1,AR+0.55), dz=dd+(side?-0.03:0.03), col2=i%2?BRICK:CAST;
-        emit(M,[W(a[0],dz,a[1]),W(b[0],dz,b[1]),W(b2[0],dz,b2[1]),W(a2[0],dz,a2[1])],want,col2,1);
+        var a2=X(i,AR+0.5), b2=X(i+1,AR+0.5), dz=dd+(side?-0.03:0.03), c2=i%2?BRICK:CAST;
+        emit(M,[W(a[0],dz,a[1]),W(b[0],dz,b[1]),W(b2[0],dz,b2[1]),W(a2[0],dz,a2[1])],want,c2,1);
       });
       var ds=AC-m[0], dy=ASP-m[1], l=Math.hypot(ds,dy)||1;
-      emit(M,[W(a[0],AD0,a[1]),W(b[0],AD0,b[1]),W(b[0],AD1,b[1]),W(a[0],AD1,a[1])],[F.tw[0]*ds/l,dy/l,F.tw[2]*ds/l],CASTD,0.92);
+      emit(M,[W(a[0],AD0,a[1]),W(b[0],AD0,b[1]),W(b[0],AD1,b[1]),W(a[0],AD1,a[1])],[FA.tw[0]*ds/l,dy/l,FA.tw[2]*ds/l],CASTD,0.92);
     }
-    fbox(F,A0-0.15,A1+0.15,AD0-0.1,AD1+0.1,ATOP,ATOP+1.05,CAST,{bot:1,back:1});
-    panel(F,A0,A1,AD1+0.105,ATOP+0.12,ATOP+0.95,R_GK);
-    panel(F,A0,A1,AD0-0.105,ATOP+0.12,ATOP+0.95,R_GK,true);
-    fbox(F,A0-0.3,A1+0.3,AD0-0.22,AD1+0.22,ATOP+1.05,ATOP+1.3,CASTL,{bot:1,back:1});
+    fbox(FA,A0-0.15,A1+0.15,AD0-0.1,AD1+0.1,ATOP,ATOP+1.0,CAST,{bot:1,back:1});
+    panel(FA,A0-0.1,A1+0.1,AD1+0.105,ATOP+0.1,ATOP+0.9,R_GK);
+    panel(FA,A0-0.1,A1+0.1,AD0-0.105,ATOP+0.1,ATOP+0.9,R_GK,true);
+    fbox(FA,A0-0.3,A1+0.3,AD0-0.22,AD1+0.22,ATOP+1.0,ATOP+1.25,CASTL,{bot:1,back:1});
   })();
-  /* the ramp, up east through the podium between handrails */
-  var RL=24, RS0=OA, RS1=OB;
+  /* the Trojan sword on its drum, on the walk south of the arch */
   (function(){
-    var W=F.W;
-    emit(M,[W(RS0,AD1+0.4,0.08),W(RS1,AD1+0.4,0.08),W(RS1,0,0.08),W(RS0,0,0.08)],[0,1,0],DECK,1);
-    emit(M,[W(RS0,0,0.08),W(RS1,0,0.08),W(RS1,-RL,RH),W(RS0,-RL,RH)],[0,1,0],DECK,1);
-    for(var k=0;k<RL;k++) fcol(F,RS0,RS1,-k-1,-k+(k?0:1.5),0.08+(RH-0.08)*(k+1)/RL);
-    [RS0+0.3,RS1-0.3].forEach(function(s){
-      rail(F,s,0.4,1.0,-RL,RH+1.0,0.06,RAIL);
-      for(var d=0;d>=-RL;d-=3){ var yy=0.08+(RH-0.08)*(-d)/RL; fbox(F,s-0.03,s+0.03,d-0.03,d+0.03,yy,yy+1.0,RAIL,{}); }
-    });
-  })();
-  /* the Trojan sword on its drum, in front of the arch */
-  (function(){
-    var c=F.G(34.0,2.0);
+    var c=P(-50.1,10.0), FSw=Face([-50.1,10.0],[0,1],[-1,0],1);
     cyl(c,0.45,0.42,0,0.95,CASTL,14);
-    fbox(F,33.75,34.25,2.0+0.43,2.0+0.46,0.42,0.72,0x24211E,{});
-    fbox(F,33.95,34.05,1.985,2.015,0.95,1.62,SILVER,{});
+    fbox(FSw,-0.25,0.25,0.43,0.46,0.42,0.72,0x24211E,{});
+    fbox(FSw,-0.05,0.05,-0.015,0.015,0.95,1.62,SILVER,{});
     cyl(c,0.26,0.26,1.62,1.68,GOLD,12);
     for(var i=0;i<5;i++) cyl(c,i%2?0.07:0.085,i%2?0.07:0.085,1.68+i*0.07,1.75+i*0.07,i%2?SILVER:BRONZE,8);
     ball(c,2.08,0.12,GOLD);
-    col([F.G(33.5,1.5),F.G(34.5,1.5),F.G(34.5,2.5),F.G(33.5,2.5)],0.95);
+    col([[c[0]-0.5,c[1]-0.5],[c[0]+0.5,c[1]-0.5],[c[0]+0.5,c[1]+0.5],[c[0]-0.5,c[1]+0.5]],0.95);
   })();
-  /* the BRITTINGHAM FIELD pylon */
+  /* the BRITTINGHAM FIELD pylon at the south west corner: the name to the street, BLOOM to the walk east */
   (function(){
-    var s0=38.6, s1=43.0, d0=-1.2, d1=2.2, h=5.8;
-    fbox(F,s0,s1,d0,d1,0,h,CASTL,{});
-    fbox(F,s0-0.06,s1+0.06,d0,d1+0.06,h,h+0.16,CAST,{bot:1});
-    panel(F,s0+0.15,s1-0.15,d1+0.006,0.4,5.5,R_PY);
-    /* the side toward the ramp */
-    var FS=Face([-50.8-d1,-23.4+s0],[1,0],[0,-1],d1-d0);
-    panel(FS,0.2,FS.L-0.2,0.006,0.4,5.5,R_BL);
-    fcol(F,s0,s1,d0,d1,h+0.16);
+    var FP=Face([-46.0,16.0],[0,-1],[-1,0],3.4);     /* west face, over the foot of the ramp: s north from the corner, d west */
+    var h=5.8;
+    ubox(-46.0,-42.4,12.6,16.0,0,h,CASTL,0.9);
+    ubox(-46.06,-42.34,12.54,16.06,h,h+0.16,CAST,1);
+    for(var y=0.85;y<h;y+=0.85){ emit(M,[FP.W(0,0.004,y),FP.W(3.4,0.004,y),FP.W(3.4,0.004,y+0.02),FP.W(0,0.004,y+0.02)],FP.nw,CASTD,1); }
+    panel(FP,0.1,3.3,0.006,0.4,5.5,R_PY);
+    var FSo=Face([-46.0,16.0],[1,0],[0,1],3.6);      /* south face, toward the walk between the field and the track */
+    panel(FSo,0.2,3.4,0.006,0.4,5.5,R_BL);
+    col(U(-46.0,-42.4,12.6,16.0),h+0.16);
   })();
-  NO_PLANT.push(ccw([F.G(-1,-5),F.G(46,-5),F.G(46,4.2),F.G(-1,4.2)]));
+  /* the flat walk east between the podium and the track: concrete with a brick edge */
+  flat(MG,U(-52.2,51,16.1,20.1),0.07,0xC9C3B6,1);
+  flat(MG,U(-52.2,51,16.1,16.45),0.075,0x9C4A38,1); flat(MG,U(-52.2,51,19.75,20.1),0.075,0x9C4A38,1);
+  PATHS.push({w:3.0,hide:1,pts:[P(-53,18.1),P(50,18.1)]});
+  NO_PLANT.push(U(-55,52,-28,20.3));
 
   /* ---------------- lamps with banners and magnolias down Watt Way ---------------- */
   function lamp(c,along,bannerRG,h,y0){
