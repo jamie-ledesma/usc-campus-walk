@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -298,6 +298,21 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   the frisbee flies flat on a curve; a golden dog chases it (keeps 0.8 m from people), a black dog wanders between open lawn spots
   (DSPOT) on clear runs and re-targets when boxed in. Every mesh on the instance-colour material gets colours set (a null
   instanceColor there breaks the whole frame). Chains onto `updateTailgate`. Dev: `window.__alumniTailgate` (counts, `P`, `state()`).
+- `a2zh_ped.js`: Physical Education Building (1929) on Watt Way, in `HAND_HALLS` (label height 18; Jamie asked for it from photos
+  of the entrance and steps). Footprint in `world.txt` squared up: `PEDB` in `a_world.js` (grid frame: origin at the north west
+  corner, u grid east, v grid south; block u 0..60, v 0..75.6, west bay projecting 1.1 m at v 30..45.6 round the entrance at
+  v=VC 37.8) adds the red brick walk along the west front (hidden PATHS, drawn here), the concrete walk out to the Watt Way walk,
+  a hidden walk up the steps, and keeps props off the forecourt (`front`, NO_PLANT). `run()` builds a wall: cast stone plinth
+  and cap, rectangular ground windows with stone sills and lintels, stone string course, tall round arched windows with stone
+  voussoir rings (`archHead()`: spandrel strips, soffit, ring, keystone), brick corbel table, stone cornice, parapet, quoins.
+  The bay: brick flanks with quoins, and a cream cast stone frontispiece above the parapet with the great arch (rusticated
+  jambs, impost blocks, double archivolt, keystone with a head); inside it two columns carry an entablature lettered PHYSICAL
+  EDUCATION with stone urns, three glass doors below, the fan window above; brick lozenges in the frieze and parapet, a crest,
+  lanterns on the jambs. Landing between cheek blocks (3560 on the north one), five steps, then a platform and three
+  chamfered steps that wrap along the front; every riser has a red edge. Hedges, topiary standards, trees along the walk.
+  The east front leaves s 29.3..46.9 plain for the three-arched door pavilion that `a2b_assoc.js` draws. Raised gym block with
+  clerestory windows on the roof. Four draw calls (world, ground, brick walk texture, one atlas for windows, doors, fan window,
+  lettering); about 17k triangles (`window.__ped`, `__ped.look()` gives a front camera).
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)

@@ -420,6 +420,25 @@ var GOULD=(function(){
   return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,court:court,EC:EC};
 })();
 
+/* Physical Education Building (1929), built in a2zh_ped.js. Campus grid frame: origin at the north west corner,
+   u grid east, v grid south. The block is u 0..60, v 0..75.6; the west front on Watt Way has a bay projecting
+   1.1 m at v 30..45.6 holding the great arched entrance (centre VC) up a flight of steps. The east front's
+   three-arched door on Associates Park is drawn by a2b_assoc.js (east wall at u 60, door at v 37.5).
+   Adds the red brick walk along the west front (drawn by a2zh, hidden here), the concrete walk from it out to
+   the Watt Way walk, a hidden walk up the steps, and keeps props off the forecourt and the strip of lawn. */
+var PEDB=(function(){
+  var O=[-105.0,-134.0], du=[0.8862,0.4633], dv=[-0.4633,0.8862], U=60.0, V=75.6, VC=37.8;
+  function P(u,v){ return [O[0]+u*du[0]+v*dv[0], O[1]+u*du[1]+v*dv[1]]; }
+  function loc(p){ var x=p[0]-O[0], z=p[1]-O[1]; return [x*du[0]+z*du[1], x*dv[0]+z*dv[1]]; }
+  function poly(l){ var r=l.map(function(q){ return P(q[0],q[1]); }); if(ringArea(r)<0) r.reverse(); return r; }
+  var WK=[-12.9,-9.4];                       /* the brick walk, u from..to */
+  PATHS.push({w:3.4,hide:1,pts:[P((WK[0]+WK[1])/2,-8.6),P((WK[0]+WK[1])/2,86.2)]});
+  PATHS.push({w:3.2,pts:[P(WK[0]+0.4,VC),P(-22.4,VC)]});
+  PATHS.push({w:3.0,hide:1,pts:[P(WK[1],VC),P(-1.6,VC)]});
+  var front=poly([[-13.4,-3],[0,-3],[0,79],[-13.4,79]]);
+  return {O:O,du:du,dv:dv,P:P,loc:loc,poly:poly,U:U,V:V,VC:VC,WK:WK,front:front};
+})();
+
 /* Moreton Fig, the restaurant in Sample Hall, and its patio round the Moreton Bay fig (a2zc_moreton.js).
    Frame on Sample Hall's east wall: origin at its north east corner, u out of the wall (about grid east,
    toward Trousdale), v along it (about grid south, toward Zumberge). The east wall runs v 0..32.65, the
@@ -1363,7 +1382,7 @@ function(M,B){ B.hand=1; B.dmc=1; return 17.0; },
 };
 CUSTOM['Jill & Frank Fertitta Hall']=CUSTOM['Fertitta Hall'];
 /* built by hand in a2i_halls.js, a2o_lewis.js, a2q_widney.js and a2s_union.js: the generic pass leaves these footprints empty */
-var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35,'Hancock Foundation Building':17,'USC Gould School of Law':17,'Birnkrant Residential College':31};
+var HAND_HALLS={'Grace Ford Salvatori Hall':14,'Michelson Hall':22,'Lewis Hall':14,'Widney Alumni House':13,'Student Union':18,'Galen Center':31,'Leavey Library':19,'Bovard Administration Building':15,'Shrine Auditorium':35,'Hancock Foundation Building':17,'USC Gould School of Law':17,'Birnkrant Residential College':31,'Physical Education Building':18};
 Object.keys(HAND_HALLS).forEach(function(nm){ CUSTOM[nm]=function(M,B){ B.hand=1; return HAND_HALLS[nm]; }; });
 CUSTOM['Arts and Humanities Residential College at Parkside']=CUSTOM['Parkside Apartments'];
 
@@ -3066,7 +3085,8 @@ var SPORT_PLACES=[], NO_PLANT=[
   NO_PLANT.push(BOVARD.lawn.slice());    /* Bovard's forecourt and front lawns: a2x_bovard.js */
   NO_PLANT.push(FELIXP.plaza.slice(),FELIXP.bed.slice());   /* the Felix Field entry plaza (a2w_felix.js) */
   NO_PLANT.push(HANC.lawn.slice());      /* the Hancock Foundation front lawn (a2zb_hancock.js) */
-  NO_PLANT.push(offsetRing(GOULD.court,1.5));   /* the Gould School of Law forecourt and its edge (a2zd_gould.js) */
+  NO_PLANT.push(offsetRing(GOULD.court,1.5));
+  NO_PLANT.push(PEDB.front.slice());     /* the Physical Education Building forecourt and front walk (a2zh_ped.js) */   /* the Gould School of Law forecourt and its edge (a2zd_gould.js) */
   for(i=0;i<WATER.length;i++){ var la=longAxisOf(WATER[i]), A=Math.abs(ringArea(WATER[i]));
     if(la[2]>12&&A/la[2]<la[2]/3){ var ow=offsetRing(WATER[i],6); if(ow) NO_PLANT.push(ow); } }
 })();
