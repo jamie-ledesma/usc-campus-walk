@@ -144,19 +144,7 @@
   oriel(FS,ob0,ob1,true);
   FS.block(ob0+1.1,ob1-1.1,0.7,0.95,0,5.2,C.CAST,0.8);
   FS.tile(TL.GOTHIC,ob0+1.35,ob1-1.35,0.05,5.05,0.98);
-  /* "USC Village" sign wall and the stone pinnacle pier, in the planting in front */
-  var sg0=29.0, sg1=35.2, sd0=1.6, sd1=2.15;
-  FS.block(sg0,sg1,sd0,sd1,0,1.25,C.BRICK,0.8);
-  FS.block(sg0-0.08,sg1+0.08,sd0-0.06,sd1+0.06,1.25,1.42,C.CAST,0.85);
-  FS.block(sg0+0.6,sg1-0.6,sd1,sd1+0.06,0.22,1.12,C.CAST_L,0.9);
-  var sp=FS.p3((sg0+sg1)/2,sd1+0.06,0.67);
-  facadeText('USC Village',sp[0],sp[2],FS.n[0],FS.n[1],0.67,4.4,0.42,'#5A4A3A');
-  VK.collider(FS.ring(sg0-0.1,sg1+0.1,sd0-0.1,sd1+0.1),1.5);
-  var pp=36.1, pq=1.85;
-  FS.block(pp-0.42,pp+0.42,pq-0.42,pq+0.42,0,0.5,C.CAST,0.8);
-  FS.block(pp-0.3,pp+0.3,pq-0.3,pq+0.3,0.5,2.4,C.CAST_L,0.85);
-  pinnacle(FS,pp,pq,2.4,1.9);
-  VK.collider(FS.ring(pp-0.45,pp+0.45,pq-0.45,pq+0.45),3);
+  /* (the "USC Village" monument signs at the paseo mouth are drawn by a2zw_v_plaza.js) */
 
   /* ================= east front (the entrance walk from Jefferson to the plaza) ================= */
   var LE=FE.L, pe0=LE-pv1n*LE/WV;                            /* 55.57; the pavilion starts at s pe0 */
