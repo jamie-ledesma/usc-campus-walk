@@ -147,9 +147,9 @@
       var e=0.025, ex=[F.t[0]*e,0,F.t[1]*e];
       cq(M,[[a[0]-ex[0],a[1],a[2]-ex[2]],[a[0]+ex[0],a[1],a[2]+ex[2]],[b[0]+ex[0],b[1],b[2]+ex[2]],[b[0]-ex[0],b[1],b[2]-ex[2]]],[F.n[0],0.6,F.n[1]],[cR,cR,cR,cR]); });
     /* letters on the canopy (white, two lines, like the real sign) */
-    var p1=F.pt(mid,cd-0.25);
-    facadeText('USC VILLAGE',p1[0],p1[1],F.n[0],F.n[1],4.06,5.2,0.78,'#F4F2EC');
-    facadeText('FITNESS CENTER',p1[0],p1[1],F.n[0],F.n[1],3.58,5.2,0.78,'#F4F2EC');
+    var p1=F.pt(mid,cd+0.02);       /* at the canopy's front edge, clear of the piers */
+    facadeText('USC VILLAGE',p1[0],p1[1],F.n[0],F.n[1],4.06,3.4,0.6,'#F4F2EC');
+    facadeText('FITNESS CENTER',p1[0],p1[1],F.n[0],F.n[1],3.62,3.4,0.6,'#F4F2EC');
     /* thin dark backing bars the letters stand on */
     F.block(mid-1.45,mid+1.45,cd-0.32,cd-0.26,3.34,3.36,0x1E1B19,0.8);
   })();

@@ -4268,6 +4268,7 @@ var TREE_POS=[];
 
 /* ================================================== campus props & planting */
 var BENCHES=[];                     /* [x,z,yaw] of every bench; the crowd sits on them */
+var VILLAGE_LAMP_PTS=[];            /* campus lamp spots inside USC Village: a2zw_v_plaza.js puts Village lanterns there */
 (function(){
   var lampPts=[], benchPts=[], rackPts=[], palmRow=[], shadeRow=[], hedgeRow=[];
   /* a coarse hash of every walk, so nothing gets planted across a crossing */
@@ -4460,6 +4461,19 @@ var BENCHES=[];                     /* [x,z,yaw] of every bench; the crowd sits 
   var globeM=new T.MeshLambertMaterial({color:0x3A3E44,emissive:0x2a2109,flatShading:true});
   var bannerM=new T.MeshLambertMaterial({color:0x8E1218,flatShading:true,side:T.DoubleSide});
   var bannerG=new T.PlaneGeometry(0.52,1.35);
+  /* USC Village has its own lanterns (a2zw_v_plaza.js draws them at these spots), and the paseo mouth on
+     Jefferson keeps its bollard row clear. Filtered after placement, so nothing else moves. */
+  (function(){
+    var VR=CAMPUS.filter(function(b){ return VILLAGE_NAMES[b.name]; }).map(function(b){ return b.ring; });
+    function sd(x,z,a,b){ var dx=b[0]-a[0], dz=b[1]-a[1], L2=dx*dx+dz*dz||1, t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/L2));
+      return Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t); }
+    function inVillage(x,z){ if(inRing(PLAZAS[2],x,z)) return true;
+      for(var i=0;i<VR.length;i++){ var r=VR[i]; if(inRing(r,x,z)) return true;
+        for(var k=0;k<r.length;k++) if(sd(x,z,r[k],r[(k+1)%r.length])<11) return true; }
+      return false; }
+    lampPts=lampPts.filter(function(p){ if(inVillage(p[0],p[1])){ VILLAGE_LAMP_PTS.push([p[0],p[1]]); return false; } return true; });
+    benchPts=benchPts.filter(function(q){ return Math.hypot(q[0]-20.1,q[1]+419.3)>6.5; });
+  })();
   var nLamp=lampPts.length;
   var iPole=new T.InstancedMesh(poleG,poleM,nLamp),
       iBase=new T.InstancedMesh(baseG,poleM,nLamp),

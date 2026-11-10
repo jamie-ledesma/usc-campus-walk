@@ -29,6 +29,7 @@
   var seed=20170817; function R(){ seed=(seed*16807)%2147483647; return (seed-1)/2147483646; }
   var O=[27,-517.75], G=VK.frame(O,[0.8829,0.4695]);
   var RING=PLAZAS[2];
+  var VLAMPS=[];                                  /* every Village lantern, so the umbrellas keep clear of them */
   var Y0=0.14;                                   /* paving level: above the generic walks (0.132) */
   var V3=new T.Vector3(), D3=new T.Object3D();
   function W(u,v){ return G.P(u,v); }
@@ -259,7 +260,12 @@
     [[-11.8,-6.2],[11.8,-6.2],[-11.8,6.2],[11.8,6.2],[26.5,-17.8],[26.5,10.5],[39.6,-17.8],[17.2,-15.5],[-7.6,-15.5],[18,14.5],[-8.5,18.5]].forEach(function(q){
       var p=W(q[0],q[1]);
       if(!inRing(RING,p[0],p[1])||laneGap(p[0],p[1])<0.4) return;
-      lamp(p[0],p[1],Math.atan2(G.du[0],G.du[1])); lamps++;
+      lamp(p[0],p[1],Math.atan2(G.du[0],G.du[1])); lamps++; VLAMPS.push(p);
+    });
+    /* the campus lamps that stood in the Village's streets become Village lanterns (a_world.js VILLAGE_LAMP_PTS) */
+    (typeof VILLAGE_LAMP_PTS!=='undefined'?VILLAGE_LAMP_PTS:[]).forEach(function(p){
+      for(var i=0;i<VLAMPS.length;i++) if(Math.hypot(p[0]-VLAMPS[i][0],p[1]-VLAMPS[i][1])<4) return;
+      lamp(p[0],p[1],Math.atan2(G.du[0],G.du[1])); lamps++; VLAMPS.push(p);
     });
     VPL.lamps=lamps;
   })();
@@ -286,6 +292,7 @@
       var l=G.loc([x,z]);
       if(inFountain(l[0],l[1],1.7)) return false;
       if(Math.hypot(x-HX,z-HZ)<STEP_R[0]+2.8) return false;
+      for(var lp=0;lp<VLAMPS.length;lp++) if(Math.hypot(x-VLAMPS[lp][0],z-VLAMPS[lp][1])<1.7) return false;
       for(var i=0;i<PLANTERS.length;i++) if(Math.abs(l[0]-PLANTERS[i][0])<3.2&&Math.abs(l[1]-PLANTERS[i][1])<3.2) return false;
       return true;
     }
