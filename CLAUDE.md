@@ -355,6 +355,20 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
   The east front leaves s 29.3..46.9 plain for the three-arched door pavilion that `a2b_assoc.js` draws. Raised gym block with
   clerestory windows on the roof. Four draw calls (world, ground, brick walk texture, one atlas for windows, doors, fan window,
   lettering); about 17k triangles (`window.__ped`, `__ped.look()` gives a front camera).
+- USC Village (Jamie asked for it to be far more realistic; built by one agent per building from research and photos):
+  `a2zm_village_kit.js` is the kit **VK** every Village file uses: a running bond brick texture mapped in metres, a window atlas
+  (`VK.TILE`: square and arched windows in stone surrounds, Gothic, oriel bay with lancets, shopfronts, arcade, door, clock, louvres,
+  rose), textured paving, `VK.face(A,B,out)` (s runs left to right as seen from outside, d out from the wall), `VK.roof`,
+  `VK.collider`. Everything goes into five shared meshes built once by `a2zx_village_end.js`. The buildings are in `HAND_HALLS` and
+  `VILLAGE_NAMES` (no generic hedge). Files: `a2zn_v_cale.js` (Cale, west half of Building 6; the Fitness Center is its ground floor on
+  Jefferson, `a2zv_v_fitness.js` builds that pavilion and Cale bridges over it from 11.5 m), `a2zo_v_irani.js` (Irani, east half; the
+  roofs meet Cale's in a valley), `a2zp_v_mcmorrow.js` (Building 7, C round a one storey retail block with a deck), `a2zq_v_nemirovsky.js`
+  and `a2zr_v_bohnett.js` (Building 8; Starbucks, Bohnett's plaza shops), `a2zs_v_mccarthy.js` (McCarthy Honors, the 44 m clock tower
+  and spire, the plaza arcade with Dulce, the dining hall), `a2zt_v_cowlings.js` and `a2zu_v_illium.js` (Building 9: Target and Trader
+  Joe's on the plaza, the pergola, the bridge archway to McCarthy; Illium, real spelling Ilium, shares z=-609), `a2zw_v_plaza.js` (the
+  paving, the long fountain with jets, Hecuba, red and yellow umbrellas, lamps, benches, monument signs; PLAZAS[2] was redrawn wall to
+  wall, the generic Hecuba statue and plaza water are skipped and the plaza is in NO_PLANT). Most share eaves at about 18.3 to 18.4 m:
+  a 5.5 m retail ground storey and four 3.2 m floors. Dev hooks: `window.__village` (shared mesh counts), `__vplaza`, `__cale` etc.
 - Doheny Memorial Library, Taper Hall, Zumberge Hall, Fertitta Hall in `a_world.js` CUSTOM.
 
 ## Crowd (`e_crowd.js`)
