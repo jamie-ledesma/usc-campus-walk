@@ -2593,8 +2593,9 @@ var PLAZAS=[
   HAHN.ring.slice(),
   /* the Campus Center terrace */
   TCC?TCC.ring.slice():(function(){ var r=[]; for(var i=0;i<18;i++){ var a=i/18*6.2832; r.push([-77+Math.cos(a)*21,50+Math.sin(a)*21]); } return r; })(),
-  /* USC Village plaza */
-  [[-40,-530],[24,-552],[60,-532],[92,-528],[84,-505],[62,-468],[45,-472],[0,-498]]
+  /* USC Village plaza (Hecuba's piazza), wall to wall between the Village buildings; furnished by a2zw_v_plaza.js */
+  [[2,-515],[14,-538],[16,-537],[20,-544],[18,-545],[21,-551],[35,-560],[59,-560],[58,-543],[72,-543],[72,-560],[95,-560],
+   [92,-516],[74,-484],[78.5,-473.5],[63,-465],[30,-481],[-12,-504]]
 ];
 PLAZAS.forEach(function(r){ if(ringArea(r)<0) r.reverse(); });
 function inPlaza(x,z){ for(var i=0;i<PLAZAS.length;i++) if(inRing(PLAZAS[i],x,z)) return true; return false; }
@@ -3148,6 +3149,7 @@ var MCQ_RING=null, FERT_COURT=[[239,193],[252,199.5],[256,201],[263,205],[254,22
   if(ringArea(FERT_COURT)<0) FERT_COURT.reverse();
   NO_PLANT.push(offsetRing(FERT_COURT,1.5));
   NO_PLANT.push(HAHN.ring.slice());   /* Hahn Plaza: open brick, lamps placed in a2m_hahn.js */
+  NO_PLANT.push(PLAZAS[2].slice());   /* the USC Village plaza is furnished by a2zw_v_plaza.js */
 })();
 /* Hammock Hill, the raised lawn east of McCarthy Quad (OSM way 221557193), built in a2t_hammock.js.
    Only the benches stay off it here (they draw no random numbers, so nothing else moves). */
@@ -4155,6 +4157,7 @@ var TREE_POS=[];
   for(var i=0;i<POINTS.length;i++){
     var P0=POINTS[i]; if(P0.k==='t') continue;
     if(Math.hypot(P0.x-20,P0.z-61)<4) continue;   /* Traveler stands here instead */
+    if(/Hecuba/.test(P0.name)){ NAMED_PLACES.push({name:P0.name,x:P0.x,z:P0.z,h:7.5}); continue; }   /* built in a2zw_v_plaza.js */
     var g=new T.Group(); g.position.set(P0.x,0,P0.z);
     var isTommy = /Tommy Trojan/i.test(P0.name);
     if(isTommy){ g.rotation.y=HAHN.rot; g.position.y=HAHN.baseH; }   /* on his stepped base (a2m_hahn.js), facing the plaza */
@@ -4653,6 +4656,7 @@ var BENCHES=[];                     /* [x,z,yaw] of every bench; the crowd sits 
     var cwq=centroid(ring);
     if(Math.hypot(cwq[0]-18,cwq[1]-43)<14) continue;   /* Hahn Plaza, built with Traveler */
     if(inRing(LEAVEY.plaza,cwq[0],cwq[1])) continue;   /* Leavey's reflecting pool, a2v_leavey.js */
+    if(inRing(PLAZAS[2],cwq[0],cwq[1])) continue;      /* the Village fountain, a2zw_v_plaza.js */
     var laW=longAxisOf(ring);
     if(laW[2]>12&&A/laW[2]<laW[2]/3){             /* long and thin: a reflecting pool */
       fountainRing(M,MGf,ring,0,0); nFount++; continue;
