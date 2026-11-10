@@ -183,7 +183,8 @@ var VK=(function(){
     hipRoof(M,e,y+0.45,rise||4.2,Math.min((rise||4.2)*1.3,9),C.ROOF);
   }
   /* brick on every edge of a ring from y0 to y1 (outward faces), e.g. a whole block */
-  function brickRing(ring,y0,y1){ var r=ring.slice(); if(ringArea(r)<0) r.reverse();
+  /* (a ring with positive ringArea runs so that the right hand side of each edge is INSIDE, so walk it the other way) */
+  function brickRing(ring,y0,y1){ var r=ring.slice(); if(ringArea(r)>0) r.reverse();
     for(var i=0;i<r.length;i++){ var a=r[i], b=r[(i+1)%r.length], dx=b[0]-a[0], dz=b[1]-a[1], L=Math.hypot(dx,dz); if(L<0.05) continue;
       face(a,b,null).brick(0,L,y0,y1,0); } }
   /* paving (textured, in metres) on a ring at height y */
