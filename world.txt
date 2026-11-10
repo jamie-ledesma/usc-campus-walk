@@ -208,7 +208,7 @@ f35.0|Shrine Auditorium||301,-270.1 76,40.4 36,-67.8 -5.2,-2.7 44.6,-83.7 -74,-3
 f23|University Gateway||421,-217 -1,-1 75,-139 5,3 2,-4 63,34 -4,6 8,4 -73,133 -6,-3 -3,5 -4,-2 -2,5 -64,-34
 v19|McMorrow Residential College||35,-415 18,-33 9,-16 2,0 6,4 29,62 -8,14
 v19|Irani Residential College||-40,-454 28,-50 42,23 -28,48
-v19|Cale Residential College||-40,-454 -9,-4 1,-2 -29,-14 20,-37 -1,0 7,-14 10,4 6,4 0,1 14,9 1,-2 8,5
+v19|Cale Residential College||-77,-474 15,8.1 6.4,-12.1 14.7,7.9 -6.6,12 7.5,4.1 28,-50 -39,-21
 v19|Nemirovsky Residential College||103,-455 0,-2 16,-2 1,6 7,0 4,43 -6,11 -14,-2 -22,-48
 v19|Bohnett Residential College||89,-449 -15,-35 18,-32 26,1 7,55 -21.5,4.3
 b12.0|Zemeckis Center for Digital Arts||517,-377 19,-35 16,9 -2,3 50,26 -10,19 -3,-2 -7,15
