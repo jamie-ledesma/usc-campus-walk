@@ -210,7 +210,7 @@ v19|McMorrow Residential College||35,-415 18,-33 9,-16 2,0 6,4 29,62 -8,14
 v19|Irani Residential College||-40,-454 28,-50 42,23 -28,48
 v19|Cale Residential College||-40,-454 -9,-4 1,-2 -29,-14 20,-37 -1,0 7,-14 10,4 6,4 0,1 14,9 1,-2 8,5
 v19|Nemirovsky Residential College||103,-455 0,-2 16,-2 1,6 7,0 4,43 -6,11 -14,-2 -22,-48
-v19|Bohnett Residential College||89,-449 -14,-27 -2,-6 2,-3 -1,-1 18,-30 26,1 7,55 -22,4 1,1
+v19|Bohnett Residential College||89,-449 -15,-35 18,-32 26,1 7,55 -21.5,4.3
 b12.0|Zemeckis Center for Digital Arts||517,-377 19,-35 16,9 -2,3 50,26 -10,19 -3,-2 -7,15
 b27.0|Engemann Student Health Center||-290,-526 0,2 5,0 0,10 -6,0 1,5 -24,0 -9,18 -37,-19 0,-15
 b45.0|King Hall||-256,-456 16,-31 23,11 -19,36 -10,3 -11,-6 -5,-8 2,-4
