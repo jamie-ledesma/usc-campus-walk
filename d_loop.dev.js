@@ -218,10 +218,11 @@ function update(dt){
 /* ---- keeping it smooth -------------------------------------------------
    Two things. First, nothing past the fog is drawn: the world and city chunks
    are switched off by distance a few times a second. Second, a ladder: if the
-   frame rate stays under 27 for a few seconds it steps down one rung, giving
-   up resolution and shadows first, then the far city's cars and trees and
+   frame rate stays under 34 for a few seconds it steps down one rung, giving
+   up resolution (2, then 1.5, then 1) and shadows first, then the far city's cars and trees and
    some view distance. It only ever steps down, so it cannot flicker. */
 var QT=[{pr:2,   sh:2048, tree:1,    palm:1,    car:1, fog:1600},
+        {pr:1.5, sh:2048, tree:1,    palm:1,    car:1, fog:1600},
         {pr:1,   sh:1024, tree:1,    palm:1,    car:1, fog:1600},
         {pr:1,   sh:1024, tree:0.5,  palm:0.6,  car:0, fog:1250},
         {pr:0.8, sh:0,    tree:0.25, palm:0.35, car:0, fog:1000},
@@ -248,7 +249,7 @@ function quality(){
   qAcc+=dt; qFrames++;
   if(qAcc<2.5) return;
   var fps=qFrames/qAcc; qAcc=0; qFrames=0;
-  if(fps<27){ applyQ(QL+1); qWarm=0.5; }
+  if(fps<34){ applyQ(QL+1); qWarm=0.5; }
 }
 var CULL=[], cullTick=9;
 function cullFar(dt){
@@ -294,6 +295,7 @@ function frame(){
   if(started&&!paused) update(dt); else if(!started) attract(dt);
   renderer.render(scene,camera);
   quality(dt);
+  perfTune(dt);
 }
 
 /* ============================================================= start/pause */
@@ -352,7 +354,9 @@ scene.traverse(function(o){
   var b=o.geometry.boundingSphere; if(!b){ o.geometry.computeBoundingSphere(); b=o.geometry.boundingSphere; }
   CULL.push([o,b.center.x,b.center.z,b.radius]);
 });
-if(touchMode) applyQ(1);                          /* phones and tablets start one rung down */
+if(touchMode) applyQ(2);                          /* phones and tablets start at pixel ratio 1 */
+/* compile every shader now, so the first look at something new does not hitch */
+try{ renderer.compile(scene,camera); }catch(e){}
 /* --------------------------------------------------------------- boot ---- */
 document.getElementById('bcount').textContent=CAMPUS.length.toLocaleString();
 document.getElementById('ccount').textContent=BUILDINGS.length.toLocaleString();
@@ -375,6 +379,7 @@ window.__cull=function(){ var v=0; for(var i=0;i<CULL.length;i++) if(CULL[i][0].
 window.__attract=function(i,t){ attPin=(i===undefined)?null:[i,t]; };
 window.__bounds={inBounds:inBounds,clamp:boundsClamp,ring:BOUNDS,spots:function(){ return SPOTS.filter(function(s){ return !inBounds(s.x,s.z); }).map(function(s){ return s.name; }); }};
 window.__step=function(dt,n){ for(var i=0;i<n;i++) update(dt); };
+window.__perfTune=function(dt,n){ for(var i=0;i<(n||1);i++) perfTune(dt); };
 window.__crowd=function(){ return CROWD_DEV; };
 window.__crowdTick=function(dt,n){ var t=performance.now(); for(var i=0;i<n;i++) updateCrowd(dt); return (performance.now()-t)/n; };
 window.__band=function(){ return {on:bandOn,playing:_bandSrc.length,dur:_bandBuf?+_bandBuf.duration.toFixed(2):null,ends:+_bandEnds.toFixed(1),gain:_bandGain?+_bandGain.gain.value.toFixed(4):null,ac:AC&&AC.state,t:AC&&+AC.currentTime.toFixed(1)}; };

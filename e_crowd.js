@@ -442,7 +442,7 @@ function halfEdge(a,b){ for(var e=CG.start[a];e<CG.start[a+1];e++) if(CG.nb[e]==
   }
   for(i=0;i<STU.length;i++){
     var s=STU[i], V=VAR[s.v], bb=rr(0.94,1.06);
-    tint.setRGB(bb,bb*rr(0.995,1.005),bb*rr(0.99,1.01));
+    tint.setRGB(bb,bb*rr(0.995,1.005),bb*rr(0.99,1.01)); s.tint=tint.clone();
     V.head.setColorAt(s.slot,tint); V.body.setColorAt(s.slot,tint);
     V.armL.setColorAt(s.slot,tint); V.armR.setColorAt(s.slot,tint);
     V.legL.setColorAt(s.slot,tint); V.legR.setColorAt(s.slot,tint);
@@ -707,10 +707,13 @@ function halfEdge(a,b){ for(var e=CG.start[a];e<CG.start[a+1];e++) if(CG.nb[e]==
     _partM.compose(_pp.set(x,y,z),_qq,_ss);
     return _outM.multiplyMatrices(root,_partM);
   }
-  function writeHidden(s){ var V=VAR[s.v];
-    V.head.setMatrixAt(s.slot,_zero); V.body.setMatrixAt(s.slot,_zero);
-    V.armL.setMatrixAt(s.slot,_zero); V.armR.setMatrixAt(s.slot,_zero);
-    V.legL.setMatrixAt(s.slot,_zero); V.legR.setMatrixAt(s.slot,_zero); }
+  /* slots are handed out each frame to the students in drawing range (see the matrices loop in updateCrowd),
+     so someone who has gone inside simply gets no slot; nothing to clear */
+  function writeHidden(s){}
+  var SLOTN=new Int32Array(VARIANTS), CDIRTY=new Uint8Array(VARIANTS), PARTS6=['head','body','armL','armR','legL','legR'], OWN=null, SLOTCAP=counts.slice();
+  function setTint(s){ var V=VAR[s.v];
+    V.head.setColorAt(s.slot,s.tint); V.body.setColorAt(s.slot,s.tint); V.armL.setColorAt(s.slot,s.tint);
+    V.armR.setColorAt(s.slot,s.tint); V.legL.setColorAt(s.slot,s.tint); V.legR.setColorAt(s.slot,s.tint); CDIRTY[s.v]=1; }
   function pose(s){
     var V=VAR[s.v], sc=s.scale*s.vis;
     _ee.set(0,s.yaw,0); _qq.setFromEuler(_ee); _ss.set(sc,sc,sc);
@@ -775,21 +778,33 @@ function halfEdge(a,b){ for(var e=CG.start[a];e<CG.start[a+1];e++) if(CG.nb[e]==
         if(s.stuck>8){ s.stuck=0; s.x=s.ax; s.z=s.az; CROWD_DEV.unstuck=(CROWD_DEV.unstuck||0)+1; }
       }
     }
-    /* matrices: every frame near the camera, every third frame further out (sixth on the
-       lowest rungs of the frame-rate ladder), and not at all past the fog */
-    var every=(typeof QL==='number'&&QL>=3)?6:3, fk=frameNo%every,
-        fog=scene.fog?scene.fog.far+40:1e9, F2=fog*fog;
+    /* matrices: only students within drawing range get a slot (a student 300 m off is a few
+       pixels tall), packed at the front of each variant so the rest are not drawn at all.
+       Poses every frame near the camera, every third frame further out (sixth on the lowest
+       rungs of the frame-rate ladder), and whenever a student's slot changes. */
+    var every=(typeof QL==='number'&&QL>=4)?6:3, fk=frameNo%every,
+        DR=Math.min(scene.fog?scene.fog.far+40:1e9,330), DR2=DR*DR;
+    if(!OWN){ OWN=[]; for(var v0=0;v0<VAR.length;v0++) OWN.push(new Int32Array(Math.max(1,SLOTCAP[v0])));
+      for(var j0=0;j0<n;j0++){ OWN[STU[j0].v][STU[j0].slot]=j0; } for(v0=0;v0<VAR.length;v0++) SLOTN[v0]=SLOTCAP[v0]; }
     for(i=0;i<n;i++){ s=STU[i];
-      if(s.hid){ if(s.vis>=0){ writeHidden(s); s.vis=-1; } continue; }
-      if(!s.near){ if((i%every)!==fk) continue;
-        var ex=s.x-cx, ez=s.z-cz; if(ex*ex+ez*ez>F2) continue; }
+      var ex=s.x-cx, ez=s.z-cz, inR=!s.hid&&ex*ex+ez*ez<=DR2;
+      if(!inR){
+        if(s.slot>=0){                     /* leaving: the last one in this variant takes the freed slot */
+          var last=--SLOTN[s.v], j=OWN[s.v][last];
+          if(j!==i){ var Sj=STU[j]; Sj.slot=s.slot; OWN[s.v][s.slot]=j; setTint(Sj); pose(Sj); }
+          s.slot=-1;
+        }
+        continue;
+      }
+      if(s.slot<0){ s.slot=SLOTN[s.v]++; OWN[s.v][s.slot]=i; setTint(s); pose(s); continue; }   /* arriving */
+      if(!s.near&&(i%every)!==fk) continue;
       pose(s);
     }
     for(i=0;i<VAR.length;i++){
-      var W=VAR[i];
-      W.head.instanceMatrix.needsUpdate=true; W.body.instanceMatrix.needsUpdate=true;
-      W.armL.instanceMatrix.needsUpdate=true; W.armR.instanceMatrix.needsUpdate=true;
-      W.legL.instanceMatrix.needsUpdate=true; W.legR.instanceMatrix.needsUpdate=true;
+      var W=VAR[i], cnt=SLOTN[i];
+      for(var pk=0;pk<6;pk++){ var mm=W[PARTS6[pk]]; mm.count=cnt; mm.instanceMatrix.needsUpdate=true;
+        if(CDIRTY[i]&&mm.instanceColor) mm.instanceColor.needsUpdate=true; }
+      CDIRTY[i]=0;
     }
     /* the murmur of a populated campus */
     if(murmurGain){

@@ -23770,6 +23770,36 @@ var VK=(function(){
     VPL.signs=n;
   })();
 
+  /* ================================================================ the Village's walks in brick
+     The walks between the buildings are brick paving like the plaza (photo 24), not the campus concrete:
+     every drawn walk segment within 18 m of a Village building (the paseos are about 30 m wide), outside the plaza, gets the Village paving
+     laid over its full width (walk and border), on the same world-mapped texture so the pieces join. */
+  (function(){
+    var VR=CAMPUS.filter(function(b){ return VILLAGE_NAMES[b.name]; }).map(function(b){ return b.ring; });
+    function sd(x,z,a,b){ var dx=b[0]-a[0], dz=b[1]-a[1], L2=dx*dx+dz*dz||1, t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/L2));
+      return Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t); }
+    function inV(x,z){ if(inRing(RING,x,z)) return false;
+      for(var i=0;i<VR.length;i++){ var r=VR[i]; for(var k=0;k<r.length;k++) if(sd(x,z,r[k],r[(k+1)%r.length])<18) return true; }
+      return false; }
+    var segs=0;
+    PATHS.forEach(function(pa){
+      if(pa.hide) return;
+      var pw=pa.w, w=pw>6?pw*1.5+2.3+2.4:(pw>=2.5?pw*1.3+1.0+1.24:pw*1.2), hw=w/2+0.05;
+      for(var k=0;k<pa.pts.length-1;k++){
+        var a=pa.pts[k], b=pa.pts[k+1], L=Math.hypot(b[0]-a[0],b[1]-a[1]); if(L<0.05) continue;
+        var n=Math.max(1,Math.ceil(L/3)), dx=(b[0]-a[0])/L, dz=(b[1]-a[1])/L, nx=-dz*hw, nz=dx*hw;
+        for(var j=0;j<n;j++){
+          var t0=j/n, t1=(j+1)/n, p0=[a[0]+(b[0]-a[0])*t0,a[1]+(b[1]-a[1])*t0], p1=[a[0]+(b[0]-a[0])*t1,a[1]+(b[1]-a[1])*t1];
+          if(!inV((p0[0]+p1[0])/2,(p0[1]+p1[1])/2)) continue;
+          /* overlap a little along the walk so the pieces close up at joints */
+          var e0=[p0[0]-dx*0.3,p0[1]-dz*0.3], e1=[p1[0]+dx*0.3,p1[1]+dz*0.3];
+          VK.pave([[e0[0]+nx,e0[1]+nz],[e1[0]+nx,e1[1]+nz],[e1[0]-nx,e1[1]-nz],[e0[0]-nx,e0[1]-nz]],0.142,0.96); segs++;
+        }
+      }
+    });
+    VPL.walkPaving=segs;
+  })();
+
   cols.forEach(function(c){ VK.collider(c[0],c[1]); });
   VPL.colliders=cols.length;
   VPL.look=function(i){ var V=[[110,25,-470,30,0,-520],[70,1.7,-505,20,3,-525],[70,2,-488,62,3,-496],[60,24,-570,35,0,-485],[20,1.7,-408,22,1.5,-425]][i||0];
@@ -25390,7 +25420,7 @@ function halfEdge(a,b){ for(var e=CG.start[a];e<CG.start[a+1];e++) if(CG.nb[e]==
   }
   for(i=0;i<STU.length;i++){
     var s=STU[i], V=VAR[s.v], bb=rr(0.94,1.06);
-    tint.setRGB(bb,bb*rr(0.995,1.005),bb*rr(0.99,1.01));
+    tint.setRGB(bb,bb*rr(0.995,1.005),bb*rr(0.99,1.01)); s.tint=tint.clone();
     V.head.setColorAt(s.slot,tint); V.body.setColorAt(s.slot,tint);
     V.armL.setColorAt(s.slot,tint); V.armR.setColorAt(s.slot,tint);
     V.legL.setColorAt(s.slot,tint); V.legR.setColorAt(s.slot,tint);
@@ -25655,10 +25685,13 @@ function halfEdge(a,b){ for(var e=CG.start[a];e<CG.start[a+1];e++) if(CG.nb[e]==
     _partM.compose(_pp.set(x,y,z),_qq,_ss);
     return _outM.multiplyMatrices(root,_partM);
   }
-  function writeHidden(s){ var V=VAR[s.v];
-    V.head.setMatrixAt(s.slot,_zero); V.body.setMatrixAt(s.slot,_zero);
-    V.armL.setMatrixAt(s.slot,_zero); V.armR.setMatrixAt(s.slot,_zero);
-    V.legL.setMatrixAt(s.slot,_zero); V.legR.setMatrixAt(s.slot,_zero); }
+  /* slots are handed out each frame to the students in drawing range (see the matrices loop in updateCrowd),
+     so someone who has gone inside simply gets no slot; nothing to clear */
+  function writeHidden(s){}
+  var SLOTN=new Int32Array(VARIANTS), CDIRTY=new Uint8Array(VARIANTS), PARTS6=['head','body','armL','armR','legL','legR'], OWN=null, SLOTCAP=counts.slice();
+  function setTint(s){ var V=VAR[s.v];
+    V.head.setColorAt(s.slot,s.tint); V.body.setColorAt(s.slot,s.tint); V.armL.setColorAt(s.slot,s.tint);
+    V.armR.setColorAt(s.slot,s.tint); V.legL.setColorAt(s.slot,s.tint); V.legR.setColorAt(s.slot,s.tint); CDIRTY[s.v]=1; }
   function pose(s){
     var V=VAR[s.v], sc=s.scale*s.vis;
     _ee.set(0,s.yaw,0); _qq.setFromEuler(_ee); _ss.set(sc,sc,sc);
@@ -25723,21 +25756,33 @@ function halfEdge(a,b){ for(var e=CG.start[a];e<CG.start[a+1];e++) if(CG.nb[e]==
         if(s.stuck>8){ s.stuck=0; s.x=s.ax; s.z=s.az; CROWD_DEV.unstuck=(CROWD_DEV.unstuck||0)+1; }
       }
     }
-    /* matrices: every frame near the camera, every third frame further out (sixth on the
-       lowest rungs of the frame-rate ladder), and not at all past the fog */
-    var every=(typeof QL==='number'&&QL>=3)?6:3, fk=frameNo%every,
-        fog=scene.fog?scene.fog.far+40:1e9, F2=fog*fog;
+    /* matrices: only students within drawing range get a slot (a student 300 m off is a few
+       pixels tall), packed at the front of each variant so the rest are not drawn at all.
+       Poses every frame near the camera, every third frame further out (sixth on the lowest
+       rungs of the frame-rate ladder), and whenever a student's slot changes. */
+    var every=(typeof QL==='number'&&QL>=4)?6:3, fk=frameNo%every,
+        DR=Math.min(scene.fog?scene.fog.far+40:1e9,330), DR2=DR*DR;
+    if(!OWN){ OWN=[]; for(var v0=0;v0<VAR.length;v0++) OWN.push(new Int32Array(Math.max(1,SLOTCAP[v0])));
+      for(var j0=0;j0<n;j0++){ OWN[STU[j0].v][STU[j0].slot]=j0; } for(v0=0;v0<VAR.length;v0++) SLOTN[v0]=SLOTCAP[v0]; }
     for(i=0;i<n;i++){ s=STU[i];
-      if(s.hid){ if(s.vis>=0){ writeHidden(s); s.vis=-1; } continue; }
-      if(!s.near){ if((i%every)!==fk) continue;
-        var ex=s.x-cx, ez=s.z-cz; if(ex*ex+ez*ez>F2) continue; }
+      var ex=s.x-cx, ez=s.z-cz, inR=!s.hid&&ex*ex+ez*ez<=DR2;
+      if(!inR){
+        if(s.slot>=0){                     /* leaving: the last one in this variant takes the freed slot */
+          var last=--SLOTN[s.v], j=OWN[s.v][last];
+          if(j!==i){ var Sj=STU[j]; Sj.slot=s.slot; OWN[s.v][s.slot]=j; setTint(Sj); pose(Sj); }
+          s.slot=-1;
+        }
+        continue;
+      }
+      if(s.slot<0){ s.slot=SLOTN[s.v]++; OWN[s.v][s.slot]=i; setTint(s); pose(s); continue; }   /* arriving */
+      if(!s.near&&(i%every)!==fk) continue;
       pose(s);
     }
     for(i=0;i<VAR.length;i++){
-      var W=VAR[i];
-      W.head.instanceMatrix.needsUpdate=true; W.body.instanceMatrix.needsUpdate=true;
-      W.armL.instanceMatrix.needsUpdate=true; W.armR.instanceMatrix.needsUpdate=true;
-      W.legL.instanceMatrix.needsUpdate=true; W.legR.instanceMatrix.needsUpdate=true;
+      var W=VAR[i], cnt=SLOTN[i];
+      for(var pk=0;pk<6;pk++){ var mm=W[PARTS6[pk]]; mm.count=cnt; mm.instanceMatrix.needsUpdate=true;
+        if(CDIRTY[i]&&mm.instanceColor) mm.instanceColor.needsUpdate=true; }
+      CDIRTY[i]=0;
     }
     /* the murmur of a populated campus */
     if(murmurGain){
@@ -25937,6 +25982,128 @@ function feed(html){
   while(f.children.length>3) f.removeChild(f.firstChild);
   setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); },4200);
 }
+/* ==================================================================
+   Frame rate: let three.js skip what is off screen, and drop small
+   detail in the distance.
+
+   Most props are InstancedMeshes (lamps, benches, trees, cars, flowers,
+   people) built with frustumCulled=false, because an InstancedMesh is
+   culled by its geometry's bounding sphere, which knows nothing about
+   where the instances are. So every one of them was drawn every frame,
+   in the main pass and again in the shadow pass, wherever you looked.
+
+   perfTune runs once, a moment after the page starts (so it can tell the
+   instanced sets that move, the crowd, players and fans, from the ones that
+   never change), and then:
+   - gives each static set its own geometry object (sharing the same
+     buffers, so nothing is copied) whose bounding sphere covers its
+     instances, and turns frustum culling on (it then also works for the
+     shadow pass);
+   - splits sets spread over a big area (city trees, campus lamps, cars)
+     into tiles about 500 m across, each culled on its own; the LOD lists
+     in CITY_LOD are pointed at the tiles so the frame rate ladder still
+     thins them;
+   - gives every tuned set a draw distance: small things (flowers, benches,
+     lamp heads, bollards) a few hundred metres, the rest the fog distance
+     (past it they are fog colour anyway); hidden through their layer, so
+     other code that toggles .visible still works;
+   - turns frustum culling on for plain meshes that had it off.
+   Moving sets are left alone. Nothing about how anything looks changes
+   up close.
+   ================================================================== */
+var perfTune=(function(){
+  var frames=0, done=false, VER=null, FAR=[], tick=0, TILE=500;
+  var _m=new T.Matrix4(), _p=new T.Vector3(), _q=new T.Quaternion(), _s=new T.Vector3();
+  function wrap(g,sphere){
+    var w=new T.BufferGeometry();
+    for(var k in g.attributes) w.setAttribute(k,g.attributes[k]);
+    if(g.index) w.setIndex(g.index);
+    w.groups=g.groups; w.drawRange=g.drawRange; w.boundingSphere=sphere; w.boundingBox=null;
+    return w;
+  }
+  function geoR(g){ if(!g.boundingSphere) g.computeBoundingSphere(); return g.boundingSphere; }
+  /* bounds of instances [i0..] given as a list of indices */
+  function boundsOf(im,ids){
+    var gs=geoR(im.geometry), x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9, smax=0;
+    for(var j=0;j<ids.length;j++){ im.getMatrixAt(ids[j],_m); _m.decompose(_p,_q,_s);
+      var sc=Math.max(Math.abs(_s.x),Math.abs(_s.y),Math.abs(_s.z)); if(sc===0) continue; if(sc>smax) smax=sc;
+      var c=gs.center.clone().applyMatrix4(_m);
+      if(c.x<x0)x0=c.x; if(c.x>x1)x1=c.x; if(c.y<y0)y0=c.y; if(c.y>y1)y1=c.y; if(c.z<z0)z0=c.z; if(c.z>z1)z1=c.z; }
+    if(x0>x1) return null;
+    var ctr=new T.Vector3((x0+x1)/2,(y0+y1)/2,(z0+z1)/2), r=Math.hypot(x1-x0,y1-y0,z1-z0)/2+gs.radius*smax;
+    return {sphere:new T.Sphere(ctr,r), item:gs.radius*smax};
+  }
+  function lodListOf(im){
+    if(typeof CITY_LOD==='undefined') return null;
+    for(var k in CITY_LOD){ var L=CITY_LOD[k], i=L.indexOf(im); if(i>=0) return [L,i]; }
+    return null;
+  }
+  /* draw distance: small things a few hundred metres, the rest out to the fog (past it they are all fog colour anyway) */
+  function addFar(o,item){
+    var d=item<1.4?340:(item<4.5?720:-1), bs=o.geometry.boundingSphere;
+    FAR.push([o,bs.center.x,bs.center.z,bs.radius,d]);
+  }
+  function tune(){
+    var list=[], i;
+    scene.traverse(function(o){ if(o.isInstancedMesh) list.push(o); });
+    var nT=0, nC=0, nP=0, nTiles=0;
+    list.forEach(function(im){
+      if(im.userData.noTune) return;
+      var v=VER.get(im);
+      if(im.instanceMatrix.usage===T.DynamicDrawUsage||v===undefined||v!==im.instanceMatrix.version) return;   /* moves: leave it */
+      var full=im.userData.full!==undefined?im.userData.full:im.count;
+      if(full<1) return;
+      var all=[]; for(i=0;i<full;i++) all.push(i);
+      var b=boundsOf(im,all); if(!b) return;
+      var parent=im.parent; if(!parent) return;
+      if(b.sphere.radius>650&&full>48){
+        /* split into tiles */
+        var groups={};
+        for(i=0;i<full;i++){ im.getMatrixAt(i,_m); _p.setFromMatrixPosition(_m);
+          var key=Math.floor(_p.x/TILE)+'_'+Math.floor(_p.z/TILE); (groups[key]||(groups[key]=[])).push(i); }
+        var frac=full?im.count/full:1, tiles=[];
+        Object.keys(groups).forEach(function(key){
+          var ids=groups[key], tb=boundsOf(im,ids); if(!tb) return;
+          var t=new T.InstancedMesh(wrap(im.geometry,tb.sphere),im.material,ids.length);
+          ids.forEach(function(src,j){ im.getMatrixAt(src,_m); t.setMatrixAt(j,_m); });
+          if(im.instanceColor){ var c=new T.Color(); ids.forEach(function(src,j){ im.getColorAt(src,c); t.setColorAt(j,c); }); }
+          t.castShadow=im.castShadow; t.receiveShadow=im.receiveShadow; t.renderOrder=im.renderOrder; t.raycast=im.raycast;
+          t.userData=Object.assign({},im.userData,{full:ids.length}); t.visible=im.visible; t.layers.mask=im.layers.mask;
+          t.position.copy(im.position); t.quaternion.copy(im.quaternion); t.scale.copy(im.scale);
+          t.count=Math.ceil(ids.length*frac); t.frustumCulled=true;
+          parent.add(t); tiles.push(t); addFar(t,tb.item); nTiles++;
+        });
+        var ll=lodListOf(im);
+        if(ll){ ll[0].splice(ll[1],1); tiles.forEach(function(t){ ll[0].push(t); }); }
+        parent.remove(im); nT++;
+      } else {
+        im.geometry=wrap(im.geometry,b.sphere); im.frustumCulled=true; addFar(im,b.item); nC++;
+      }
+    });
+    /* plain meshes with culling off: their geometry is in world space, so the sphere is right */
+    scene.traverse(function(o){
+      if(!o.isMesh||o.isInstancedMesh||o.frustumCulled||o.userData.noTune) return;
+      var g=o.geometry; if(!g||!g.attributes||!g.attributes.position) return;
+      if(!g.boundingSphere) g.computeBoundingSphere();
+      if(!g.boundingSphere||!isFinite(g.boundingSphere.radius)||g.boundingSphere.radius>1500) return;
+      o.frustumCulled=true; nP++;
+    });
+    window.__perf={tiledSets:nT,tiles:nTiles,culledSets:nC,plainMeshes:nP,far:FAR.length};
+  }
+  return function(dt){
+    if(!done){
+      frames++;
+      if(frames===20){ VER=new Map(); scene.traverse(function(o){ if(o.isInstancedMesh) VER.set(o,o.instanceMatrix.version); }); }
+      else if(frames===80){ done=true; tune(); }
+      return;
+    }
+    tick+=dt; if(tick<0.25) return; tick=0;
+    var cx=camera.position.x, cz=camera.position.z;
+    var fogR=(scene.fog?scene.fog.far:1600)+80+Math.max(0,camera.position.y)*0.5;
+    for(var i=0;i<FAR.length;i++){ var f=FAR[i], d=Math.hypot(f[1]-cx,f[2]-cz)-f[3];
+      f[0].layers.mask=d<(f[4]<0?fogR:Math.min(f[4],fogR))?1:0; }
+  };
+})();
 
 /* ============================================================ landmark list */
 var SPOTS=[];
@@ -26154,10 +26321,11 @@ function update(dt){
 /* ---- keeping it smooth -------------------------------------------------
    Two things. First, nothing past the fog is drawn: the world and city chunks
    are switched off by distance a few times a second. Second, a ladder: if the
-   frame rate stays under 27 for a few seconds it steps down one rung, giving
-   up resolution and shadows first, then the far city's cars and trees and
+   frame rate stays under 34 for a few seconds it steps down one rung, giving
+   up resolution (2, then 1.5, then 1) and shadows first, then the far city's cars and trees and
    some view distance. It only ever steps down, so it cannot flicker. */
 var QT=[{pr:2,   sh:2048, tree:1,    palm:1,    car:1, fog:1600},
+        {pr:1.5, sh:2048, tree:1,    palm:1,    car:1, fog:1600},
         {pr:1,   sh:1024, tree:1,    palm:1,    car:1, fog:1600},
         {pr:1,   sh:1024, tree:0.5,  palm:0.6,  car:0, fog:1250},
         {pr:0.8, sh:0,    tree:0.25, palm:0.35, car:0, fog:1000},
@@ -26184,7 +26352,7 @@ function quality(){
   qAcc+=dt; qFrames++;
   if(qAcc<2.5) return;
   var fps=qFrames/qAcc; qAcc=0; qFrames=0;
-  if(fps<27){ applyQ(QL+1); qWarm=0.5; }
+  if(fps<34){ applyQ(QL+1); qWarm=0.5; }
 }
 var CULL=[], cullTick=9;
 function cullFar(dt){
@@ -26230,6 +26398,7 @@ function frame(){
   if(started&&!paused) update(dt); else if(!started) attract(dt);
   renderer.render(scene,camera);
   quality(dt);
+  perfTune(dt);
 }
 
 /* ============================================================= start/pause */
@@ -26288,7 +26457,9 @@ scene.traverse(function(o){
   var b=o.geometry.boundingSphere; if(!b){ o.geometry.computeBoundingSphere(); b=o.geometry.boundingSphere; }
   CULL.push([o,b.center.x,b.center.z,b.radius]);
 });
-if(touchMode) applyQ(1);                          /* phones and tablets start one rung down */
+if(touchMode) applyQ(2);                          /* phones and tablets start at pixel ratio 1 */
+/* compile every shader now, so the first look at something new does not hitch */
+try{ renderer.compile(scene,camera); }catch(e){}
 /* --------------------------------------------------------------- boot ---- */
 document.getElementById('bcount').textContent=CAMPUS.length.toLocaleString();
 document.getElementById('ccount').textContent=BUILDINGS.length.toLocaleString();

@@ -409,6 +409,36 @@
     VPL.signs=n;
   })();
 
+  /* ================================================================ the Village's walks in brick
+     The walks between the buildings are brick paving like the plaza (photo 24), not the campus concrete:
+     every drawn walk segment within 18 m of a Village building (the paseos are about 30 m wide), outside the plaza, gets the Village paving
+     laid over its full width (walk and border), on the same world-mapped texture so the pieces join. */
+  (function(){
+    var VR=CAMPUS.filter(function(b){ return VILLAGE_NAMES[b.name]; }).map(function(b){ return b.ring; });
+    function sd(x,z,a,b){ var dx=b[0]-a[0], dz=b[1]-a[1], L2=dx*dx+dz*dz||1, t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/L2));
+      return Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t); }
+    function inV(x,z){ if(inRing(RING,x,z)) return false;
+      for(var i=0;i<VR.length;i++){ var r=VR[i]; for(var k=0;k<r.length;k++) if(sd(x,z,r[k],r[(k+1)%r.length])<18) return true; }
+      return false; }
+    var segs=0;
+    PATHS.forEach(function(pa){
+      if(pa.hide) return;
+      var pw=pa.w, w=pw>6?pw*1.5+2.3+2.4:(pw>=2.5?pw*1.3+1.0+1.24:pw*1.2), hw=w/2+0.05;
+      for(var k=0;k<pa.pts.length-1;k++){
+        var a=pa.pts[k], b=pa.pts[k+1], L=Math.hypot(b[0]-a[0],b[1]-a[1]); if(L<0.05) continue;
+        var n=Math.max(1,Math.ceil(L/3)), dx=(b[0]-a[0])/L, dz=(b[1]-a[1])/L, nx=-dz*hw, nz=dx*hw;
+        for(var j=0;j<n;j++){
+          var t0=j/n, t1=(j+1)/n, p0=[a[0]+(b[0]-a[0])*t0,a[1]+(b[1]-a[1])*t0], p1=[a[0]+(b[0]-a[0])*t1,a[1]+(b[1]-a[1])*t1];
+          if(!inV((p0[0]+p1[0])/2,(p0[1]+p1[1])/2)) continue;
+          /* overlap a little along the walk so the pieces close up at joints */
+          var e0=[p0[0]-dx*0.3,p0[1]-dz*0.3], e1=[p1[0]+dx*0.3,p1[1]+dz*0.3];
+          VK.pave([[e0[0]+nx,e0[1]+nz],[e1[0]+nx,e1[1]+nz],[e1[0]-nx,e1[1]-nz],[e0[0]-nx,e0[1]-nz]],0.142,0.96); segs++;
+        }
+      }
+    });
+    VPL.walkPaving=segs;
+  })();
+
   cols.forEach(function(c){ VK.collider(c[0],c[1]); });
   VPL.colliders=cols.length;
   VPL.look=function(i){ var V=[[110,25,-470,30,0,-520],[70,1.7,-505,20,3,-525],[70,2,-488,62,3,-496],[60,24,-570,35,0,-485],[20,1.7,-408,22,1.5,-425]][i||0];

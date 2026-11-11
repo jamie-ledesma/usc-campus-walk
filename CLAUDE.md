@@ -9,7 +9,7 @@ Published as a claude.ai artifact, and this repo deploys to Vercel as a static s
 
 - `./build.sh` concatenates the sources into `game.html` (git-ignored) (three.js from cdnjs) and
   `test.html` (uses `three.local.js`, no network):
-  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a2zj_football.js a2zk_britt.js a2zl_practice.js a2zm_village_kit.js a2zn_v_cale.js a2zo_v_irani.js a2zp_v_mcmorrow.js a2zq_v_nemirovsky.js a2zr_v_bohnett.js a2zs_v_mccarthy.js a2zt_v_cowlings.js a2zu_v_illium.js a2zv_v_fitness.js a2zw_v_plaza.js a2zx_village_end.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js d_loop.js`
+  `a_world.js a2_coliseum.js a2b_assoc.js a2c_rose.js a2d_nhm.js a2e_sci.js a2f_courts.js a2g_metro.js a2h_fence.js a2i_halls.js a2n_dmc.js a2k_alumni.js a2l_road.js a2p_pardee.js a2m_hahn.js a2j_bounds.js a2o_lewis.js a2q_widney.js a2r_tcc.js a2s_union.js a2t_hammock.js a2u_galen.js a2v_leavey.js a2x_bovard.js a2w_felix.js a2y_shrine.js a2z_shrinesite.js a2za_rawlinson.js a2zb_hancock.js a2zc_moreton.js a2zd_gould.js a2ze_birnkrant.js a2zf_tailgate.js a2zg_alumni_tailgate.js a2zh_ped.js a2zj_football.js a2zk_britt.js a2zl_practice.js a2zm_village_kit.js a2zn_v_cale.js a2zo_v_irani.js a2zp_v_mcmorrow.js a2zq_v_nemirovsky.js a2zr_v_bohnett.js a2zs_v_mccarthy.js a2zt_v_cowlings.js a2zu_v_illium.js a2zv_v_fitness.js a2zw_v_plaza.js a2zx_village_end.js a3_landscape.js a4_city.js a4b_skyline.js b_play.js b2_band.js e_crowd.js c_main.js a5_perf.js d_loop.js`
   wrapped in `head.html` + `world.txt` (the map data, in a `<script type="text/plain">`).
 - `d_loop.js` is always a copy of `d_loop.rel.js` (release). `d_loop.dev.js` adds debug
   hooks (`window.__cam`, `window.__lock`, `window.__dbg`). Edit BOTH when changing the loop.
@@ -405,9 +405,20 @@ around the rose garden. Chromium occasionally crashes ("Target crashed"); just r
 - Touch (`c_main.js`, markup and CSS in `head.html`): `body.touch` is set for coarse pointers or on
   the first touch. Left thumb is a floating stick feeding `touchMove` (analogue), right thumb drags
   to look, buttons: RUN, FLY, up/down while flying, NEXT STOP, pause, tap the map to zoom.
-- Frame-rate ladder (`d_loop.*.js`, `QT`/`applyQ`/`quality`): under 27 fps for 2.5 s steps down one
-  rung (pixel ratio, shadow size, then city cars/trees via `CITY_LOD`, fog distance). Never steps up.
-  Touch devices start on rung 1. `cullFar` hides world and city chunks beyond the fog.
+- Frame-rate ladder (`d_loop.*.js`, `QT`/`applyQ`/`quality`): under 34 fps for 2.5 s steps down one
+  rung (pixel ratio 2, then 1.5, then 1, shadow size, then city cars/trees via `CITY_LOD`, fog distance). Never steps up.
+  Touch devices start on rung 2 (pixel ratio 1). Every shader is compiled at load (`renderer.compile`) so nothing hitches
+  the first time it comes into view. `cullFar` hides world and city chunks beyond the fog.
+- `a5_perf.js` (`perfTune`, run from `frame()`): 80 frames in it tunes every InstancedMesh whose matrices never changed:
+  each gets its own geometry object (sharing buffers) whose bounding sphere covers its instances, so frustum culling works
+  (also for the shadow pass); sets spread wider than ~650 m (city trees, cars, campus lamps) are split into 500 m tiles
+  (`CITY_LOD` lists are pointed at the tiles); each tuned set gets a draw distance (small items 340 m, medium 720 m, the rest
+  the fog), applied through `layers` so code that toggles `.visible` still works. Plain meshes with culling off get it on.
+  Moving sets (crowd, players, fans) are left alone. Dev: `window.__perf`, `window.__perfTune(dt,n)`. Checked by rendering
+  with and without it: identical at ground level, under 0.3% of pixels differ from high up (far small detail).
+- The crowd (`e_crowd.js`) only draws students within 330 m (or the fog): each variant keeps its drawn students packed at the
+  front with stable slots (one leaving hands its slot to the last; one arriving takes the next), each student's tint follows
+  them (`s.tint`), and `count` is set to the number in range.
 - Dev hooks: `window.__q(n)` sets a rung, `window.__cull()` reports visible chunks, `window.__noq=1`
   freezes the ladder (snap.js sets it so screenshots stay at full quality).
 
